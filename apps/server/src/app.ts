@@ -5,7 +5,9 @@ import express from "express";
 
 import { connectDB } from "@/db/connect";
 import { authRouter } from "@/routes/authRoutes";
+import { dashboardRouter } from "@/routes/dashboardRoutes";
 import { employeeRouter } from "@/routes/employeeRoutes";
+import { organizationRouter } from "@/routes/organizationRoutes";
 import { CORS_METHODS, DEFAULT_PORT } from "@/utils/constants";
 
 const app = express();
@@ -27,6 +29,8 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/employees", employeeRouter);
+app.use("/api/organization", organizationRouter);
+app.use("/api/dashboard", dashboardRouter);
 
 const port = Number(process.env.PORT) || DEFAULT_PORT;
 
