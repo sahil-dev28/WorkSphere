@@ -1,6 +1,12 @@
+import bcrypt from "bcrypt";
 import { type InferSchemaType, model, Schema } from "mongoose";
 
-import { departments, employeeStatuses } from "@/schema/employee";
+import {
+  BCRYPT_SALT_ROUNDS,
+  departments,
+  employeeRoles,
+  employeeStatuses,
+} from "@/utils/constants";
 
 const employeeSchema = new Schema(
   {
@@ -35,6 +41,20 @@ const employeeSchema = new Schema(
       enum: employeeStatuses,
       default: "active",
     },
+    password: {
+      type: String,
+      required: [true, "Please provide password"],
+      select: false,
+    },
+    role: {
+      type: String,
+      enum: employeeRoles,
+      default: "employee",
+    },
+    mustChangePassword: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,
@@ -42,6 +62,14 @@ const employeeSchema = new Schema(
 );
 
 employeeSchema.index({ name: 1, _id: 1 });
+
+employeeSchema.pre("save", async function () {
+  if (!this.isModified("password")) {
+    return;
+  }
+
+  this.password = await bcrypt.hash(this.password, BCRYPT_SALT_ROUNDS);
+});
 
 export type EmployeeAttrs = InferSchemaType<typeof employeeSchema>;
 

@@ -1,0 +1,89 @@
+{
+  "info": {
+    "name": "WorkSphere API",
+    "description": "Employee Management System API. Cookie-based JWT auth (httpOnly) — run Login first, Postman's cookie jar carries the session for subsequent requests automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@worksphere.dev\",\n  \"password\": \"ChangeMe123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "description": "Sets an httpOnly `token` cookie on success. Postman's cookie jar stores it automatically — no manual copy needed. Response body includes mustChangePassword; if true, every other route 403s until change-password is called."
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"TempPass123\",\n  \"newPassword\": \"NewSecurePass456\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/change-password", "host": ["{{baseUrl}}"], "path": ["api", "auth", "change-password"] },
+            "description": "Requires a logged-in cookie. Clears mustChangePassword so other routes unblock."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "logout"] },
+            "description": "Clears the token cookie. Works even while mustChangePassword is true."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employees",
+      "item": [
+        {
+          "name": "List employees",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/employees", "host": ["{{baseUrl}}"], "path": ["api", "employees"] },
+            "description": "Requires super_admin or hr_manager role."
+          }
+        },
+        {
+          "name": "Create employee",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Priya Shah\",\n  \"email\": \"priya.hr@worksphere.dev\",\n  \"department\": \"HR\",\n  \"designation\": \"HR Manager\",\n  \"salary\": 80000,\n  \"password\": \"TempPass123\",\n  \"role\": \"hr_manager\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/employees", "host": ["{{baseUrl}}"], "path": ["api", "employees"] },
+            "description": "Requires super_admin or hr_manager role. hr_manager cannot set role to super_admin (403). role defaults to \"employee\" if omitted. department must be one of: Engineering, Design, Product, Sales, Marketing, HR, Finance. password min 8 chars, becomes the created employee's temp password (mustChangePassword defaults true)."
+          }
+        }
+      ]
+    }
+  ]
+}

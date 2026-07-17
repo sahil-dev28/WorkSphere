@@ -1,16 +1,6 @@
 import { z } from "zod";
 
-export const departments = [
-  "Engineering",
-  "Design",
-  "Product",
-  "Sales",
-  "Marketing",
-  "HR",
-  "Finance",
-] as const;
-
-export const employeeStatuses = ["active", "on_leave", "terminated"] as const;
+import { departments, employeeRoles, MIN_PASSWORD_LENGTH } from "@/utils/constants";
 
 export const createEmployeeSchema = z.object({
   name: z
@@ -31,6 +21,10 @@ export const createEmployeeSchema = z.object({
   salary: z
     .number({ error: "Salary is required" })
     .positive("Salary must be greater than 0"),
+  password: z
+    .string()
+    .min(MIN_PASSWORD_LENGTH, `Password must be at least ${MIN_PASSWORD_LENGTH} characters`),
+  role: z.enum(employeeRoles).default("employee"),
 });
 
 export type CreateEmployeeInput = z.infer<typeof createEmployeeSchema>;

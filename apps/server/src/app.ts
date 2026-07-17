@@ -1,28 +1,34 @@
 import { env } from "@WorkSphere/env/server";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 
 import { connectDB } from "@/db/connect";
+import { authRouter } from "@/routes/authRoutes";
 import { employeeRouter } from "@/routes/employeeRoutes";
+import { CORS_METHODS, DEFAULT_PORT } from "@/utils/constants";
 
 const app = express();
 
 app.use(
   cors({
     origin: env.CORS_ORIGIN,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true,
+    methods: CORS_METHODS,
   }),
 );
 
 app.use(express.json());
+app.use(cookieParser());
 
-app.get("/api/v1/health", (_req, res) => {
+app.get("/api/health", (_req, res) => {
   res.status(200).send("OK");
 });
 
-app.use("/api/v1/employees", employeeRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/employees", employeeRouter);
 
-const port = Number(process.env.PORT) || 3000;
+const port = Number(process.env.PORT) || DEFAULT_PORT;
 
 const start = async () => {
   try {
