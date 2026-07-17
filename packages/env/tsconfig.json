@@ -1,0 +1,3 @@
+{
+  "extends": "@WorkSphere/config/tsconfig.base.json"
+}
