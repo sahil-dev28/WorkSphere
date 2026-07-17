@@ -29,6 +29,8 @@ export type EmployeeStatus = (typeof employeeStatuses)[number];
 
 export const employeeRoles = ["super_admin", "hr_manager", "employee"] as const;
 
+export const NOT_DELETED_FILTER = { isDeleted: { $ne: true } };
+
 export const PHONE_REGEX = /^\+?[0-9]{10,15}$/;
 
 export const MONGO_OBJECT_ID_REGEX = /^[0-9a-fA-F]{24}$/;
