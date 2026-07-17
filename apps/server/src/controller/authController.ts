@@ -57,6 +57,23 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const getMe = (req: Request, res: Response): void => {
+  if (!req.user) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  res.status(200).json({
+    data: {
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role,
+      mustChangePassword: req.user.mustChangePassword,
+    },
+  });
+};
+
 export const logout = (_req: Request, res: Response): void => {
   res.clearCookie(AUTH_COOKIE_NAME);
   res.status(200).json({ message: "Logged out" });
