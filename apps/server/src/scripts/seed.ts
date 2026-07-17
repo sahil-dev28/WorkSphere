@@ -22,6 +22,7 @@ const run = async () => {
   const admin = new Employee({
     name: "Super Admin",
     email: env.SEED_ADMIN_EMAIL,
+    phone: "9999999999",
     department: "HR",
     designation: "Super Admin",
     salary: 0,

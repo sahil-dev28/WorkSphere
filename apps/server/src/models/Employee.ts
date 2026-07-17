@@ -6,10 +6,16 @@ import {
   departments,
   employeeRoles,
   employeeStatuses,
+  formatEmployeeId,
+  parseEmployeeIdSequence,
 } from "@/utils/constants";
 
 const employeeSchema = new Schema(
   {
+    employeeId: {
+      type: String,
+      unique: true,
+    },
     name: {
       type: String,
       required: [true, "Please provide name"],
@@ -20,6 +26,11 @@ const employeeSchema = new Schema(
       required: [true, "Please provide email"],
       unique: true,
       lowercase: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: [true, "Please provide phone"],
       trim: true,
     },
     department: {
@@ -35,6 +46,11 @@ const employeeSchema = new Schema(
     salary: {
       type: Number,
       required: [true, "Please provide salary"],
+    },
+    joiningDate: {
+      type: Date,
+      required: true,
+      default: Date.now,
     },
     status: {
       type: String,
@@ -55,6 +71,15 @@ const employeeSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    reportingManager: {
+      type: Schema.Types.ObjectId,
+      ref: "Employee",
+      default: null,
+    },
+    profileImage: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -62,6 +87,23 @@ const employeeSchema = new Schema(
 );
 
 employeeSchema.index({ name: 1, _id: 1 });
+employeeSchema.index({ reportingManager: 1 });
+
+employeeSchema.pre("save", async function () {
+  if (!this.isNew) {
+    return;
+  }
+
+  const lastEmployee = await Employee.findOne({}, { employeeId: 1 })
+    .sort({ employeeId: -1 })
+    .lean();
+
+  const nextSequence = lastEmployee?.employeeId
+    ? parseEmployeeIdSequence(lastEmployee.employeeId) + 1
+    : 1;
+
+  this.employeeId = formatEmployeeId(nextSequence);
+});
 
 employeeSchema.pre("save", async function () {
   if (!this.isModified("password")) {

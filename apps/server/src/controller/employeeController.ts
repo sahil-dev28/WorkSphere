@@ -27,8 +27,19 @@ export const createEmployee = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { name, email, department, designation, salary, password, role } =
-    req.body as CreateEmployeeInput;
+  const {
+    name,
+    email,
+    phone,
+    department,
+    designation,
+    salary,
+    joiningDate,
+    reportingManager,
+    profileImage,
+    password,
+    role,
+  } = req.body as CreateEmployeeInput;
   try {
     if (req.user?.role === "hr_manager" && role === "super_admin") {
       res.status(403).json({ error: "HR Manager cannot assign Super Admin" });
@@ -38,9 +49,13 @@ export const createEmployee = async (
     const newEmployee = new Employee({
       name,
       email,
+      phone,
       department,
       designation,
       salary,
+      joiningDate,
+      reportingManager,
+      profileImage,
       password,
       role,
     });
