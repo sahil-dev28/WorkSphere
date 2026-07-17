@@ -1,11 +1,12 @@
 {
   "info": {
     "name": "WorkSphere API",
-    "description": "Employee Management System API. Cookie-based JWT auth (httpOnly) — run Login first, Postman's cookie jar carries the session for subsequent requests automatically.",
+    "description": "Employee Management System API. Cookie-based JWT auth (httpOnly) — run Auth > Login first, Postman's cookie jar carries the session for every request after that automatically. Set the `employeeId` collection variable to any employee's _id to use the :id routes below (copy one from a List/Create response).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" }
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "employeeId", "value": "", "type": "string" }
   ],
   "item": [
     {
@@ -15,7 +16,8 @@
           "name": "Health check",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+            "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] },
+            "description": "No auth required."
           }
         }
       ]
@@ -33,7 +35,15 @@
               "raw": "{\n  \"email\": \"admin@worksphere.dev\",\n  \"password\": \"ChangeMe123!\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
-            "description": "Sets an httpOnly `token` cookie on success. Postman's cookie jar stores it automatically — no manual copy needed. Response body includes mustChangePassword; if true, every other route 403s until change-password is called."
+            "description": "Public. Sets an httpOnly `token` cookie on success — Postman's cookie jar stores it automatically, no manual copy needed. Response body includes mustChangePassword; if true, every other route except /me, /change-password, and /logout 403s until change-password is called."
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] },
+            "description": "Requires a logged-in cookie, no role restriction. Returns the same shape Login does. Works even while mustChangePassword is true — a frontend needs this to learn that fact in the first place."
           }
         },
         {
@@ -46,7 +56,7 @@
               "raw": "{\n  \"currentPassword\": \"TempPass123\",\n  \"newPassword\": \"NewSecurePass456\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/api/auth/change-password", "host": ["{{baseUrl}}"], "path": ["api", "auth", "change-password"] },
-            "description": "Requires a logged-in cookie. Clears mustChangePassword so other routes unblock."
+            "description": "Requires a logged-in cookie. Clears mustChangePassword so other routes unblock. newPassword min 8 chars."
           }
         },
         {
@@ -63,24 +73,120 @@
       "name": "Employees",
       "item": [
         {
-          "name": "List employees",
+          "name": "List Employees",
           "request": {
             "method": "GET",
             "url": { "raw": "{{baseUrl}}/api/employees", "host": ["{{baseUrl}}"], "path": ["api", "employees"] },
-            "description": "Requires super_admin or hr_manager role."
+            "description": "super_admin or hr_manager only. salary is included for both roles here (employees can't reach this route at all)."
           }
         },
         {
-          "name": "Create employee",
+          "name": "Create Employee",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Priya Shah\",\n  \"email\": \"priya.hr@worksphere.dev\",\n  \"department\": \"HR\",\n  \"designation\": \"HR Manager\",\n  \"salary\": 80000,\n  \"password\": \"TempPass123\",\n  \"role\": \"hr_manager\"\n}"
+              "raw": "{\n  \"name\": \"Priya Shah\",\n  \"email\": \"priya.hr@worksphere.dev\",\n  \"phone\": \"9812345678\",\n  \"department\": \"HR\",\n  \"designation\": \"HR Manager\",\n  \"salary\": 80000,\n  \"joiningDate\": \"2026-01-15\",\n  \"reportingManager\": null,\n  \"profileImage\": \"https://i.pravatar.cc/150?u=priya\",\n  \"password\": \"TempPass123\",\n  \"role\": \"hr_manager\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/api/employees", "host": ["{{baseUrl}}"], "path": ["api", "employees"] },
-            "description": "Requires super_admin or hr_manager role. hr_manager cannot set role to super_admin (403). role defaults to \"employee\" if omitted. department must be one of: Engineering, Design, Product, Sales, Marketing, HR, Finance. password min 8 chars, becomes the created employee's temp password (mustChangePassword defaults true)."
+            "description": "super_admin or hr_manager only. hr_manager cannot set role to super_admin (403). role defaults to \"employee\" if omitted. department: Engineering | Design | Product | Sales | Marketing | HR | Finance. phone: 10-15 digits, optional leading +. password min 8 chars, becomes the temp password (mustChangePassword defaults true). employeeId is server-generated (EMP-0001...) — do not send it, response includes it."
+          }
+        },
+        {
+          "name": "Get Employee By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/employees/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employees", "{{employeeId}}"]
+            },
+            "description": "super_admin/hr_manager can view anyone. employee can only view their own record (403 otherwise) and never sees salary on it — salary only appears for super_admin/hr_manager. 404 if not found or soft-deleted."
+          }
+        },
+        {
+          "name": "Update Employee",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"designation\": \"Senior HR Manager\",\n  \"salary\": 90000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/employees/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employees", "{{employeeId}}"]
+            },
+            "description": "All fields optional, send only what changes. super_admin: anyone, any field including role. hr_manager: anyone except a Super Admin's record (403), and can't set role to super_admin (403). employee: own record only, and only name/phone/profileImage are actually applied — anything else sent (including role) is silently dropped, not rejected. employeeId, password, mustChangePassword can never be set here."
+          }
+        },
+        {
+          "name": "Delete Employee (soft)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/employees/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employees", "{{employeeId}}"]
+            },
+            "description": "super_admin only (403 for hr_manager and employee). Soft delete — sets isDeleted:true, deletedAt:<now>. Document stays in Mongo, just disappears from List/GetById/Reportees/Tree."
+          }
+        },
+        {
+          "name": "Get Reportees",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/employees/{{employeeId}}/reportees",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employees", "{{employeeId}}", "reportees"]
+            },
+            "description": "Returns employees whose reportingManager equals :id. super_admin/hr_manager can check anyone's; employee can only check their own (403 for anyone else's id). Salary still hidden when the requester is an employee, even for their own reports."
+          }
+        },
+        {
+          "name": "Update Manager",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reportingManager\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/employees/{{employeeId}}/manager",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employees", "{{employeeId}}", "manager"]
+            },
+            "description": "super_admin or hr_manager only (403 for employee, including changing their own). Set reportingManager to an employee _id or null to clear it. Rejects (400) if the proposed manager doesn't exist or is soft-deleted, or if the assignment would create a circular reporting chain — including setting an employee as their own manager directly."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organization",
+      "item": [
+        {
+          "name": "Get Tree",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/organization/tree", "host": ["{{baseUrl}}"], "path": ["api", "organization", "tree"] },
+            "description": "super_admin or hr_manager only. Returns the full reporting structure nested from every employee with reportingManager: null (there can be more than one root). Each node: employeeId, name, designation, department, role, children."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/dashboard/stats", "host": ["{{baseUrl}}"], "path": ["api", "dashboard", "stats"] },
+            "description": "super_admin or hr_manager only. Returns totalEmployees, activeEmployees, inactiveEmployees (on_leave counts active, only terminated counts inactive), and departmentCounts (every department in the enum, zero-filled)."
           }
         }
       ]
