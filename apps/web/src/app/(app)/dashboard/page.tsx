@@ -1,12 +1,23 @@
-// Placeholder — the real Dashboard screen (stat cards, department breakdown,
-// recently joined) is its own numbered screen in the layout spec, not part
-// of this pass. This exists so the shell has something to wrap and the
-// login -> dashboard redirect is verifiable end to end.
-export default function DashboardPage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
-      <p className="mt-2 text-xs text-muted-foreground">Coming next.</p>
-    </div>
-  );
+import { redirect } from "next/navigation";
+
+import { getMe } from "@/lib/session";
+
+import { AdminDashboard } from "./admin-dashboard";
+import { EmployeeDashboard } from "./employee-dashboard";
+
+// getMe() is called again here (also called in the (app) layout) rather than
+// threaded down as a prop — getMe() itself is wrapped in React's cache(), so
+// this reuses the same result within one request instead of refetching.
+export default async function DashboardPage() {
+  const user = await getMe();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  if (user.role === "employee") {
+    return <EmployeeDashboard user={user} />;
+  }
+
+  return <AdminDashboard user={user} />;
 }

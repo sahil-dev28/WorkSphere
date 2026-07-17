@@ -5,19 +5,10 @@ import { usePathname } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@WorkSphere/ui/components/avatar";
 
+import { initials } from "@/lib/format";
 import type { Me } from "@/lib/session";
 
 import { getMobileNavItems } from "./nav-items";
-
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 export function MobileTopBar({ user }: { user: Me }) {
   return (

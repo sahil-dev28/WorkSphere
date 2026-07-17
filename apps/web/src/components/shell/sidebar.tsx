@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@WorkSphere/ui/components/avatar";
 import { Badge } from "@WorkSphere/ui/components/badge";
 
 import { logoutAction } from "@/lib/actions/auth";
+import { initials } from "@/lib/format";
 import type { Me } from "@/lib/session";
 
 import { getSidebarNavItems } from "./nav-items";
@@ -14,16 +15,6 @@ const ROLE_LABELS: Record<Me["role"], string> = {
   hr_manager: "HR Manager",
   employee: "Employee",
 };
-
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 export function Sidebar({ user }: { user: Me }) {
   const items = getSidebarNavItems(user.role);
