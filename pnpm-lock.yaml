@@ -72,9 +72,6 @@ importers:
 
   apps/server:
     dependencies:
-      '@WorkSphere/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@WorkSphere/env':
         specifier: workspace:*
         version: link:../../packages/env
@@ -87,6 +84,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      mongoose:
+        specifier: ^9.7.3
+        version: 9.7.4
       zod:
         specifier: 'catalog:'
         version: 4.4.3
@@ -175,28 +175,6 @@ importers:
         version: 6.0.3
 
   packages/config: {}
-
-  packages/db:
-    dependencies:
-      '@WorkSphere/env':
-        specifier: workspace:*
-        version: link:../env
-      dotenv:
-        specifier: 'catalog:'
-        version: 17.4.2
-      mongoose:
-        specifier: ^9.7.3
-        version: 9.7.4
-      zod:
-        specifier: 'catalog:'
-        version: 4.4.3
-    devDependencies:
-      '@WorkSphere/config':
-        specifier: workspace:*
-        version: link:../config
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
 
   packages/env:
     dependencies:

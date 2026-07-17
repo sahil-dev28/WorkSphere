@@ -1,11 +1,11 @@
 {
   "extends": "@WorkSphere/config/tsconfig.base.json",
+  "include": ["src"],
   "compilerOptions": {
     "composite": true,
     "outDir": "dist",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "jsx": "react-jsx"
+    }
   }
 }
