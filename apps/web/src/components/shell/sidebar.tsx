@@ -5,16 +5,11 @@ import { Avatar, AvatarFallback } from "@WorkSphere/ui/components/avatar";
 import { Badge } from "@WorkSphere/ui/components/badge";
 
 import { logoutAction } from "@/lib/actions/auth";
+import { ROLE_LABELS } from "@/lib/enums";
 import { initials } from "@/lib/format";
 import type { Me } from "@/lib/session";
 
 import { getSidebarNavItems } from "./nav-items";
-
-const ROLE_LABELS: Record<Me["role"], string> = {
-  super_admin: "Super Admin",
-  hr_manager: "HR Manager",
-  employee: "Employee",
-};
 
 export function Sidebar({ user }: { user: Me }) {
   const items = getSidebarNavItems(user.role);
