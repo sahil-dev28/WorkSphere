@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@WorkSphere/ui/compone
 import { Progress } from "@WorkSphere/ui/components/progress";
 
 import { serverFetch } from "@/lib/api";
-import { formatDate, initials } from "@/lib/format";
+import { formatDate, initials, joinTimestamp } from "@/lib/format";
 import type { Me } from "@/lib/session";
 
 interface DashboardStats {
@@ -27,14 +27,6 @@ async function getStats(): Promise<DashboardStats> {
   const res = await serverFetch("/api/dashboard/stats");
   const body = (await res.json()) as { data: DashboardStats };
   return body.data;
-}
-
-// Records from before joiningDate existed have no value for it at all —
-// treat that as "oldest", not as an invalid-date sort glitch that could
-// surface them as most-recent.
-function joinTimestamp(date: string): number {
-  const time = new Date(date).getTime();
-  return Number.isNaN(time) ? -Infinity : time;
 }
 
 // No dedicated "recently joined" endpoint — reuse the list endpoint and sort
