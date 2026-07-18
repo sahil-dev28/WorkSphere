@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { KeyRound, LayoutDashboard, Network, User, Users } from "lucide-react";
+import { LayoutDashboard, Network, User, Users } from "lucide-react";
 import type { Route } from "next";
 
 import type { Me } from "@/lib/session";
@@ -11,29 +11,30 @@ export interface NavItem {
 }
 
 const DASHBOARD: NavItem = { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard };
-const DIRECTORY: NavItem = { label: "Directory", href: "/directory", icon: Users };
-const ORG_CHART: NavItem = { label: "Org Chart", href: "/org-chart", icon: Network };
+const EMPLOYEES: NavItem = { label: "Employees", href: "/directory", icon: Users };
+const ORGANIZATION: NavItem = { label: "Organization", href: "/org-chart", icon: Network };
 const MY_PROFILE: NavItem = { label: "My Profile", href: "/profile", icon: User };
-const CHANGE_PASSWORD: NavItem = {
-  label: "Change Password",
-  href: "/change-password",
-  icon: KeyRound,
-};
 
-// super_admin/hr_manager get the full nav; employee's world is much smaller —
-// no Directory or Org Chart, since the backend 403s those routes for that role.
+// Change Password is no longer a nav link at all — it opens as a dialog now
+// (see ChangePasswordDialog), triggered from the sidebar/mobile top bar
+// directly rather than routed to.
+
+// Per the layout spec's role visibility matrix: employee's nav is "My
+// Profile" only — Dashboard/Employees/Organization are admin/HR-only.
 export function getSidebarNavItems(role: Me["role"]): NavItem[] {
   if (role === "employee") {
-    return [DASHBOARD, MY_PROFILE, CHANGE_PASSWORD];
+    return [MY_PROFILE];
   }
-  return [DASHBOARD, DIRECTORY, ORG_CHART, MY_PROFILE, CHANGE_PASSWORD];
+  return [DASHBOARD, EMPLOYEES, ORGANIZATION, MY_PROFILE];
 }
 
-// Layout spec fixes this at exactly 3 tabs. For employee, Directory doesn't
-// apply, so Change Password takes its place to keep 3 meaningful tabs.
+// Mobile isn't covered by the layout spec — Dashboard stays reachable here
+// for employee even though it's dropped from the desktop sidebar, since it's
+// still the real post-login landing route and a single-tab bar is a poor
+// outcome not worth chasing literal parity with desktop for.
 export function getMobileNavItems(role: Me["role"]): NavItem[] {
   if (role === "employee") {
-    return [DASHBOARD, MY_PROFILE, CHANGE_PASSWORD];
+    return [DASHBOARD, MY_PROFILE];
   }
-  return [DASHBOARD, DIRECTORY, MY_PROFILE];
+  return [DASHBOARD, EMPLOYEES, ORGANIZATION, MY_PROFILE];
 }
