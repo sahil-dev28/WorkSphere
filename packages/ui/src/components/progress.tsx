@@ -1,7 +1,12 @@
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 import { cn } from "@WorkSphere/ui/lib/utils";
 
-function Progress({ className, value, ...props }: ProgressPrimitive.Root.Props) {
+function Progress({
+  className,
+  indicatorClassName,
+  value,
+  ...props
+}: ProgressPrimitive.Root.Props & { indicatorClassName?: string }) {
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
@@ -11,7 +16,7 @@ function Progress({ className, value, ...props }: ProgressPrimitive.Root.Props) 
     >
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
-        className="h-full bg-primary transition-[width]"
+        className={cn("h-full bg-primary transition-[width]", indicatorClassName)}
         style={{ width: `${value ?? 0}%` }}
       />
     </ProgressPrimitive.Root>

@@ -95,7 +95,7 @@ export function Sidebar({ user }: { user: Me }) {
           trigger={
             <button
               type="button"
-              className="flex size-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-sidebar-accent-foreground"
+              className="flex size-7 shrink-0 cursor-pointer items-center justify-center text-muted-foreground transition-colors hover:text-sidebar-accent-foreground"
               aria-label="Change password"
               title={collapsed ? "Change password" : undefined}
             >
@@ -107,7 +107,7 @@ export function Sidebar({ user }: { user: Me }) {
         <form action={logoutAction}>
           <button
             type="submit"
-            className="flex size-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-sidebar-accent-foreground"
+            className="flex size-7 shrink-0 cursor-pointer items-center justify-center text-muted-foreground transition-colors hover:text-sidebar-accent-foreground"
             aria-label="Log out"
           >
             <LogOut className="size-4" />

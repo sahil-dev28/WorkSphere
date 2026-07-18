@@ -1,10 +1,19 @@
 "use client";
 
+import { KeyRound, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@WorkSphere/ui/components/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@WorkSphere/ui/components/dropdown-menu";
 
+import { ChangePasswordDialog } from "@/components/auth/change-password-dialog";
+import { logoutAction } from "@/lib/actions/auth";
 import { initials } from "@/lib/format";
 import type { Me } from "@/lib/session";
 
@@ -20,9 +29,31 @@ export function MobileTopBar({ user }: { user: Me }) {
         <span className="text-sm font-semibold tracking-tight">WorkSphere</span>
       </div>
 
-      <Avatar className="size-7">
-        <AvatarFallback className="text-[10px]">{initials(user.name)}</AvatarFallback>
-      </Avatar>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <button type="button" className="cursor-pointer" aria-label="Account menu">
+              <Avatar className="size-7">
+                <AvatarFallback className="text-[10px]">{initials(user.name)}</AvatarFallback>
+              </Avatar>
+            </button>
+          }
+        />
+        <DropdownMenuContent align="end">
+          <ChangePasswordDialog
+            trigger={
+              <DropdownMenuItem closeOnClick={false}>
+                <KeyRound /> Change Password
+              </DropdownMenuItem>
+            }
+          />
+          <form action={logoutAction}>
+            <DropdownMenuItem render={<button type="submit" className="w-full" />}>
+              <LogOut /> Log out
+            </DropdownMenuItem>
+          </form>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
