@@ -22,16 +22,34 @@ export default function DashboardLoading() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 min-[860px]:grid-cols-2">
-        {Array.from({ length: 2 }).map((_, i) => (
-          <Card key={i}>
-            <CardContent className="flex flex-col gap-3 py-4">
-              {Array.from({ length: 4 }).map((_, j) => (
-                <Skeleton key={j} className="h-8 w-full" />
-              ))}
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[1.6fr_1fr]">
+        <Card>
+          <CardContent className="flex flex-col gap-3 py-4">
+            {Array.from({ length: 4 }).map((_, j) => (
+              <Skeleton key={j} className="h-8 w-full" />
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="py-4">
+            <Skeleton className="h-36 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[1.6fr_1fr]">
+        <Card>
+          <CardContent className="py-4">
+            <Skeleton className="h-48 w-full" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex flex-col gap-3 py-4">
+            {Array.from({ length: 5 }).map((_, j) => (
+              <Skeleton key={j} className="h-8 w-full" />
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
