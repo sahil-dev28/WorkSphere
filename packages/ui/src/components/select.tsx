@@ -8,7 +8,7 @@ function Select({ ...props }: SelectPrimitive.Root.Props<string>) {
   return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 
-function SelectValue({ ...props }: SelectPrimitive.Value.Props<string>) {
+function SelectValue({ ...props }: SelectPrimitive.Value.Props) {
   return <SelectPrimitive.Value data-slot="select-value" {...props} />;
 }
 

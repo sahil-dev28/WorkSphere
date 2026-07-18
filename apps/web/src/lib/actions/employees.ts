@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import { serverFetch } from "@/lib/api";
 
@@ -19,6 +18,7 @@ export async function deleteEmployeeAction(id: string): Promise<{ error?: string
 
 export interface EmployeeFormState {
   error?: string;
+  success?: boolean;
 }
 
 // Only fields the form actually rendered an input for end up in formData, so
@@ -70,7 +70,7 @@ export async function createEmployeeAction(
   }
 
   revalidatePath("/directory");
-  redirect("/directory");
+  return { success: true };
 }
 
 export async function updateEmployeeAction(
@@ -91,8 +91,7 @@ export async function updateEmployeeAction(
   }
 
   revalidatePath("/directory");
-  revalidatePath(`/employees/${id}`);
-  redirect(`/employees/${id}`);
+  return { success: true };
 }
 
 // Separate from updateEmployeeAction on purpose — PATCH /:id/manager is its
@@ -113,6 +112,5 @@ export async function updateManagerAction(
   }
 
   revalidatePath("/directory");
-  revalidatePath(`/employees/${id}`);
   return {};
 }

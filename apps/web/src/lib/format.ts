@@ -8,8 +8,16 @@ export function initials(name: string): string {
     .toUpperCase();
 }
 
-export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString("en-US", {
+// A couple of the original seed records predate the joiningDate field
+// existing at all — new Date(undefined) is a real Date object (Invalid
+// Date), not null, so it silently reaches toLocaleDateString() and prints
+// the literal string "Invalid Date" unless guarded here.
+export function formatDate(date: string | Date | undefined | null): string {
+  if (!date) return "—";
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return "—";
+
+  return parsed.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
