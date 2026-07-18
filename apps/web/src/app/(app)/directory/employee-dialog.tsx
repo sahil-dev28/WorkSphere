@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@WorkSphere/ui/components/avatar";
 import { Button } from "@WorkSphere/ui/components/button";
@@ -66,6 +67,36 @@ interface EmployeeDialogProps {
 
 const initialState: EmployeeFormState = {};
 
+interface FormValues {
+  name: string;
+  email: string;
+  phone: string;
+  department: string;
+  designation: string;
+  salary: string;
+  joiningDate: string;
+  status: string;
+  role: string;
+  password: string;
+  reportingManager: string;
+}
+
+function defaultValuesFor(employee: Employee | undefined): FormValues {
+  return {
+    name: employee?.name ?? "",
+    email: employee?.email ?? "",
+    phone: employee?.phone ?? "",
+    department: employee?.department ?? "",
+    designation: employee?.designation ?? "",
+    salary: employee?.salary !== undefined ? String(employee.salary) : "",
+    joiningDate: employee?.joiningDate ? employee.joiningDate.slice(0, 10) : "",
+    status: employee?.status ?? "active",
+    role: employee?.role ?? "employee",
+    password: "",
+    reportingManager: employee?.reportingManager ?? NO_MANAGER,
+  };
+}
+
 export function EmployeeDialog({
   mode,
   employee,
@@ -77,13 +108,22 @@ export function EmployeeDialog({
   managerName,
 }: EmployeeDialogProps) {
   const updateParams = useDirectoryParams();
-  const [name, setName] = useState(employee?.name ?? "");
-  const [managerId, setManagerId] = useState<string | null>(employee?.reportingManager ?? null);
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    setError,
+    formState: { errors },
+  } = useForm<FormValues>({ defaultValues: defaultValuesFor(employee) });
 
   const isAdd = mode === "add";
   const isView = mode === "view";
   const isEdit = mode === "edit";
-  const managerChanged = isEdit && managerId !== (employee?.reportingManager ?? null);
+  const reportingManager = watch("reportingManager");
+  const name = watch("name");
+  const managerChanged =
+    isEdit && reportingManager !== (employee?.reportingManager ?? NO_MANAGER);
 
   function close() {
     updateParams({ action: null, employeeId: null });
@@ -98,9 +138,10 @@ export function EmployeeDialog({
     formData: FormData,
   ): Promise<EmployeeFormState> {
     if (managerChanged && employee) {
-      const result = await updateManagerAction(employee._id, managerId);
+      const newManagerId = reportingManager === NO_MANAGER ? null : reportingManager;
+      const result = await updateManagerAction(employee._id, newManagerId);
       if (result.error) {
-        return { error: result.error };
+        return { error: result.error, fieldErrors: { reportingManager: result.error } };
       }
     }
 
@@ -110,7 +151,7 @@ export function EmployeeDialog({
     return updateEmployeeAction(employee!._id, prevState, formData);
   }
 
-  const [state, formAction, pending] = useActionState(saveAction, initialState);
+  const [state, dispatch, pending] = useActionState(saveAction, initialState);
 
   useEffect(() => {
     if (state.success) close();
@@ -120,8 +161,31 @@ export function EmployeeDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
+  useEffect(() => {
+    if (!state.fieldErrors) return;
+    for (const [field, message] of Object.entries(state.fieldErrors)) {
+      setError(field as keyof FormValues, { type: "server", message });
+    }
+  }, [state.fieldErrors, setError]);
+
   function canEdit(field: EditableField): boolean {
     return !isView && editableFields.includes(field);
+  }
+
+  // The main PUT never carries reportingManager — a change goes through the
+  // separate cycle-guarded PATCH above instead (see saveAction), so it's
+  // deliberately dropped here even though the field is part of FormValues.
+  function onValid(data: FormValues) {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(data)) {
+      if (key === "reportingManager") {
+        if (isAdd && value !== NO_MANAGER) formData.append(key, value);
+        continue;
+      }
+      if (value === "") continue;
+      formData.append(key, value);
+    }
+    dispatch(formData);
   }
 
   return (
@@ -140,7 +204,7 @@ export function EmployeeDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form action={formAction} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onValid)} noValidate className="flex flex-col gap-4">
           <div className="flex justify-center">
             <Avatar className="size-16">
               {employee?.profileImage ? <AvatarImage src={employee.profileImage} alt="" /> : null}
@@ -154,164 +218,223 @@ export function EmployeeDialog({
             <div className="flex flex-col gap-1.5">
               <Label>Full Name</Label>
               <Input
-                name="name"
-                defaultValue={employee?.name}
-                required
-                minLength={3}
-                maxLength={60}
                 disabled={!canEdit("name")}
-                onChange={(e) => setName(e.target.value)}
+                aria-invalid={!!errors.name}
+                {...register("name", {
+                  required: "Name is required",
+                  minLength: { value: 3, message: "Name must be at least 3 characters" },
+                  maxLength: { value: 60, message: "Name cannot exceed 60 characters" },
+                })}
               />
+              {errors.name ? <p className="text-xs text-destructive">{errors.name.message}</p> : null}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Email</Label>
               <Input
-                name="email"
                 type="email"
-                defaultValue={employee?.email}
-                required
                 disabled={!canEdit("email")}
+                aria-invalid={!!errors.email}
+                {...register("email", { required: "Email is required" })}
               />
+              {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Phone</Label>
-              <Input name="phone" defaultValue={employee?.phone} required disabled={!canEdit("phone")} />
+              <Input
+                disabled={!canEdit("phone")}
+                aria-invalid={!!errors.phone}
+                {...register("phone", { required: "Phone is required" })}
+              />
+              {errors.phone ? <p className="text-xs text-destructive">{errors.phone.message}</p> : null}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Department</Label>
-              <Select
+              <Controller
                 name="department"
-                defaultValue={employee?.department}
-                required={isAdd}
-                disabled={!canEdit("department")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Department" />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments.map((d) => (
-                    <SelectItem key={d} value={d}>
-                      {d}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                control={control}
+                rules={{ required: isAdd ? "Department is required" : false }}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    disabled={!canEdit("department")}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger aria-invalid={!!errors.department}>
+                      <SelectValue placeholder="Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments.map((d) => (
+                        <SelectItem key={d} value={d}>
+                          {d}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.department ? (
+                <p className="text-xs text-destructive">{errors.department.message}</p>
+              ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Designation</Label>
               <Input
-                name="designation"
-                defaultValue={employee?.designation}
-                required
-                minLength={2}
-                maxLength={60}
                 disabled={!canEdit("designation")}
+                aria-invalid={!!errors.designation}
+                {...register("designation", {
+                  required: "Designation is required",
+                  minLength: { value: 2, message: "Designation must be at least 2 characters" },
+                  maxLength: { value: 60, message: "Designation cannot exceed 60 characters" },
+                })}
               />
+              {errors.designation ? (
+                <p className="text-xs text-destructive">{errors.designation.message}</p>
+              ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Salary (USD)</Label>
               {!isAdd && employee?.salary === undefined ? (
                 <p className="flex h-8 items-center text-xs text-muted-foreground">Hidden</p>
               ) : (
-                <Input
-                  name="salary"
-                  type="number"
-                  min={1}
-                  step="0.01"
-                  defaultValue={employee?.salary}
-                  required={isAdd}
-                  disabled={!canEdit("salary")}
-                />
+                <>
+                  <Input
+                    type="number"
+                    min={1}
+                    step="0.01"
+                    disabled={!canEdit("salary")}
+                    aria-invalid={!!errors.salary}
+                    {...register("salary", { required: isAdd ? "Salary is required" : false })}
+                  />
+                  {errors.salary ? (
+                    <p className="text-xs text-destructive">{errors.salary.message}</p>
+                  ) : null}
+                </>
               )}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Joining Date</Label>
               <Input
-                name="joiningDate"
                 type="date"
-                defaultValue={employee?.joiningDate ? employee.joiningDate.slice(0, 10) : undefined}
                 disabled={!canEdit("joiningDate")}
+                aria-invalid={!!errors.joiningDate}
+                {...register("joiningDate")}
               />
+              {errors.joiningDate ? (
+                <p className="text-xs text-destructive">{errors.joiningDate.message}</p>
+              ) : null}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Status</Label>
-              <Select name="status" defaultValue={employee?.status ?? "active"} disabled={!canEdit("status")}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employeeStatuses.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {STATUS_LABELS[s]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} disabled={!canEdit("status")} onValueChange={field.onChange}>
+                    <SelectTrigger aria-invalid={!!errors.status}>
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employeeStatuses.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {STATUS_LABELS[s]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.status ? <p className="text-xs text-destructive">{errors.status.message}</p> : null}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>System Role</Label>
-              <Select
+              <Controller
                 name="role"
-                defaultValue={employee?.role ?? "employee"}
-                disabled={isView || !canEditRole}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roleOptions.map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {ROLE_LABELS[r]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    disabled={isView || !canEditRole}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger aria-invalid={!!errors.role}>
+                      <SelectValue placeholder="Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roleOptions.map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {ROLE_LABELS[r]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <p className="text-xs text-muted-foreground">Determines what this person can access.</p>
+              {errors.role ? <p className="text-xs text-destructive">{errors.role.message}</p> : null}
             </div>
             {isAdd ? (
               <div className="flex flex-col gap-1.5">
                 <Label>Temporary Password</Label>
-                <Input name="password" type="password" required minLength={8} autoComplete="new-password" />
+                <Input
+                  type="password"
+                  autoComplete="new-password"
+                  aria-invalid={!!errors.password}
+                  {...register("password", {
+                    required: "Temporary password is required",
+                    minLength: { value: 8, message: "Password must be at least 8 characters" },
+                  })}
+                />
+                {errors.password ? (
+                  <p className="text-xs text-destructive">{errors.password.message}</p>
+                ) : null}
               </div>
             ) : null}
             <div className="flex flex-col gap-1.5 min-[500px]:col-span-2">
               <Label>Reporting Manager</Label>
               {isAdd ? (
-                <Select name="reportingManager" defaultValue={NO_MANAGER}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Reporting manager" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NO_MANAGER}>— No manager —</SelectItem>
-                    {managerRoster.map((m) => (
-                      <SelectItem key={m._id} value={m._id}>
-                        {m.name} — {m.designation}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="reportingManager"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger aria-invalid={!!errors.reportingManager}>
+                        <SelectValue placeholder="Reporting manager" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NO_MANAGER}>— No manager —</SelectItem>
+                        {managerRoster.map((m) => (
+                          <SelectItem key={m._id} value={m._id}>
+                            {m.name} — {m.designation}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               ) : canReassignManager ? (
-                <Select
-                  value={managerId ?? NO_MANAGER}
-                  disabled={isView || pending}
-                  onValueChange={(v) => setManagerId(v === NO_MANAGER ? null : v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Reporting manager" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NO_MANAGER}>— No manager —</SelectItem>
-                    {/* Pre-filtered by the caller: self and all descendants
-                        (direct + indirect reports) are excluded so a cycle
-                        can't even be selected here, not just rejected on
-                        submit. */}
-                    {managerRoster.map((m) => (
-                      <SelectItem key={m._id} value={m._id}>
-                        {m.name} — {m.designation}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="reportingManager"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} disabled={isView || pending} onValueChange={field.onChange}>
+                      <SelectTrigger aria-invalid={!!errors.reportingManager}>
+                        <SelectValue placeholder="Reporting manager" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NO_MANAGER}>— No manager —</SelectItem>
+                        {/* Pre-filtered by the caller: self and all descendants
+                            (direct + indirect reports) are excluded so a cycle
+                            can't even be selected here, not just rejected on
+                            submit. */}
+                        {managerRoster.map((m) => (
+                          <SelectItem key={m._id} value={m._id}>
+                            {m.name} — {m.designation}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               ) : (
                 <p className="flex h-8 items-center text-xs text-muted-foreground">
                   {employee?.reportingManager ? (managerName ?? "Assigned (name unavailable)") : "No manager"}
@@ -320,10 +443,15 @@ export function EmployeeDialog({
               <p className="text-xs text-muted-foreground">
                 Circular reporting is prevented — this employee&apos;s own reports are excluded.
               </p>
+              {errors.reportingManager ? (
+                <p className="text-xs text-destructive">{errors.reportingManager.message}</p>
+              ) : null}
             </div>
           </div>
 
-          {state.error ? <p className="text-xs text-destructive">{state.error}</p> : null}
+          {state.error && !state.fieldErrors ? (
+            <p className="text-xs text-destructive">{state.error}</p>
+          ) : null}
 
           <DialogFooter>
             <DialogClose render={<Button type="button" variant="outline" />}>
