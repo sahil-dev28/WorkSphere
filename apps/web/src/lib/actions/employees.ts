@@ -18,6 +18,7 @@ export async function deleteEmployeeAction(id: string): Promise<{ error?: string
 
 export interface EmployeeFormState {
   error?: string;
+  fieldErrors?: Record<string, string>;
   success?: boolean;
 }
 
@@ -63,10 +64,10 @@ export async function createEmployeeAction(
     body: JSON.stringify(buildEmployeePayload(formData)),
   });
 
-  const body = (await res.json()) as { error?: string };
+  const body = (await res.json()) as { error?: string; fieldErrors?: Record<string, string> };
 
   if (!res.ok) {
-    return { error: body.error ?? "Could not create employee" };
+    return { error: body.error ?? "Could not create employee", fieldErrors: body.fieldErrors };
   }
 
   revalidatePath("/directory");
@@ -84,10 +85,10 @@ export async function updateEmployeeAction(
     body: JSON.stringify(buildEmployeePayload(formData)),
   });
 
-  const body = (await res.json()) as { error?: string };
+  const body = (await res.json()) as { error?: string; fieldErrors?: Record<string, string> };
 
   if (!res.ok) {
-    return { error: body.error ?? "Could not update employee" };
+    return { error: body.error ?? "Could not update employee", fieldErrors: body.fieldErrors };
   }
 
   revalidatePath("/directory");

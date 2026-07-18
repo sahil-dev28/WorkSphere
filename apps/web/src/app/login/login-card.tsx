@@ -2,7 +2,8 @@
 
 import type { LucideIcon } from "lucide-react";
 import { ShieldCheck, User, Users } from "lucide-react";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useState } from "react";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@WorkSphere/ui/components/button";
 import { Input } from "@WorkSphere/ui/components/input";
@@ -56,12 +57,20 @@ const DEMO_ROLES: DemoRole[] = [
   },
 ];
 
+interface FormValues {
+  email: string;
+  password: string;
+}
+
 export function LoginCard() {
-  const [state, formAction, pending] = useActionState(loginAction, initialState);
-  const formRef = useRef<HTMLFormElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const [state, dispatch, pending] = useActionState(loginAction, initialState);
   const [filledDemo, setFilledDemo] = useState<DemoRole | null>(null);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormValues>({ defaultValues: { email: "", password: "" } });
 
   if (state.mustChangePassword) {
     return (
@@ -76,9 +85,16 @@ export function LoginCard() {
   }
 
   function fillDemo(demo: DemoRole) {
-    if (emailRef.current) emailRef.current.value = demo.email;
-    if (passwordRef.current) passwordRef.current.value = demo.password;
+    setValue("email", demo.email);
+    setValue("password", demo.password);
     setFilledDemo(demo);
+  }
+
+  function onValid(data: FormValues) {
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    dispatch(formData);
   }
 
   return (
@@ -90,31 +106,35 @@ export function LoginCard() {
         </p>
       </div>
 
-      <form ref={formRef} action={formAction} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit(onValid)} noValidate className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Work email</Label>
           <Input
             id="email"
-            name="email"
             type="email"
             placeholder="you@company.com"
-            required
             autoComplete="email"
-            ref={emailRef}
-            onChange={() => setFilledDemo(null)}
+            aria-invalid={!!errors.email}
+            {...register("email", {
+              required: "Email is required",
+              onChange: () => setFilledDemo(null),
+            })}
           />
+          {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
-            name="password"
             type="password"
-            required
             autoComplete="current-password"
-            ref={passwordRef}
-            onChange={() => setFilledDemo(null)}
+            aria-invalid={!!errors.password}
+            {...register("password", {
+              required: "Password is required",
+              onChange: () => setFilledDemo(null),
+            })}
           />
+          {errors.password ? <p className="text-xs text-destructive">{errors.password.message}</p> : null}
         </div>
 
         {filledDemo ? (
