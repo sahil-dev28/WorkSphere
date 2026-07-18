@@ -5,9 +5,34 @@ import { Avatar, AvatarFallback } from "@WorkSphere/ui/components/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@WorkSphere/ui/components/card";
 import { Progress } from "@WorkSphere/ui/components/progress";
 
-import { serverFetch } from "@/lib/api";
+import { getEmployeeRoster } from "@/lib/employees";
 import { formatDate, initials, joinTimestamp } from "@/lib/format";
+import { serverFetch } from "@/lib/api";
 import type { Me } from "@/lib/session";
+
+import { HiringTrendChart, type HiringTrendPoint } from "./hiring-trend-chart";
+import { StatusDonutChart } from "./status-donut-chart";
+
+// theme.md: "Stat icon badges: rotate through chart-1…chart-5 backgrounds at
+// 15% opacity, icon in solid chart color" and "Chart bars…use chart-1
+// through chart-5 in sequence" — same rotation reused for both. Full class
+// strings, not built via concatenation — Tailwind's scanner needs each one
+// to appear literally in source to generate it.
+const CHART_COLORS = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5"];
+const CHART_BADGE_COLORS = [
+  "bg-chart-1/15",
+  "bg-chart-2/15",
+  "bg-chart-3/15",
+  "bg-chart-4/15",
+  "bg-chart-5/15",
+];
+const CHART_TEXT_COLORS = [
+  "text-chart-1",
+  "text-chart-2",
+  "text-chart-3",
+  "text-chart-4",
+  "text-chart-5",
+];
 
 interface DashboardStats {
   totalEmployees: number;
@@ -16,43 +41,49 @@ interface DashboardStats {
   departmentCounts: { department: string; count: number }[];
 }
 
-interface EmployeeListItem {
-  _id: string;
-  name: string;
-  designation: string;
-  joiningDate: string;
-}
-
 async function getStats(): Promise<DashboardStats> {
   const res = await serverFetch("/api/dashboard/stats");
   const body = (await res.json()) as { data: DashboardStats };
   return body.data;
 }
 
-// No dedicated "recently joined" endpoint — reuse the list endpoint and sort
-// server-side here rather than add one.
-async function getRecentlyJoined(): Promise<EmployeeListItem[]> {
-  const res = await serverFetch("/api/employees");
-  const body = (await res.json()) as { data: EmployeeListItem[] };
+function hiringTrendFromRoster(
+  roster: { joiningDate: string }[],
+): HiringTrendPoint[] {
+  const counts = new Map<string, number>();
 
-  return [...body.data]
-    .sort((a, b) => joinTimestamp(b.joiningDate) - joinTimestamp(a.joiningDate))
-    .slice(0, 5);
+  for (const employee of roster) {
+    const timestamp = joinTimestamp(employee.joiningDate);
+    if (timestamp === -Infinity) continue;
+
+    const year = String(new Date(employee.joiningDate).getFullYear());
+    counts.set(year, (counts.get(year) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([year, count]) => ({ year, count }));
 }
 
 function StatCard({
   icon: Icon,
   value,
   label,
+  colorIndex,
 }: {
   icon: LucideIcon;
   value: number;
   label: string;
+  colorIndex: number;
 }) {
+  const i = colorIndex % CHART_COLORS.length;
+
   return (
     <Card>
       <CardContent className="flex flex-col gap-2 py-2">
-        <Icon className="size-5 text-muted-foreground" />
+        <div className={`flex size-8 items-center justify-center ${CHART_BADGE_COLORS[i]}`}>
+          <Icon className={`size-4 ${CHART_TEXT_COLORS[i]}`} />
+        </div>
         <span className="text-2xl font-semibold tracking-tight tabular-nums">{value}</span>
         <span className="text-xs text-muted-foreground">{label}</span>
       </CardContent>
@@ -60,32 +91,36 @@ function StatCard({
   );
 }
 
-export async function AdminDashboard({ user }: { user: Me }) {
-  const [stats, recentlyJoined] = await Promise.all([getStats(), getRecentlyJoined()]);
+export async function AdminDashboard({ user: _user }: { user: Me }) {
+  const [stats, roster] = await Promise.all([getStats(), getEmployeeRoster()]);
 
   // "Department Count" = departments that currently have someone in them,
-  // not the enum's fixed size of 7 — a static 7 never changes with the data
+  // not the enum's fixed size — a static count never changes with the data
   // and isn't really a stat.
   const activeDepartmentCount = stats.departmentCounts.filter((d) => d.count > 0).length;
 
+  const recentlyJoined = [...roster]
+    .sort((a, b) => joinTimestamp(b.joiningDate) - joinTimestamp(a.joiningDate))
+    .slice(0, 6);
+
+  const hiringTrend = hiringTrendFromRoster(roster);
+
   return (
     <div className="flex flex-col gap-6 p-6">
-      <h1 className="text-xl font-semibold tracking-tight">Welcome back, {user.name}</h1>
-
       <div className="grid grid-cols-1 gap-4 min-[860px]:grid-cols-4">
-        <StatCard icon={Users} value={stats.totalEmployees} label="Total Employees" />
-        <StatCard icon={UserCheck} value={stats.activeEmployees} label="Active Employees" />
-        <StatCard icon={UserX} value={stats.inactiveEmployees} label="Inactive Employees" />
-        <StatCard icon={Building2} value={activeDepartmentCount} label="Department Count" />
+        <StatCard icon={Users} value={stats.totalEmployees} label="Total Employees" colorIndex={0} />
+        <StatCard icon={UserCheck} value={stats.activeEmployees} label="Active Employees" colorIndex={1} />
+        <StatCard icon={UserX} value={stats.inactiveEmployees} label="Inactive Employees" colorIndex={2} />
+        <StatCard icon={Building2} value={activeDepartmentCount} label="Department Count" colorIndex={3} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 min-[860px]:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[1.6fr_1fr]">
         <Card>
           <CardHeader>
-            <CardTitle>Department Breakdown</CardTitle>
+            <CardTitle>Headcount by Department</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            {stats.departmentCounts.map((d) => (
+            {stats.departmentCounts.map((d, i) => (
               <div key={d.department} className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span>{d.department}</span>
@@ -93,6 +128,7 @@ export async function AdminDashboard({ user }: { user: Me }) {
                 </div>
                 <Progress
                   value={stats.totalEmployees > 0 ? (d.count / stats.totalEmployees) * 100 : 0}
+                  indicatorClassName={CHART_COLORS[i % CHART_COLORS.length]}
                 />
               </div>
             ))}
@@ -101,7 +137,27 @@ export async function AdminDashboard({ user }: { user: Me }) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recently Joined</CardTitle>
+            <CardTitle>Employee Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <StatusDonutChart active={stats.activeEmployees} inactive={stats.inactiveEmployees} />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[1.6fr_1fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Hiring Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HiringTrendChart data={hiringTrend} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Hires</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {recentlyJoined.length === 0 ? (
