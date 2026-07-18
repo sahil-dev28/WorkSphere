@@ -5,7 +5,7 @@ import type { Employee } from "@/lib/types";
 
 // Exact mapping from theme.md's Employees Table section.
 const ROLE_STYLES: Record<Employee["role"], string> = {
-  super_admin: "bg-secondary/10 text-secondary",
+  super_admin: "bg-primary/15 text-primary",
   hr_manager: "bg-accent/20 text-accent-foreground",
   employee: "bg-muted text-muted-foreground",
 };
