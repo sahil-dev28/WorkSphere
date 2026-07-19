@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Badge } from "@WorkSphere/ui/components/badge";
@@ -63,7 +63,9 @@ export function ProfileEditableFields({
       if (value === "") continue;
       formData.append(key, value);
     }
-    dispatch(formData);
+    startTransition(() => {
+      dispatch(formData);
+    });
   }
 
   return (

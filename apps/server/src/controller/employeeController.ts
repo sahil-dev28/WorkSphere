@@ -9,6 +9,15 @@ import type {
   UpdateManagerInput,
 } from "@/schema/employee";
 import { NOT_DELETED_FILTER } from "@/utils/constants";
+import { formatMongooseError } from "@/utils/formatMongooseError";
+import { assertValidHierarchy, HierarchyError } from "@/utils/hierarchyRules";
+
+function formatEmployeeError(error: unknown): { error: string; fieldErrors?: Record<string, string> } {
+  if (error instanceof HierarchyError) {
+    return { error: error.message, fieldErrors: { [error.field]: error.message } };
+  }
+  return formatMongooseError(error);
+}
 
 const EMPLOYEE_PROJECTION = {
   employeeId: 1,
@@ -106,6 +115,13 @@ export const createEmployee = async (
       return;
     }
 
+    await assertValidHierarchy({
+      employeeId: null,
+      role,
+      department,
+      reportingManager: reportingManager ?? null,
+    });
+
     const newEmployee = new Employee({
       name,
       email,
@@ -124,9 +140,7 @@ export const createEmployee = async (
 
     res.status(200).json({ message: "Employee created", employeeId: newEmployee.employeeId });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatEmployeeError(error));
   }
 };
 
@@ -176,13 +190,27 @@ export const updateEmployee = async (req: Request, res: Response): Promise<void>
       applyUpdatableFields(target, body);
     }
 
+    // Self-edits (the branch above) never touch these three fields, so this
+    // only re-checks the hierarchy when a request could actually have
+    // broken it — not on every unrelated name/phone edit against
+    // pre-existing (possibly still non-compliant) records.
+    if (
+      requesterRole !== "employee" &&
+      (body.department !== undefined || body.role !== undefined || body.reportingManager !== undefined)
+    ) {
+      await assertValidHierarchy({
+        employeeId: target._id.toString(),
+        role: target.role,
+        department: target.department,
+        reportingManager: target.reportingManager ? target.reportingManager.toString() : null,
+      });
+    }
+
     await target.save();
 
     res.status(200).json({ message: "Employee updated" });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatEmployeeError(error));
   }
 };
 
@@ -321,35 +349,35 @@ export const updateManager = async (req: Request, res: Response): Promise<void> 
 
     const { reportingManager } = req.body as UpdateManagerInput;
 
-    if (reportingManager === null) {
-      target.reportingManager = null;
-      await target.save();
-      res.status(200).json({ message: "Manager updated" });
-      return;
+    if (reportingManager !== null) {
+      const proposedManager = await Employee.findOne({
+        _id: reportingManager,
+        ...NOT_DELETED_FILTER,
+      });
+
+      if (!proposedManager) {
+        res.status(400).json({ error: "Proposed manager not found" });
+        return;
+      }
+
+      if (await wouldCreateCycle(id, reportingManager)) {
+        res.status(400).json({ error: "This assignment would create a circular reporting chain" });
+        return;
+      }
     }
 
-    const proposedManager = await Employee.findOne({
-      _id: reportingManager,
-      ...NOT_DELETED_FILTER,
+    await assertValidHierarchy({
+      employeeId: target._id.toString(),
+      role: target.role,
+      department: target.department,
+      reportingManager,
     });
 
-    if (!proposedManager) {
-      res.status(400).json({ error: "Proposed manager not found" });
-      return;
-    }
-
-    if (await wouldCreateCycle(id, reportingManager)) {
-      res.status(400).json({ error: "This assignment would create a circular reporting chain" });
-      return;
-    }
-
-    target.reportingManager = new Types.ObjectId(reportingManager);
+    target.reportingManager = reportingManager ? new Types.ObjectId(reportingManager) : null;
     await target.save();
 
     res.status(200).json({ message: "Manager updated" });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatEmployeeError(error));
   }
 };

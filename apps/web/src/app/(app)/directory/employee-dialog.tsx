@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { startTransition, useActionState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@WorkSphere/ui/components/avatar";
@@ -45,6 +45,8 @@ interface ManagerOption {
   _id: string;
   name: string;
   designation: string;
+  role: Employee["role"];
+  department: Employee["department"];
 }
 
 interface EmployeeDialogProps {
@@ -122,8 +124,20 @@ export function EmployeeDialog({
   const isEdit = mode === "edit";
   const reportingManager = watch("reportingManager");
   const name = watch("name");
+  const selectedRole = watch("role");
+  const selectedDepartment = watch("department");
   const managerChanged =
     isEdit && reportingManager !== (employee?.reportingManager ?? NO_MANAGER);
+
+  // Mirrors the backend's hierarchy rules (apps/server/src/utils/hierarchyRules.ts):
+  // an employee can only report to their own department's hr_manager (or the
+  // super_admin, if that department has no head yet); an hr_manager can only
+  // report to the super_admin; a super_admin has no manager at all.
+  const validManagers = managerRoster.filter((m) => {
+    if (selectedRole === "super_admin") return false;
+    if (selectedRole === "hr_manager") return m.role === "super_admin";
+    return m.role === "super_admin" || (m.role === "hr_manager" && m.department === selectedDepartment);
+  });
 
   function close() {
     updateParams({ action: null, employeeId: null });
@@ -185,7 +199,9 @@ export function EmployeeDialog({
       if (value === "") continue;
       formData.append(key, value);
     }
-    dispatch(formData);
+    startTransition(() => {
+      dispatch(formData);
+    });
   }
 
   return (
@@ -402,7 +418,7 @@ export function EmployeeDialog({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value={NO_MANAGER}>— No manager —</SelectItem>
-                        {managerRoster.map((m) => (
+                        {validManagers.map((m) => (
                           <SelectItem key={m._id} value={m._id}>
                             {m.name} — {m.designation}
                           </SelectItem>
@@ -422,11 +438,11 @@ export function EmployeeDialog({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value={NO_MANAGER}>— No manager —</SelectItem>
-                        {/* Pre-filtered by the caller: self and all descendants
-                            (direct + indirect reports) are excluded so a cycle
-                            can't even be selected here, not just rejected on
-                            submit. */}
-                        {managerRoster.map((m) => (
+                        {/* Pre-filtered by the caller (self + descendants
+                            excluded so a cycle can't even be selected here)
+                            and then narrowed to same-department head / CEO
+                            above, matching the backend's hierarchy rules. */}
+                        {validManagers.map((m) => (
                           <SelectItem key={m._id} value={m._id}>
                             {m.name} — {m.designation}
                           </SelectItem>

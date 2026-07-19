@@ -13,12 +13,14 @@
     "@WorkSphere/ui": "workspace:*",
     "@swc/helpers": "^0.5.23",
     "babel-plugin-react-compiler": "^1.0.0",
+    "d3-org-chart": "^3.1.1",
     "dotenv": "catalog:",
     "lucide-react": "catalog:",
     "next": "^16.2.0",
     "next-themes": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "react-hook-form": "^7.81.0",
     "recharts": "^3.9.2",
     "sonner": "catalog:",
     "zod": "catalog:"
@@ -26,6 +28,7 @@
   "devDependencies": {
     "@WorkSphere/config": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
+    "@types/d3-org-chart": "^3.1.2",
     "@types/node": "^20",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

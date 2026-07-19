@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
@@ -34,7 +34,9 @@ export function ChangePasswordFields({ cancelSlot }: { cancelSlot?: ReactNode })
     const formData = new FormData();
     formData.append("currentPassword", data.currentPassword);
     formData.append("newPassword", data.newPassword);
-    dispatch(formData);
+    startTransition(() => {
+      dispatch(formData);
+    });
   }
 
   return (

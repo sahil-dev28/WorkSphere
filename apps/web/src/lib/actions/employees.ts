@@ -13,6 +13,7 @@ export async function deleteEmployeeAction(id: string): Promise<{ error?: string
   }
 
   revalidatePath("/directory");
+  revalidatePath("/org-chart");
   return {};
 }
 
@@ -71,6 +72,7 @@ export async function createEmployeeAction(
   }
 
   revalidatePath("/directory");
+  revalidatePath("/org-chart");
   return { success: true };
 }
 
@@ -92,6 +94,7 @@ export async function updateEmployeeAction(
   }
 
   revalidatePath("/directory");
+  revalidatePath("/org-chart");
   return { success: true };
 }
 
@@ -113,5 +116,6 @@ export async function updateManagerAction(
   }
 
   revalidatePath("/directory");
+  revalidatePath("/org-chart");
   return {};
 }

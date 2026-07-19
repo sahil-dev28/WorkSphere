@@ -1,11 +1,12 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
 } from "@WorkSphere/ui/components/input-group";
 
@@ -31,6 +32,12 @@ export function SearchInput({ defaultValue }: { defaultValue: string }) {
     return () => clearTimeout(timeout);
   }, [value, updateParams]);
 
+  function clear() {
+    skipNextUpdate.current = true;
+    setValue("");
+    updateParams({ q: null });
+  }
+
   return (
     <InputGroup className="min-[700px]:flex-1">
       <InputGroupAddon>
@@ -42,6 +49,18 @@ export function SearchInput({ defaultValue }: { defaultValue: string }) {
         onChange={(e) => setValue(e.target.value)}
         aria-label="Search employees"
       />
+      {value ? (
+        <InputGroupAddon align="inline-end">
+          <InputGroupButton
+            type="button"
+            size="icon-xs"
+            aria-label="Clear search"
+            onClick={clear}
+          >
+            <X />
+          </InputGroupButton>
+        </InputGroupAddon>
+      ) : null}
     </InputGroup>
   );
 }

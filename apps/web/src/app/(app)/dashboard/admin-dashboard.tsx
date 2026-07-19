@@ -2,7 +2,12 @@ import type { LucideIcon } from "lucide-react";
 import { Building2, UserCheck, Users, UserX } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@WorkSphere/ui/components/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@WorkSphere/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@WorkSphere/ui/components/card";
 import { Progress } from "@WorkSphere/ui/components/progress";
 
 import { getEmployeeRoster } from "@/lib/employees";
@@ -13,12 +18,13 @@ import type { Me } from "@/lib/session";
 import { HiringTrendChart, type HiringTrendPoint } from "./hiring-trend-chart";
 import { StatusDonutChart } from "./status-donut-chart";
 
-// theme.md: "Stat icon badges: rotate through chart-1…chart-5 backgrounds at
-// 15% opacity, icon in solid chart color" and "Chart bars…use chart-1
-// through chart-5 in sequence" — same rotation reused for both. Full class
-// strings, not built via concatenation — Tailwind's scanner needs each one
-// to appear literally in source to generate it.
-const CHART_COLORS = ["bg-chart-1", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-chart-5"];
+const CHART_COLORS = [
+  "bg-chart-1",
+  "bg-chart-2",
+  "bg-chart-3",
+  "bg-chart-4",
+  "bg-chart-5",
+];
 const CHART_BADGE_COLORS = [
   "bg-chart-1/15",
   "bg-chart-2/15",
@@ -81,10 +87,14 @@ function StatCard({
   return (
     <Card>
       <CardContent className="flex flex-col gap-2 py-2">
-        <div className={`flex size-8 items-center justify-center ${CHART_BADGE_COLORS[i]}`}>
+        <div
+          className={`flex size-8 items-center justify-center ${CHART_BADGE_COLORS[i]}`}
+        >
           <Icon className={`size-4 ${CHART_TEXT_COLORS[i]}`} />
         </div>
-        <span className="text-2xl font-semibold tracking-tight tabular-nums">{value}</span>
+        <span className="text-2xl font-semibold tracking-tight tabular-nums">
+          {value}
+        </span>
         <span className="text-xs text-muted-foreground">{label}</span>
       </CardContent>
     </Card>
@@ -97,7 +107,9 @@ export async function AdminDashboard({ user: _user }: { user: Me }) {
   // "Department Count" = departments that currently have someone in them,
   // not the enum's fixed size — a static count never changes with the data
   // and isn't really a stat.
-  const activeDepartmentCount = stats.departmentCounts.filter((d) => d.count > 0).length;
+  const activeDepartmentCount = stats.departmentCounts.filter(
+    (d) => d.count > 0,
+  ).length;
 
   const recentlyJoined = [...roster]
     .sort((a, b) => joinTimestamp(b.joiningDate) - joinTimestamp(a.joiningDate))
@@ -108,10 +120,30 @@ export async function AdminDashboard({ user: _user }: { user: Me }) {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="grid grid-cols-1 gap-4 min-[860px]:grid-cols-4">
-        <StatCard icon={Users} value={stats.totalEmployees} label="Total Employees" colorIndex={0} />
-        <StatCard icon={UserCheck} value={stats.activeEmployees} label="Active Employees" colorIndex={1} />
-        <StatCard icon={UserX} value={stats.inactiveEmployees} label="Inactive Employees" colorIndex={2} />
-        <StatCard icon={Building2} value={activeDepartmentCount} label="Department Count" colorIndex={3} />
+        <StatCard
+          icon={Users}
+          value={stats.totalEmployees}
+          label="Total Employees"
+          colorIndex={0}
+        />
+        <StatCard
+          icon={UserCheck}
+          value={stats.activeEmployees}
+          label="Active Employees"
+          colorIndex={1}
+        />
+        <StatCard
+          icon={UserX}
+          value={stats.inactiveEmployees}
+          label="Inactive Employees"
+          colorIndex={2}
+        />
+        <StatCard
+          icon={Building2}
+          value={activeDepartmentCount}
+          label="Department Count"
+          colorIndex={3}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[1.6fr_1fr]">
@@ -127,7 +159,11 @@ export async function AdminDashboard({ user: _user }: { user: Me }) {
                   <span className="font-medium tabular-nums">{d.count}</span>
                 </div>
                 <Progress
-                  value={stats.totalEmployees > 0 ? (d.count / stats.totalEmployees) * 100 : 0}
+                  value={
+                    stats.totalEmployees > 0
+                      ? (d.count / stats.totalEmployees) * 100
+                      : 0
+                  }
                   indicatorClassName={CHART_COLORS[i % CHART_COLORS.length]}
                 />
               </div>
@@ -140,7 +176,10 @@ export async function AdminDashboard({ user: _user }: { user: Me }) {
             <CardTitle>Employee Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <StatusDonutChart active={stats.activeEmployees} inactive={stats.inactiveEmployees} />
+            <StatusDonutChart
+              active={stats.activeEmployees}
+              inactive={stats.inactiveEmployees}
+            />
           </CardContent>
         </Card>
       </div>
@@ -169,7 +208,9 @@ export async function AdminDashboard({ user: _user }: { user: Me }) {
                     <AvatarFallback>{initials(employee.name)}</AvatarFallback>
                   </Avatar>
                   <div className="flex min-w-0 flex-1 flex-col">
-                    <span className="truncate text-xs font-medium">{employee.name}</span>
+                    <span className="truncate text-xs font-medium">
+                      {employee.name}
+                    </span>
                     <span className="truncate text-xs text-muted-foreground">
                       {employee.designation}
                     </span>

@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import { ShieldCheck, User, Users } from "lucide-react";
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@WorkSphere/ui/components/button";
@@ -94,7 +94,9 @@ export function LoginCard() {
     const formData = new FormData();
     formData.append("email", data.email);
     formData.append("password", data.password);
-    dispatch(formData);
+    startTransition(() => {
+      dispatch(formData);
+    });
   }
 
   return (

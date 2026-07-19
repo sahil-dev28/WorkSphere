@@ -160,9 +160,13 @@ export default async function DirectoryPage({
       ? new Set([dialogEmployee._id, ...getDescendantIds(dialogEmployee._id, employees)])
       : new Set<string>();
 
+  // Only hr_manager/super_admin can ever be a valid reportingManager — the
+  // dialog further narrows this down to the target's own department's head
+  // (or the CEO) as the role/department fields change live, but it can only
+  // filter from what it's given here.
   const managerRoster = employees
-    .filter((e) => !excludedManagerIds.has(e._id))
-    .map((e) => ({ _id: e._id, name: e.name, designation: e.designation }));
+    .filter((e) => e.role !== "employee" && !excludedManagerIds.has(e._id))
+    .map((e) => ({ _id: e._id, name: e.name, designation: e.designation, role: e.role, department: e.department }));
 
   return (
     <div className="flex flex-col gap-6 p-6">
