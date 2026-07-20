@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@WorkSphere/ui/components/avatar";
@@ -132,10 +132,7 @@ export function EmployeeDialog({
     updateParams({ action: null, employeeId: null });
   }
 
-  async function saveAction(
-    prevState: EmployeeFormState,
-    formData: FormData,
-  ): Promise<EmployeeFormState> {
+  async function saveAction(formData: FormData): Promise<EmployeeFormState> {
     if (managerChanged && employee) {
       const newManagerId = reportingManager === NO_MANAGER ? null : reportingManager;
       const result = await updateManagerAction(employee._id, newManagerId);
@@ -145,24 +142,31 @@ export function EmployeeDialog({
     }
 
     if (isAdd) {
-      return createEmployeeAction(prevState, formData);
+      return createEmployeeAction(initialState, formData);
     }
-    return updateEmployeeAction(employee!._id, prevState, formData);
+    return updateEmployeeAction(employee!._id, initialState, formData);
   }
 
-  const [state, dispatch, pending] = useActionState(saveAction, initialState);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (state.success) close();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
+  const mutation = useMutation({
+    mutationFn: saveAction,
+    onSuccess: (result) => {
+      if (result.success) {
+        queryClient.invalidateQueries({ queryKey: ["employees", "table"] });
+        close();
+        return;
+      }
+      if (result.fieldErrors) {
+        for (const [field, message] of Object.entries(result.fieldErrors)) {
+          setError(field as keyof FormValues, { type: "server", message });
+        }
+      }
+    },
+  });
 
-  useEffect(() => {
-    if (!state.fieldErrors) return;
-    for (const [field, message] of Object.entries(state.fieldErrors)) {
-      setError(field as keyof FormValues, { type: "server", message });
-    }
-  }, [state.fieldErrors, setError]);
+  const state = mutation.data ?? initialState;
+  const pending = mutation.isPending;
 
   function canEdit(field: EditableField): boolean {
     return !isView && editableFields.includes(field);
@@ -178,9 +182,7 @@ export function EmployeeDialog({
       if (value === "") continue;
       formData.append(key, value);
     }
-    startTransition(() => {
-      dispatch(formData);
-    });
+    mutation.mutate(formData);
   }
 
   return (
