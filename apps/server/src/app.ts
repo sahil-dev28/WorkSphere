@@ -1,7 +1,7 @@
 import { env } from "@WorkSphere/env/server";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express from "express";
+import express, { type Express } from "express";
 
 import { connectDB } from "@/db/connect";
 import { authRouter } from "@/routes/authRoutes";
@@ -10,7 +10,7 @@ import { employeeRouter } from "@/routes/employeeRoutes";
 import { organizationRouter } from "@/routes/organizationRoutes";
 import { CORS_METHODS, DEFAULT_PORT } from "@/utils/constants";
 
-export const app = express();
+export const app: Express = express();
 
 app.use(
   cors({
