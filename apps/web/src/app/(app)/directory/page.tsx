@@ -1,34 +1,34 @@
 import { Download, Plus, Upload } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 import { Button } from "@WorkSphere/ui/components/button";
 import { Card, CardContent } from "@WorkSphere/ui/components/card";
 
+import type { EmployeesTableParams } from "@/lib/actions/employees";
 import { employeeRoles } from "@/lib/enums";
 import { serverFetch } from "@/lib/api";
-import { joinTimestamp } from "@/lib/format";
 import {
   canAssignSuperAdmin,
   canCreateEmployee,
-  canDeleteEmployee,
   canEditEmployee,
   canReassignManager,
   editableFieldsFor,
 } from "@/lib/permissions";
 import { getDescendantIds } from "@/lib/org-hierarchy";
+import { getQueryClient } from "@/lib/query-client";
 import { getMe } from "@/lib/session";
 import type { Employee } from "@/lib/types";
 
 import { buildDialogHref } from "./dialog-href";
 import { DirectoryFilters } from "./filters";
-import { EmployeeCards } from "./employee-cards";
+import { DirectoryTable } from "./directory-table";
 import { EmployeeDialog, type EmployeeDialogMode } from "./employee-dialog";
-import { EmployeeTable } from "./employee-table";
+import { employeesTableOptions } from "./queries";
 import { ImportCsvDialog } from "./import-csv-dialog";
-import { DirectoryPagination } from "./pagination";
 import { SearchInput } from "./search-input";
-import type { DirectoryRow, DirectorySearchParams, SortKey } from "./types";
+import type { DirectorySearchParams } from "./types";
 
 const PAGE_SIZE = 10;
 
@@ -44,41 +44,6 @@ async function getEmployees(): Promise<{ data: Employee[] | null; forbidden: boo
 
   const body = (await res.json()) as { data: Employee[] };
   return { data: body.data, forbidden: false };
-}
-
-function filterAndSort(employees: Employee[], params: DirectorySearchParams): Employee[] {
-  const q = params.q?.trim().toLowerCase() ?? "";
-  let result = employees;
-
-  if (q) {
-    result = result.filter(
-      (e) => e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q),
-    );
-  }
-  if (params.department && params.department !== "all") {
-    result = result.filter((e) => e.department === params.department);
-  }
-  if (params.role && params.role !== "all") {
-    result = result.filter((e) => e.role === params.role);
-  }
-  if (params.status && params.status !== "all") {
-    result = result.filter((e) => e.status === params.status);
-  }
-
-  const sort: SortKey = (params.sort as SortKey | undefined) ?? "name_asc";
-  return [...result].sort((a, b) => {
-    switch (sort) {
-      case "name_desc":
-        return b.name.localeCompare(a.name);
-      case "joined_desc":
-        return joinTimestamp(b.joiningDate) - joinTimestamp(a.joiningDate);
-      case "joined_asc":
-        return joinTimestamp(a.joiningDate) - joinTimestamp(b.joiningDate);
-      case "name_asc":
-      default:
-        return a.name.localeCompare(b.name);
-    }
-  });
 }
 
 export default async function DirectoryPage({
@@ -113,25 +78,20 @@ export default async function DirectoryPage({
   }
 
   const canManage = canCreateEmployee(user);
-  const canDelete = canDeleteEmployee(user);
 
   const managerNames = new Map(employees.map((e) => [e._id, e.name]));
-  const filtered = filterAndSort(employees, params);
 
-  const page = Math.max(1, Number(params.page) || 1);
-  const pageStart = (page - 1) * PAGE_SIZE;
-  const pageSlice = filtered.slice(pageStart, pageStart + PAGE_SIZE);
-
-  const rows: DirectoryRow[] = pageSlice.map((employee) => ({
-    employee,
-    managerName: employee.reportingManager
-      ? (managerNames.get(employee.reportingManager) ?? "Unknown manager")
-      : "No manager",
-  }));
-
-  const editableIds = new Set(
-    pageSlice.filter((employee) => canEditEmployee(user, employee)).map((e) => e._id),
-  );
+  const queryClient = getQueryClient();
+  const tableParams: EmployeesTableParams = {
+    q: params.q,
+    department: params.department,
+    role: params.role,
+    status: params.status,
+    sort: params.sort,
+    page: params.page,
+    limit: PAGE_SIZE,
+  };
+  await queryClient.prefetchQuery(employeesTableOptions(tableParams));
 
   const roleOptions = employeeRoles.filter((r) => r !== "super_admin" || canAssignSuperAdmin(user));
 
@@ -198,21 +158,9 @@ export default async function DirectoryPage({
         </CardContent>
       </Card>
 
-      <Card className="hidden min-[860px]:block">
-        <EmployeeTable
-          rows={rows}
-          params={params}
-          canManage={canManage}
-          canDelete={canDelete}
-          editableIds={editableIds}
-        />
-        <DirectoryPagination page={page} pageSize={PAGE_SIZE} total={filtered.length} />
-      </Card>
-
-      <div className="flex flex-col gap-2 min-[860px]:hidden">
-        <EmployeeCards rows={rows} params={params} />
-        <DirectoryPagination page={page} pageSize={PAGE_SIZE} total={filtered.length} />
-      </div>
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <DirectoryTable user={user} canManage={canManage} pageSize={PAGE_SIZE} />
+      </HydrationBoundary>
 
       {showImportDialog ? <ImportCsvDialog /> : null}
 

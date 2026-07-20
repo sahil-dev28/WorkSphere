@@ -1,10 +1,3 @@
-import type { Employee } from "@/lib/types";
-
-export interface DirectoryRow {
-  employee: Employee;
-  managerName: string;
-}
-
 export type SortKey = "name_asc" | "name_desc" | "joined_desc" | "joined_asc";
 
 export interface DirectorySearchParams {

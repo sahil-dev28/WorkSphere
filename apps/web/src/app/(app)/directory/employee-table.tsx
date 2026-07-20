@@ -15,10 +15,11 @@ import {
 import { RolePill } from "@/components/employee/role-pill";
 import { STATUS_LABELS } from "@/lib/enums";
 import { formatDate, initials } from "@/lib/format";
+import type { Employee } from "@/lib/types";
 
 import { DeleteEmployeeDialog } from "./delete-employee-dialog";
 import { buildDialogHref } from "./dialog-href";
-import type { DirectoryRow, DirectorySearchParams } from "./types";
+import type { DirectorySearchParams } from "./types";
 
 const STATUS_DOT: Record<string, string> = {
   active: "bg-primary",
@@ -27,13 +28,13 @@ const STATUS_DOT: Record<string, string> = {
 };
 
 export function EmployeeTable({
-  rows,
+  employees,
   params,
   canManage,
   canDelete,
   editableIds,
 }: {
-  rows: DirectoryRow[];
+  employees: Employee[];
   params: DirectorySearchParams;
   canManage: boolean;
   canDelete: boolean;
@@ -53,14 +54,14 @@ export function EmployeeTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {rows.length === 0 ? (
+        {employees.length === 0 ? (
           <TableRow>
             <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
               No employees match these filters.
             </TableCell>
           </TableRow>
         ) : (
-          rows.map(({ employee }) => (
+          employees.map((employee) => (
             <TableRow key={employee._id}>
               <TableCell>
                 <div className="flex items-center gap-3">

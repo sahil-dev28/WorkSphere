@@ -10,6 +10,7 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     env: {
       TZ: "UTC",
+      NEXT_PUBLIC_SERVER_URL: "http://localhost:3000",
     },
   },
   resolve: {

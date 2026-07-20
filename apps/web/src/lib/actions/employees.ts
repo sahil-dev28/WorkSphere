@@ -4,6 +4,30 @@ import { revalidatePath } from "next/cache";
 
 import { serverFetch } from "@/lib/api";
 
+import {
+  buildEmployeesQuery,
+  type EmployeesTableParams,
+  type EmployeesTableResult,
+} from "./employees-query";
+
+export { buildEmployeesQuery, type EmployeesTableParams, type EmployeesTableResult };
+
+// Unlike the mutation actions below (which return { error } for form display),
+// this throws on failure — that's the convention useQuery/prefetchQuery expect
+// for populating isError/error. Deliberate, not an inconsistency to fix.
+export async function getEmployeesTable(
+  params: EmployeesTableParams,
+): Promise<EmployeesTableResult> {
+  const res = await serverFetch(`/api/employees?${buildEmployeesQuery(params)}`);
+
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? "Could not load employees");
+  }
+
+  return (await res.json()) as EmployeesTableResult;
+}
+
 export async function deleteEmployeeAction(id: string): Promise<{ error?: string }> {
   const res = await serverFetch(`/api/employees/${id}`, { method: "DELETE" });
 

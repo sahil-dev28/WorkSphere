@@ -4,18 +4,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@WorkSphere/ui/components/a
 
 import { StatusPill } from "@/components/employee/status-pill";
 import { initials } from "@/lib/format";
+import type { Employee } from "@/lib/types";
 
 import { buildDialogHref } from "./dialog-href";
-import type { DirectoryRow, DirectorySearchParams } from "./types";
+import type { DirectorySearchParams } from "./types";
 
 export function EmployeeCards({
-  rows,
+  employees,
   params,
 }: {
-  rows: DirectoryRow[];
+  employees: Employee[];
   params: DirectorySearchParams;
 }) {
-  if (rows.length === 0) {
+  if (employees.length === 0) {
     return (
       <p className="py-8 text-center text-xs text-muted-foreground">
         No employees match these filters.
@@ -25,7 +26,7 @@ export function EmployeeCards({
 
   return (
     <>
-      {rows.map(({ employee }) => (
+      {employees.map((employee) => (
         <Link
           key={employee._id}
           href={buildDialogHref(params, { action: "view", employeeId: employee._id })}
