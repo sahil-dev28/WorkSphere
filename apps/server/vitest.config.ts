@@ -5,6 +5,10 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: true,
+    // Without this, a stale `dist/` build (tsdown output, gitignored but
+    // present after any local `pnpm build`) gets matched alongside `src/`,
+    // double-running every test against both live and stale compiled code.
+    exclude: ["**/node_modules/**", "**/dist/**"],
   },
   resolve: {
     alias: {
