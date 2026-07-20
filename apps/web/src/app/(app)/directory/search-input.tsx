@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import {
   InputGroup,
@@ -19,6 +19,16 @@ export function SearchInput({ defaultValue }: { defaultValue: string }) {
   const updateParams = useDirectoryParams();
   const skipNextUpdate = useRef(true);
 
+  // updateParams gets a new identity on every navigation (it closes over
+  // useSearchParams(), which Next.js always returns fresh) — including
+  // navigations triggered by other filters. Reading it via ref keeps this
+  // effect keyed on `value` alone, so it doesn't refire (and re-navigate)
+  // every time some other part of the page updates the URL.
+  const updateParamsRef = useRef(updateParams);
+  useLayoutEffect(() => {
+    updateParamsRef.current = updateParams;
+  });
+
   useEffect(() => {
     if (skipNextUpdate.current) {
       skipNextUpdate.current = false;
@@ -26,11 +36,11 @@ export function SearchInput({ defaultValue }: { defaultValue: string }) {
     }
 
     const timeout = setTimeout(() => {
-      updateParams({ q: value.trim() || null });
+      updateParamsRef.current({ q: value.trim() || null });
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(timeout);
-  }, [value, updateParams]);
+  }, [value]);
 
   function clear() {
     skipNextUpdate.current = true;
