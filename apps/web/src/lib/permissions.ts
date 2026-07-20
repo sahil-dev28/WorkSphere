@@ -1,11 +1,6 @@
 import type { Employee } from "@/lib/types";
 import type { Me } from "@/lib/session";
 
-// Single source of truth for the field-level access rules already enforced
-// server-side in employeeController.updateEmployee — mirrored here so the UI
-// never renders a control the backend would 403/silently-drop, rather than
-// trusting the backend to strip fields quietly.
-
 export function canEditEmployee(viewer: Me, target: Pick<Employee, "_id" | "role">): boolean {
   if (viewer.role === "super_admin") return true;
   if (viewer.role === "hr_manager") return target.role !== "super_admin";
@@ -54,9 +49,6 @@ const FULL_FIELDS: EditableField[] = [
   "profileImage",
 ];
 
-// Fields the viewer may submit on target's PUT /api/employees/:id body.
-// reportingManager is deliberately excluded — that's its own PATCH flow,
-// gated by canReassignManager, not part of the general field set.
 export function editableFieldsFor(
   viewer: Me,
   target: Pick<Employee, "_id" | "role">,

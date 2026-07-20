@@ -20,10 +20,6 @@ export interface OrgChartDatum {
 
 const CONTAINER_SELECTOR = "#org-chart-canvas-root";
 
-// nodeId/parentNodeId accessors are called with either the raw datum (during
-// the initial stratify pass) or an already-wrapped HierarchyNode, per the
-// (loosely-typed) d3-org-chart API — this narrows either shape back to the
-// plain datum.
 function toDatum(input: OrgChartDatum | { data: OrgChartDatum }): OrgChartDatum {
   return "data" in input ? input.data : input;
 }
@@ -79,9 +75,6 @@ export function OrgChartCanvas({ data }: { data: OrgChartDatum[] }) {
       .onNodeClick((d) => {
         router.push(`/org-chart?action=view&employeeId=${d.data.id}`, { scroll: false });
       })
-      // CEO + department heads visible by default; each head's own reports
-      // stay collapsed until "Expand all" — expanding the full ~50-person
-      // tree up front leaves it so zoomed out it's unreadable.
       .initialExpandLevel(1)
       .render()
       .fit();

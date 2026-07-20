@@ -1,9 +1,5 @@
 import { departments, employeeRoles } from "@/lib/enums";
 
-// "Employees" is illustrative marketing copy, not a live count — no public,
-// unauthenticated endpoint exists for that (every real count lives behind
-// auth). Departments/Access levels ARE real: both come straight from the
-// same enums the rest of the app validates against, no fetch needed.
 export function BrandPanel() {
   return (
     <div className="flex h-full min-h-[220px] flex-col justify-between bg-secondary p-8 text-secondary-foreground min-[900px]:min-h-svh min-[900px]:p-12">

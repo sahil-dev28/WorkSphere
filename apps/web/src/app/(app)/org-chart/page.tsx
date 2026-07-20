@@ -17,9 +17,6 @@ interface DashboardStats {
   departmentCounts: { department: string; count: number }[];
 }
 
-// One distinct, theme-aware accent per department, in the same fixed order
-// as the `departments` enum — deterministic across reloads, and reuses the
-// app's existing chart-1..5 palette rather than inventing new hex values.
 const DEPARTMENT_COLORS: Record<Employee["department"], string> = {
   Engineering: "var(--chart-1)",
   Design: "var(--chart-2)",
@@ -63,8 +60,6 @@ export default async function OrgChartPage({
     redirect("/login");
   }
 
-  // Same pre-emptive bounce as Directory — GET /api/employees is
-  // super_admin/hr_manager only, not reachable by employee at all.
   if (user.role === "employee") {
     redirect("/dashboard");
   }
@@ -102,9 +97,6 @@ export default async function OrgChartPage({
     directReports: directReportCounts.get(e._id) ?? 0,
   }));
 
-  // Read-only here — clicking a node only ever opens the "view" modal.
-  // Reassigning a manager or editing a record is still done from the
-  // Directory page's Add/Edit dialog.
   const dialogEmployee =
     params.action === "view" && params.employeeId
       ? employees.find((e) => e._id === params.employeeId)

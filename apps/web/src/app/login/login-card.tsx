@@ -24,9 +24,6 @@ interface DemoRole {
   badgeClassName: string;
 }
 
-// Real, permanent seeded accounts — not fabricated. hr.demo@ was created
-// specifically for this (Priya Shah's real password isn't known to us), and
-// already driven through its forced-change flow so it's stable long-term.
 const DEMO_ROLES: DemoRole[] = [
   {
     role: "super_admin",

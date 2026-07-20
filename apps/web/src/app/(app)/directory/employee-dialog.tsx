@@ -56,14 +56,7 @@ interface EmployeeDialogProps {
   canEditRole: boolean;
   roleOptions: Employee["role"][];
   canReassignManager: boolean;
-  // Pre-filtered by the caller — in edit mode this excludes the employee
-  // themselves and all of their descendants, so the select never offers a
-  // choice that would create a circular reporting chain.
   managerRoster: ManagerOption[];
-  // Server-resolved (same self-only-RBAC-aware fallback as the profile
-  // page) — not derived from managerRoster, which is empty for viewers who
-  // can't reassign managers and would otherwise misreport a real manager as
-  // "No manager" just because the roster wasn't fetched for them.
   managerName: string | null;
 }
 
@@ -129,10 +122,6 @@ export function EmployeeDialog({
   const managerChanged =
     isEdit && reportingManager !== (employee?.reportingManager ?? NO_MANAGER);
 
-  // Mirrors the backend's hierarchy rules (apps/server/src/utils/hierarchyRules.ts):
-  // an employee can only report to their own department's hr_manager (or the
-  // super_admin, if that department has no head yet); an hr_manager can only
-  // report to the super_admin; a super_admin has no manager at all.
   const validManagers = managerRoster.filter((m) => {
     if (selectedRole === "super_admin") return false;
     if (selectedRole === "hr_manager") return m.role === "super_admin";
@@ -143,10 +132,6 @@ export function EmployeeDialog({
     updateParams({ action: null, employeeId: null });
   }
 
-  // The general PUT applies reportingManager without the cycle guard — that
-  // check only lives in the separate PATCH /:id/manager handler — so a
-  // manager change goes through that endpoint first, before the rest of the
-  // form's PUT, even though the UI presents Save as a single action.
   async function saveAction(
     prevState: EmployeeFormState,
     formData: FormData,
@@ -169,9 +154,6 @@ export function EmployeeDialog({
 
   useEffect(() => {
     if (state.success) close();
-    // close() is stable across renders in practice (its identity depends
-    // only on useDirectoryParams, which itself is a stable callback) — omit
-    // it so this only re-fires when the action's result actually changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
@@ -186,9 +168,6 @@ export function EmployeeDialog({
     return !isView && editableFields.includes(field);
   }
 
-  // The main PUT never carries reportingManager — a change goes through the
-  // separate cycle-guarded PATCH above instead (see saveAction), so it's
-  // deliberately dropped here even though the field is part of FormValues.
   function onValid(data: FormValues) {
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
@@ -438,10 +417,6 @@ export function EmployeeDialog({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value={NO_MANAGER}>— No manager —</SelectItem>
-                        {/* Pre-filtered by the caller (self + descendants
-                            excluded so a cycle can't even be selected here)
-                            and then narrowed to same-department head / CEO
-                            above, matching the backend's hierarchy rules. */}
                         {validManagers.map((m) => (
                           <SelectItem key={m._id} value={m._id}>
                             {m.name} — {m.designation}

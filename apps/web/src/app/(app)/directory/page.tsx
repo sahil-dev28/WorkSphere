@@ -91,9 +91,6 @@ export default async function DirectoryPage({
     redirect("/login");
   }
 
-  // GET /api/employees is admin-only by backend design (employees only ever
-  // see their own record via GET /:id) — the frontend shouldn't wait for a
-  // 403 to find that out, since this screen isn't reachable for that role.
   if (user.role === "employee") {
     redirect("/dashboard");
   }
@@ -137,8 +134,6 @@ export default async function DirectoryPage({
 
   const roleOptions = employeeRoles.filter((r) => r !== "super_admin" || canAssignSuperAdmin(user));
 
-  // The dialog is driven entirely by ?action=/&employeeId= — no local open
-  // state, so it survives a full page reload and is trivially deep-linkable.
   let dialogMode: EmployeeDialogMode | null = null;
   let dialogEmployee: Employee | undefined;
 
@@ -152,18 +147,11 @@ export default async function DirectoryPage({
     }
   }
 
-  // Self + all descendants (direct and indirect reports) excluded so the
-  // reporting-manager select can't even offer a choice that would create a
-  // circular chain — not just reject it after the fact.
   const excludedManagerIds =
     dialogMode === "edit" && dialogEmployee
       ? new Set([dialogEmployee._id, ...getDescendantIds(dialogEmployee._id, employees)])
       : new Set<string>();
 
-  // Only hr_manager/super_admin can ever be a valid reportingManager — the
-  // dialog further narrows this down to the target's own department's head
-  // (or the CEO) as the role/department fields change live, but it can only
-  // filter from what it's given here.
   const managerRoster = employees
     .filter((e) => e.role !== "employee" && !excludedManagerIds.has(e._id))
     .map((e) => ({ _id: e._id, name: e.name, designation: e.designation, role: e.role, department: e.department }));

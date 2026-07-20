@@ -13,8 +13,6 @@ import {
 
 import { ChangePasswordFields } from "./change-password-fields";
 
-// A voluntary change — unlike the forced-change gate page, this one is
-// cancellable, hence the Dialog wrapper instead of a full page.
 export function ChangePasswordDialog({ trigger }: { trigger: React.ReactElement }) {
   return (
     <Dialog>

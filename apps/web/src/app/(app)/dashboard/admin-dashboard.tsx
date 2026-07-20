@@ -104,9 +104,6 @@ function StatCard({
 export async function AdminDashboard({ user: _user }: { user: Me }) {
   const [stats, roster] = await Promise.all([getStats(), getEmployeeRoster()]);
 
-  // "Department Count" = departments that currently have someone in them,
-  // not the enum's fixed size — a static count never changes with the data
-  // and isn't really a stat.
   const activeDepartmentCount = stats.departmentCounts.filter(
     (d) => d.count > 0,
   ).length;

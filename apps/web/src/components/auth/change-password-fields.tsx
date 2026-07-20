@@ -17,11 +17,6 @@ interface FormValues {
   newPassword: string;
 }
 
-// Shared between the forced-change state on the login card, the standalone
-// /change-password page, and the voluntary ChangePasswordDialog — same
-// backend call, same fields, different wrapper. cancelSlot is dialog-agnostic
-// on purpose (just a ReactNode) so this component never has to know about
-// Dialog itself — only the dialog wrapper passes one.
 export function ChangePasswordFields({ cancelSlot }: { cancelSlot?: ReactNode }) {
   const [state, dispatch, pending] = useActionState(changePasswordAction, initialState);
   const {

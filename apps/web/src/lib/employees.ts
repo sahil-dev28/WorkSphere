@@ -14,10 +14,6 @@ export async function getEmployeeById(
   return { employee: body.data, status: res.status };
 }
 
-// GET /api/employees/:id blocks an employee from viewing anyone but their own
-// record — no exception for "my own manager" — so this 403s whenever the
-// viewer is an employee looking up their manager's name. Not worked around;
-// callers fall back to an "unavailable" label.
 export async function getEmployeeName(id: string): Promise<string | null> {
   const { employee } = await getEmployeeById(id);
   return employee?.name ?? null;

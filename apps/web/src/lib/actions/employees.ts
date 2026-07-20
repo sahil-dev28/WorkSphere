@@ -23,9 +23,6 @@ export interface EmployeeFormState {
   success?: boolean;
 }
 
-// Only fields the form actually rendered an input for end up in formData, so
-// this naturally respects the viewer's editableFieldsFor() set without extra
-// filtering here — the backend enforces the same rules independently anyway.
 function buildEmployeePayload(formData: FormData): Record<string, unknown> {
   const payload: Record<string, unknown> = {};
 
@@ -98,8 +95,6 @@ export async function updateEmployeeAction(
   return { success: true };
 }
 
-// Separate from updateEmployeeAction on purpose — PATCH /:id/manager is its
-// own endpoint with its own cycle-guard, distinct from the general PUT.
 export async function updateManagerAction(
   id: string,
   reportingManager: string | null,

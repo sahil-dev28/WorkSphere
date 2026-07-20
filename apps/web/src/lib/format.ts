@@ -8,10 +8,6 @@ export function initials(name: string): string {
     .toUpperCase();
 }
 
-// A couple of the original seed records predate the joiningDate field
-// existing at all — new Date(undefined) is a real Date object (Invalid
-// Date), not null, so it silently reaches toLocaleDateString() and prints
-// the literal string "Invalid Date" unless guarded here.
 export function formatDate(date: string | Date | undefined | null): string {
   if (!date) return "—";
   const parsed = new Date(date);
@@ -24,16 +20,12 @@ export function formatDate(date: string | Date | undefined | null): string {
   });
 }
 
-// Records from before joiningDate existed have no value for it — treat that
-// as "oldest" rather than let an Invalid Date produce an unstable sort.
 export function joinTimestamp(date: string | Date | undefined | null): number {
   if (!date) return -Infinity;
   const time = new Date(date).getTime();
   return Number.isNaN(time) ? -Infinity : time;
 }
 
-// "1 yr 4 mo", "5 mo", "3 yr" — omits the month segment only when it's zero
-// and there's already a year to show; a brand-new hire still reads "0 mo".
 export function formatTenure(joiningDate: string | Date): string {
   const start = new Date(joiningDate);
   const now = new Date();

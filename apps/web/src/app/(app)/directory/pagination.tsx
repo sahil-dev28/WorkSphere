@@ -4,10 +4,6 @@ import { Button } from "@WorkSphere/ui/components/button";
 
 import { useDirectoryParams } from "./use-directory-params";
 
-// No paginated backend endpoint exists — GET /api/employees always returns
-// the full roster, so this paginates the already-filtered/sorted array
-// client-navigates-server-re-renders, same URL-param-driven pattern as
-// search/filter/sort.
 export function DirectoryPagination({
   page,
   pageSize,

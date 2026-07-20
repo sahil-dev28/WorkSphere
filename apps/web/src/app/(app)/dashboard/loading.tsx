@@ -1,10 +1,6 @@
 import { Card, CardContent } from "@WorkSphere/ui/components/card";
 import { Skeleton } from "@WorkSphere/ui/components/skeleton";
 
-// File-convention loading UI — Next wraps the async page in a Suspense
-// boundary automatically. Role isn't known yet at this point, so this
-// approximates the more complex (admin) shape; the employee variant just
-// pops in with different content once its own fetches resolve.
 export default function DashboardLoading() {
   return (
     <div className="flex flex-col gap-6 p-6">

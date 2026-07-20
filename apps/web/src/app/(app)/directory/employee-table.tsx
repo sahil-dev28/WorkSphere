@@ -20,7 +20,6 @@ import { DeleteEmployeeDialog } from "./delete-employee-dialog";
 import { buildDialogHref } from "./dialog-href";
 import type { DirectoryRow, DirectorySearchParams } from "./types";
 
-// Same token mapping as StatusPill, just a solid dot instead of a tinted pill.
 const STATUS_DOT: Record<string, string> = {
   active: "bg-primary",
   on_leave: "bg-accent-foreground",

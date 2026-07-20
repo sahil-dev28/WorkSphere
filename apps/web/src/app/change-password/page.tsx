@@ -2,9 +2,6 @@ import { Card, CardContent } from "@WorkSphere/ui/components/card";
 
 import { ChangePasswordFields } from "@/components/auth/change-password-fields";
 
-// This is the mandatory forced-change gate only — a real page, not a dialog,
-// since you can't "cancel" out of a required password change. Voluntary
-// changes go through ChangePasswordDialog instead.
 export default function ChangePasswordPage() {
   return (
     <div className="flex min-h-svh items-center justify-center bg-background p-4">

@@ -9,9 +9,6 @@ import {
   type ChartConfig,
 } from "@WorkSphere/ui/components/chart";
 
-// Per theme.md: donut active segment = chart-1, inactive = muted — reusing
-// existing tokens rather than inventing new colors. Counts + percentages are
-// always shown as text so identity never rides on color alone.
 const chartConfig = {
   active: { label: "Active", color: "var(--chart-1)" },
   inactive: { label: "Inactive", color: "var(--muted)" },

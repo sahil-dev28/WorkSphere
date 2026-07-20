@@ -3,7 +3,6 @@ import { Badge } from "@WorkSphere/ui/components/badge";
 import { ROLE_LABELS } from "@/lib/enums";
 import type { Employee } from "@/lib/types";
 
-// Exact mapping from theme.md's Employees Table section.
 const ROLE_STYLES: Record<Employee["role"], string> = {
   super_admin: "bg-primary/15 text-primary",
   hr_manager: "bg-accent/20 text-accent-foreground",

@@ -9,9 +9,6 @@ interface SidebarContextValue {
 
 const SidebarContext = createContext<SidebarContextValue | null>(null);
 
-// Plain component state, not persisted — a fresh page load always starts
-// expanded. Lives in the (app) layout so it survives client-side navigation
-// between pages without resetting.
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
 

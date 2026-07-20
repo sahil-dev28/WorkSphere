@@ -1,5 +1,3 @@
-// Mirrors apps/server/src/utils/constants.ts. No shared package between the
-// two apps for this, so these stay manually in sync with the backend.
 export const departments = [
   "Engineering",
   "Design",
