@@ -1,85 +1,98 @@
 # WorkSphere
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Express, and more.
+Employee management system — directory, org hierarchy, role-based access, dashboard, and bulk CSV import. Started from the [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack) scaffold (Next.js + Express + Mongoose monorepo) and built out from there.
 
-## Features
+## Stack
 
-- **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **Shared UI package** - shadcn/ui primitives live in `packages/ui`
-- **Express** - Fast, unopinionated web framework
-- **Node.js** - Runtime environment
-- **Mongoose** - TypeScript-first ORM
-- **MongoDB** - Database engine
-- **Turborepo** - Optimized monorepo build system
+- **apps/web** — Next.js 16 (App Router), React 19, Tailwind, shadcn/ui, react-hook-form, recharts for the dashboard charts, d3-org-chart for the org chart
+- **apps/server** — Express 5 + Mongoose, JWT auth via httpOnly cookie, Zod for request validation, multer + csv-parse for CSV import
+- **packages/ui** — shared shadcn primitives, consumed by `apps/web`
+- **packages/env** — Zod-validated env vars, one module per app (`@WorkSphere/env/server`, `@WorkSphere/env/web`)
+- **packages/config** — shared tsconfig base
+- MongoDB for the database, Turborepo to run/build both apps together
 
-## Getting Started
+## What's actually in it
 
-First, install the dependencies:
+- Login + forced password change on first login, JWT session in an httpOnly cookie
+- Three roles: `super_admin`, `hr_manager`, `employee` — RBAC enforced both on the API (route middleware) and in the UI (fields/buttons hidden per role, not just disabled)
+- Employee directory: search, filter, sort, pagination, add/edit/view/delete
+- Organizational hierarchy rules enforced server-side: one hr_manager per department, no employee-to-employee reporting, no circular reporting chains
+- Org chart page (d3-org-chart) — visual reporting tree, click a node to view that employee
+- Dashboard — headcount by department, active/inactive donut, hiring trend over time
+- CSV bulk import for employees (super_admin/hr_manager only) — upload a `.csv`, get back a per-row success/failure summary plus generated temporary passwords for whoever got created
+
+## Running it locally
 
 ```bash
 pnpm install
 ```
 
-## Database Setup
+You need a MongoDB instance (local or Atlas). Set up your env files:
 
-This project uses MongoDB with Mongoose.
+`apps/server/.env`
 
-1. Make sure you have MongoDB set up.
-2. Update your `apps/server/.env` file with your MongoDB connection URI.
+```
+DATABASE_URL=mongodb://localhost:27017/worksphere
+CORS_ORIGIN=http://localhost:3001
+JWT_SECRET=<at least 32 characters>
+JWT_EXPIRES_IN=604800
+SEED_ADMIN_EMAIL=admin@worksphere.dev
+SEED_ADMIN_PASSWORD=ChangeMe123!
+```
 
-Then, run the development server:
+`apps/web/.env`
+
+```
+NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+```
+
+Then seed some data and start both apps:
 
 ```bash
-pnpm run dev
+cd apps/server && pnpm seed   # or pnpm reseed-org for a fuller org with hierarchy
+cd ../..
+pnpm dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-The API is running at [http://localhost:3000](http://localhost:3000).
+- Web: [http://localhost:3001](http://localhost:3001)
+- API: [http://localhost:3000](http://localhost:3000) (health check at `/api/health`)
 
-## UI Customization
+Login page has quick-fill buttons for the seeded demo accounts (super admin / hr manager / employee) so you don't have to remember passwords.
 
-React web apps in this stack share shadcn/ui primitives through `packages/ui`.
+## Scripts
 
-- Change design tokens and global styles in `packages/ui/src/styles/globals.css`
-- Update shared primitives in `packages/ui/src/components/*`
-- Adjust shadcn aliases or style config in `packages/ui/components.json` and `apps/web/components.json`
+Root (runs across both apps via turbo):
 
-### Add more shared components
+- `pnpm dev` — everything, dev mode
+- `pnpm dev:web` / `pnpm dev:server` — just one side
+- `pnpm build`
+- `pnpm check-types`
 
-Run this from the project root to add more primitives to the shared UI package:
+`apps/server` specifically:
 
-```bash
-npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
-```
+- `pnpm seed` — fresh seed data
+- `pnpm reseed-org` — wipes and rebuilds a full org (~50 employees) with valid hierarchy, keeps the demo logins stable
+- `pnpm backfill-phone` — one-off migration script, probably don't need this unless you're touching old records
 
-Import shared components like this:
-
-```tsx
-import { Button } from "@WorkSphere/ui/components/button";
-```
-
-### Add app-specific blocks
-
-If you want to add app-specific blocks instead of shared primitives, run the shadcn CLI from `apps/web`.
-
-## Project Structure
+## Project structure
 
 ```
 WorkSphere/
 ├── apps/
-│   ├── web/         # Frontend application (Next.js)
-│   └── server/      # Backend API (Express)
+│   ├── web/       # Next.js frontend
+│   └── server/    # Express API
 ├── packages/
-│   ├── ui/          # Shared shadcn/ui components and styles
-│   └── db/          # Database schema & queries
+│   ├── ui/        # shared shadcn/ui components + design tokens
+│   ├── env/       # typed env vars
+│   └── config/    # shared tsconfig
 ```
 
-## Available Scripts
+## Shared UI
 
-- `pnpm run dev`: Start all applications in development mode
-- `pnpm run build`: Build all applications
-- `pnpm run dev:web`: Start only the web application
-- `pnpm run dev:server`: Start only the server
-- `pnpm run check-types`: Check TypeScript types across all apps
+`packages/ui` holds the shadcn primitives both apps could use (currently just web does). To add another component to the shared package:
+
+```bash
+npx shadcn@latest add <component> -c packages/ui
+```
+
+then import it as `@WorkSphere/ui/components/<component>`. Design tokens / global styles live in `packages/ui/src/styles/globals.css` if you need to touch the theme.
