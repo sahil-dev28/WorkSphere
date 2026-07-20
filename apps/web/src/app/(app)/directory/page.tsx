@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Download, Plus, Upload } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -25,6 +25,7 @@ import { DirectoryFilters } from "./filters";
 import { EmployeeCards } from "./employee-cards";
 import { EmployeeDialog, type EmployeeDialogMode } from "./employee-dialog";
 import { EmployeeTable } from "./employee-table";
+import { ImportCsvDialog } from "./import-csv-dialog";
 import { DirectoryPagination } from "./pagination";
 import { SearchInput } from "./search-input";
 import type { DirectoryRow, DirectorySearchParams, SortKey } from "./types";
@@ -134,6 +135,8 @@ export default async function DirectoryPage({
 
   const roleOptions = employeeRoles.filter((r) => r !== "super_admin" || canAssignSuperAdmin(user));
 
+  const showImportDialog = params.action === "import" && canManage;
+
   let dialogMode: EmployeeDialogMode | null = null;
   let dialogEmployee: Employee | undefined;
 
@@ -168,13 +171,29 @@ export default async function DirectoryPage({
             sort={params.sort ?? "name_asc"}
           />
           {canManage ? (
-            <Button
-              render={<Link href={buildDialogHref(params, { action: "add" })} />}
-              nativeButton={false}
-              className="shrink-0"
-            >
-              <Plus /> Add Employee
-            </Button>
+            <div className="flex shrink-0 items-center gap-3">
+              <a
+                href="/employee-import-template.csv"
+                download
+                className="text-xs whitespace-nowrap text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+              >
+                <Download className="mr-1 inline size-3" />
+                Template
+              </a>
+              <Button
+                render={<Link href={buildDialogHref(params, { action: "import" })} />}
+                nativeButton={false}
+                variant="outline"
+              >
+                <Upload /> Import CSV
+              </Button>
+              <Button
+                render={<Link href={buildDialogHref(params, { action: "add" })} />}
+                nativeButton={false}
+              >
+                <Plus /> Add Employee
+              </Button>
+            </div>
           ) : null}
         </CardContent>
       </Card>
@@ -194,6 +213,8 @@ export default async function DirectoryPage({
         <EmployeeCards rows={rows} params={params} />
         <DirectoryPagination page={page} pageSize={PAGE_SIZE} total={filtered.length} />
       </div>
+
+      {showImportDialog ? <ImportCsvDialog /> : null}
 
       {dialogMode ? (
         <EmployeeDialog

@@ -1,0 +1,141 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]: W
+          - generic [ref=e7]: WorkSphere
+        - button "Toggle theme" [ref=e8] [cursor=pointer]
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Employees" [ref=e17] [cursor=pointer]:
+          - /url: /directory
+        - link "Organization" [ref=e23] [cursor=pointer]:
+          - /url: /org-chart
+        - link "My Profile" [ref=e29] [cursor=pointer]:
+          - /url: /profile
+      - generic [ref=e34]:
+        - generic [ref=e35]: GJ
+        - generic [ref=e37]:
+          - generic [ref=e38]: Gisela Jones
+          - generic [ref=e39]: Super Admin
+        - button "Change password" [ref=e40] [cursor=pointer]
+        - button "Log out" [ref=e45] [cursor=pointer]
+    - generic [ref=e49]:
+      - banner [ref=e50]:
+        - generic [ref=e51]:
+          - button "Toggle sidebar" [ref=e52] [cursor=pointer]
+          - generic [ref=e53]:
+            - heading "Dashboard" [level=1] [ref=e54]
+            - paragraph [ref=e55]: Overview of your organization
+        - generic [ref=e56]:
+          - generic [ref=e57]: Super Admin
+          - generic [ref=e58]: GJ
+      - main [ref=e60]:
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - generic [ref=e64]:
+              - generic [ref=e71]: "55"
+              - generic [ref=e72]: Total Employees
+            - generic [ref=e74]:
+              - generic [ref=e80]: "54"
+              - generic [ref=e81]: Active Employees
+            - generic [ref=e83]:
+              - generic [ref=e90]: "1"
+              - generic [ref=e91]: Inactive Employees
+            - generic [ref=e93]:
+              - generic [ref=e99]: "7"
+              - generic [ref=e100]: Department Count
+          - generic [ref=e101]:
+            - generic [ref=e102]:
+              - generic [ref=e103]: Headcount by Department
+              - generic [ref=e105]:
+                - generic [ref=e106]:
+                  - generic [ref=e107]:
+                    - generic [ref=e108]: Engineering
+                    - generic [ref=e109]: "9"
+                  - progressbar [ref=e110]: x
+                - generic [ref=e112]:
+                  - generic [ref=e113]:
+                    - generic [ref=e114]: Design
+                    - generic [ref=e115]: "8"
+                  - progressbar [ref=e116]: x
+                - generic [ref=e118]:
+                  - generic [ref=e119]:
+                    - generic [ref=e120]: Product
+                    - generic [ref=e121]: "7"
+                  - progressbar [ref=e122]: x
+                - generic [ref=e124]:
+                  - generic [ref=e125]:
+                    - generic [ref=e126]: Sales
+                    - generic [ref=e127]: "8"
+                  - progressbar [ref=e128]: x
+                - generic [ref=e130]:
+                  - generic [ref=e131]:
+                    - generic [ref=e132]: Marketing
+                    - generic [ref=e133]: "7"
+                  - progressbar [ref=e134]: x
+                - generic [ref=e136]:
+                  - generic [ref=e137]:
+                    - generic [ref=e138]: HR
+                    - generic [ref=e139]: "8"
+                  - progressbar [ref=e140]: x
+                - generic [ref=e142]:
+                  - generic [ref=e143]:
+                    - generic [ref=e144]: Finance
+                    - generic [ref=e145]: "8"
+                  - progressbar [ref=e146]: x
+            - generic [ref=e148]:
+              - generic [ref=e149]: Employee Status
+              - generic [ref=e156]:
+                - generic [ref=e157]:
+                  - generic [ref=e159]: Active
+                  - generic [ref=e160]: 54 (98%)
+                - generic [ref=e161]:
+                  - generic [ref=e163]: Inactive
+                  - generic [ref=e164]: 1 (2%)
+          - generic [ref=e165]:
+            - generic [ref=e166]: Hiring Trend
+            - generic [ref=e173]:
+              - generic [ref=e174]: Recent Hires
+              - generic [ref=e176]:
+                - generic [ref=e177]:
+                  - generic [ref=e178]: IC
+                  - generic [ref=e180]:
+                    - generic [ref=e181]: Ivy Chen
+                    - generic [ref=e182]: Financial Analyst
+                  - generic [ref=e183]: Jul 20, 2026
+                - generic [ref=e184]:
+                  - generic [ref=e185]: CD
+                  - generic [ref=e187]:
+                    - generic [ref=e188]: Carla Diaz
+                    - generic [ref=e189]: Product Designer
+                  - generic [ref=e190]: Jul 20, 2026
+                - generic [ref=e191]:
+                  - generic [ref=e192]: DP
+                  - generic [ref=e194]:
+                    - generic [ref=e195]: Diana Prince
+                    - generic [ref=e196]: Backend Engineer
+                  - generic [ref=e197]: Mar 1, 2026
+                - generic [ref=e198]:
+                  - generic [ref=e199]: BT
+                  - generic [ref=e201]:
+                    - generic [ref=e202]: Ben Turner
+                    - generic [ref=e203]: Account Executive
+                  - generic [ref=e204]: Feb 1, 2026
+                - generic [ref=e205]:
+                  - generic [ref=e206]: AC
+                  - generic [ref=e208]:
+                    - generic [ref=e209]: Alice Cooper
+                    - generic [ref=e210]: Software Engineer
+                  - generic [ref=e211]: Jan 15, 2026
+                - generic [ref=e212]:
+                  - generic [ref=e213]: PN
+                  - generic [ref=e215]:
+                    - generic [ref=e216]: Pavel Novak
+                    - generic [ref=e217]: Accounts Payable Clerk
+                  - generic [ref=e218]: Jul 22, 2024
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e224] [cursor=pointer]
+  - alert [ref=e228]

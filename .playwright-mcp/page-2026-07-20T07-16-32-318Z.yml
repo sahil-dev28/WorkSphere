@@ -1,0 +1,258 @@
+- generic [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - generic [ref=f2e5]:
+          - generic [ref=f2e6]: W
+          - generic [ref=f2e7]: WorkSphere
+        - button "Toggle theme" [ref=f2e596] [cursor=pointer]
+      - navigation [ref=f2e10]:
+        - link "Dashboard" [ref=f2e597] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Employees" [ref=f2e598] [cursor=pointer]:
+          - /url: /directory
+        - link "Organization" [ref=f2e599] [cursor=pointer]:
+          - /url: /org-chart
+        - link "My Profile" [ref=f2e600] [cursor=pointer]:
+          - /url: /profile
+      - generic [ref=f2e34]:
+        - generic [ref=f2e35]: GJ
+        - generic [ref=f2e37]:
+          - generic [ref=f2e38]: Gisela Jones
+          - generic [ref=f2e39]: Super Admin
+        - button "Change password" [ref=f2e601] [cursor=pointer]
+        - button "Log out" [ref=f2e602] [cursor=pointer]
+    - generic [ref=f2e49]:
+      - banner [ref=f2e50]:
+        - generic [ref=f2e51]:
+          - button "Toggle sidebar" [ref=f2e603] [cursor=pointer]
+          - generic [ref=f2e53]:
+            - heading "Employees" [level=1] [ref=f2e604]
+            - paragraph [ref=f2e55]: Manage your team
+        - generic [ref=f2e56]:
+          - generic [ref=f2e57]: Super Admin
+          - generic [ref=f2e58]: GJ
+      - main [ref=f2e60]:
+        - generic [ref=f2e90]:
+          - generic [ref=f2e92]:
+            - group [ref=f2e93]:
+              - group [ref=f2e94]
+              - textbox "Search employees" [ref=f2e605]:
+                - /placeholder: Search by name or email
+            - generic [ref=f2e99]:
+              - combobox [ref=f2e100]:
+                - generic [ref=f2e101]: all
+              - textbox [ref=f2e105]: all
+              - combobox [ref=f2e106]:
+                - generic [ref=f2e107]: all
+              - textbox [ref=f2e111]: all
+              - combobox [ref=f2e112]:
+                - generic [ref=f2e113]: all
+              - textbox [ref=f2e117]: all
+              - combobox [ref=f2e118]:
+                - generic [ref=f2e119]: name_asc
+              - textbox [ref=f2e123]: name_asc
+            - generic [ref=f2e124]:
+              - link "Template" [ref=f2e606] [cursor=pointer]:
+                - /url: /employee-import-template.csv
+              - button "Import CSV" [active] [ref=f2e607] [cursor=pointer]
+              - button "Add Employee" [ref=f2e608] [cursor=pointer]
+          - generic [ref=f2e131]:
+            - table [ref=f2e133]:
+              - rowgroup [ref=f2e134]:
+                - row [ref=f2e609]:
+                  - columnheader "Employee" [ref=f2e610]
+                  - columnheader "Department" [ref=f2e611]
+                  - columnheader "Role" [ref=f2e612]
+                  - columnheader "Status" [ref=f2e613]
+                  - columnheader "Joined" [ref=f2e614]
+                  - columnheader "Salary" [ref=f2e615]
+                  - columnheader "Actions" [ref=f2e616]
+              - rowgroup [ref=f2e143]:
+                - row [ref=f2e617]:
+                  - cell "AN Adaeze Nwosu EMP-0042 · HR Generalist" [ref=f2e618]:
+                    - generic [ref=f2e146]:
+                      - generic [ref=f2e147]: AN
+                      - generic [ref=f2e149]:
+                        - generic [ref=f2e150]: Adaeze Nwosu
+                        - generic [ref=f2e151]: EMP-0042 · HR Generalist
+                  - cell [ref=f2e619]
+                  - cell "Employee" [ref=f2e620]
+                  - cell [ref=f2e621]
+                  - cell "Jan 24, 2022" [ref=f2e622]
+                  - cell "$76,000" [ref=f2e623]
+                  - cell [ref=f2e624]:
+                    - generic [ref=f2e163]:
+                      - button "View Adaeze Nwosu" [ref=f2e625] [cursor=pointer]
+                      - button "Edit Adaeze Nwosu" [ref=f2e626] [cursor=pointer]
+                      - button "Delete Adaeze Nwosu" [ref=f2e627] [cursor=pointer]
+                - row [ref=f2e628]:
+                  - cell "AC Alice Cooper EMP-0051 · Software Engineer" [ref=f2e629]:
+                    - generic [ref=f2e169]:
+                      - generic [ref=f2e170]: AC
+                      - generic [ref=f2e172]:
+                        - generic [ref=f2e173]: Alice Cooper
+                        - generic [ref=f2e174]: EMP-0051 · Software Engineer
+                  - cell [ref=f2e630]
+                  - cell "Employee" [ref=f2e631]
+                  - cell [ref=f2e632]
+                  - cell "Jan 15, 2026" [ref=f2e633]
+                  - cell "$95,000" [ref=f2e634]
+                  - cell [ref=f2e635]:
+                    - generic [ref=f2e186]:
+                      - button "View Alice Cooper" [ref=f2e636] [cursor=pointer]
+                      - button "Edit Alice Cooper" [ref=f2e637] [cursor=pointer]
+                      - button "Delete Alice Cooper" [ref=f2e638] [cursor=pointer]
+                - row [ref=f2e639]:
+                  - cell "AO Amara Osei EMP-0015 · Junior Designer" [ref=f2e640]:
+                    - generic [ref=f2e192]:
+                      - generic [ref=f2e193]: AO
+                      - generic [ref=f2e195]:
+                        - generic [ref=f2e196]: Amara Osei
+                        - generic [ref=f2e197]: EMP-0015 · Junior Designer
+                  - cell [ref=f2e641]
+                  - cell "Employee" [ref=f2e642]
+                  - cell [ref=f2e643]
+                  - cell "May 13, 2024" [ref=f2e644]
+                  - cell "$71,000" [ref=f2e645]
+                  - cell [ref=f2e646]:
+                    - generic [ref=f2e209]:
+                      - button "View Amara Osei" [ref=f2e647] [cursor=pointer]
+                      - button "Edit Amara Osei" [ref=f2e648] [cursor=pointer]
+                      - button "Delete Amara Osei" [ref=f2e649] [cursor=pointer]
+                - row [ref=f2e650]:
+                  - cell "AL Anders Lindqvist EMP-0044 · Finance Manager" [ref=f2e651]:
+                    - generic [ref=f2e215]:
+                      - generic [ref=f2e216]: AL
+                      - generic [ref=f2e218]:
+                        - generic [ref=f2e219]: Anders Lindqvist
+                        - generic [ref=f2e220]: EMP-0044 · Finance Manager
+                  - cell [ref=f2e652]
+                  - cell "HR Manager" [ref=f2e653]
+                  - cell [ref=f2e654]
+                  - cell "Apr 20, 2020" [ref=f2e655]
+                  - cell "$150,000" [ref=f2e656]
+                  - cell [ref=f2e657]:
+                    - generic [ref=f2e232]:
+                      - button "View Anders Lindqvist" [ref=f2e658] [cursor=pointer]
+                      - button "Edit Anders Lindqvist" [ref=f2e659] [cursor=pointer]
+                      - button "Delete Anders Lindqvist" [ref=f2e660] [cursor=pointer]
+                - row [ref=f2e661]:
+                  - cell "AM Ariana Mcgowan EMP-0017 · Associate Product Manager" [ref=f2e662]:
+                    - generic [ref=f2e238]:
+                      - generic [ref=f2e239]: AM
+                      - generic [ref=f2e241]:
+                        - generic [ref=f2e242]: Ariana Mcgowan
+                        - generic [ref=f2e243]: EMP-0017 · Associate Product Manager
+                  - cell [ref=f2e663]
+                  - cell "Employee" [ref=f2e664]
+                  - cell [ref=f2e665]
+                  - cell "Oct 3, 2022" [ref=f2e666]
+                  - cell "$98,000" [ref=f2e667]
+                  - cell [ref=f2e668]:
+                    - generic [ref=f2e255]:
+                      - button "View Ariana Mcgowan" [ref=f2e669] [cursor=pointer]
+                      - button "Edit Ariana Mcgowan" [ref=f2e670] [cursor=pointer]
+                      - button "Delete Ariana Mcgowan" [ref=f2e671] [cursor=pointer]
+                - row [ref=f2e672]:
+                  - cell "BA Beatriz Almeida EMP-0047 · Payroll Specialist" [ref=f2e673]:
+                    - generic [ref=f2e261]:
+                      - generic [ref=f2e262]: BA
+                      - generic [ref=f2e264]:
+                        - generic [ref=f2e265]: Beatriz Almeida
+                        - generic [ref=f2e266]: EMP-0047 · Payroll Specialist
+                  - cell [ref=f2e674]
+                  - cell "Employee" [ref=f2e675]
+                  - cell [ref=f2e676]
+                  - cell "Mar 13, 2023" [ref=f2e677]
+                  - cell "$70,000" [ref=f2e678]
+                  - cell [ref=f2e679]:
+                    - generic [ref=f2e278]:
+                      - button "View Beatriz Almeida" [ref=f2e680] [cursor=pointer]
+                      - button "Edit Beatriz Almeida" [ref=f2e681] [cursor=pointer]
+                      - button "Delete Beatriz Almeida" [ref=f2e682] [cursor=pointer]
+                - row [ref=f2e683]:
+                  - cell "BT Ben Turner EMP-0052 · Account Executive" [ref=f2e684]:
+                    - generic [ref=f2e284]:
+                      - generic [ref=f2e285]: BT
+                      - generic [ref=f2e287]:
+                        - generic [ref=f2e288]: Ben Turner
+                        - generic [ref=f2e289]: EMP-0052 · Account Executive
+                  - cell [ref=f2e685]
+                  - cell "Employee" [ref=f2e686]
+                  - cell [ref=f2e687]
+                  - cell "Feb 1, 2026" [ref=f2e688]
+                  - cell "$72,000" [ref=f2e689]
+                  - cell [ref=f2e690]:
+                    - generic [ref=f2e301]:
+                      - button "View Ben Turner" [ref=f2e691] [cursor=pointer]
+                      - button "Edit Ben Turner" [ref=f2e692] [cursor=pointer]
+                      - button "Delete Ben Turner" [ref=f2e693] [cursor=pointer]
+                - row [ref=f2e694]:
+                  - cell "BV Bram Visser EMP-0026 · Sales Development Rep" [ref=f2e695]:
+                    - generic [ref=f2e307]:
+                      - generic [ref=f2e308]: BV
+                      - generic [ref=f2e310]:
+                        - generic [ref=f2e311]: Bram Visser
+                        - generic [ref=f2e312]: EMP-0026 · Sales Development Rep
+                  - cell [ref=f2e696]
+                  - cell "Employee" [ref=f2e697]
+                  - cell [ref=f2e698]
+                  - cell "Apr 8, 2024" [ref=f2e699]
+                  - cell "$58,000" [ref=f2e700]
+                  - cell [ref=f2e701]:
+                    - generic [ref=f2e324]:
+                      - button "View Bram Visser" [ref=f2e702] [cursor=pointer]
+                      - button "Edit Bram Visser" [ref=f2e703] [cursor=pointer]
+                      - button "Delete Bram Visser" [ref=f2e704] [cursor=pointer]
+                - row [ref=f2e705]:
+                  - cell "CF Callum Fitzgerald EMP-0020 · Associate Product Manager" [ref=f2e706]:
+                    - generic [ref=f2e330]:
+                      - generic [ref=f2e331]: CF
+                      - generic [ref=f2e333]:
+                        - generic [ref=f2e334]: Callum Fitzgerald
+                        - generic [ref=f2e335]: EMP-0020 · Associate Product Manager
+                  - cell [ref=f2e707]
+                  - cell "Employee" [ref=f2e708]
+                  - cell [ref=f2e709]
+                  - cell "Sep 9, 2021" [ref=f2e710]
+                  - cell "$97,000" [ref=f2e711]
+                  - cell [ref=f2e712]:
+                    - generic [ref=f2e347]:
+                      - button "View Callum Fitzgerald" [ref=f2e713] [cursor=pointer]
+                      - button "Edit Callum Fitzgerald" [ref=f2e714] [cursor=pointer]
+                      - button "Delete Callum Fitzgerald" [ref=f2e715] [cursor=pointer]
+                - row [ref=f2e716]:
+                  - cell "CD Camille Dubois EMP-0040 · People Operations Specialist" [ref=f2e717]:
+                    - generic [ref=f2e353]:
+                      - generic [ref=f2e354]: CD
+                      - generic [ref=f2e356]:
+                        - generic [ref=f2e357]: Camille Dubois
+                        - generic [ref=f2e358]: EMP-0040 · People Operations Specialist
+                  - cell [ref=f2e718]
+                  - cell "Employee" [ref=f2e719]
+                  - cell [ref=f2e720]
+                  - cell "Jul 13, 2021" [ref=f2e721]
+                  - cell "$74,000" [ref=f2e722]
+                  - cell [ref=f2e723]:
+                    - generic [ref=f2e370]:
+                      - button "View Camille Dubois" [ref=f2e724] [cursor=pointer]
+                      - button "Edit Camille Dubois" [ref=f2e725] [cursor=pointer]
+                      - button "Delete Camille Dubois" [ref=f2e726] [cursor=pointer]
+            - generic [ref=f2e374]:
+              - paragraph [ref=f2e375]: Showing 1–10 of 58 employees
+              - generic [ref=f2e376]:
+                - button "Prev" [disabled]
+                - generic [ref=f2e377]: Page 1 of 6
+                - button "Next" [ref=f2e727] [cursor=pointer]
+  - region "Notifications alt+T"
+  - generic [ref=f2e85] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f2e86]
+    - generic [ref=f2e379]:
+      - button "Open issues overlay" [ref=f2e380]:
+        - generic [ref=f2e381]:
+          - generic [ref=f2e382]: "0"
+          - generic [ref=f2e383]: "1"
+        - generic [ref=f2e384]: Issue
+      - button "Collapse issues badge" [ref=f2e385]
+  - alert [ref=f2e388]

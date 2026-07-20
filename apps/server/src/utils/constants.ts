@@ -9,6 +9,8 @@ export const BCRYPT_SALT_ROUNDS = 10;
 
 export const MIN_PASSWORD_LENGTH = 8;
 
+export const CSV_IMPORT_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+
 export const DEFAULT_PORT = 3000;
 
 export const CORS_METHODS: string[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"];

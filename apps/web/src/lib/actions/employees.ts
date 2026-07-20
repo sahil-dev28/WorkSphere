@@ -95,6 +95,69 @@ export async function updateEmployeeAction(
   return { success: true };
 }
 
+export interface ImportRowError {
+  row: number;
+  email: string;
+  reason: string;
+}
+
+export interface ImportedEmployee {
+  name: string;
+  email: string;
+  employeeId: string;
+  temporaryPassword: string;
+}
+
+export interface ImportEmployeesResult {
+  created: number;
+  failed: number;
+  errors: ImportRowError[];
+  createdEmployees: ImportedEmployee[];
+  error?: string;
+}
+
+const EMPTY_IMPORT_RESULT: Omit<ImportEmployeesResult, "error"> = {
+  created: 0,
+  failed: 0,
+  errors: [],
+  createdEmployees: [],
+};
+
+export async function importEmployeesAction(
+  _prevState: ImportEmployeesResult | null,
+  formData: FormData,
+): Promise<ImportEmployeesResult> {
+  const file = formData.get("file");
+
+  if (!(file instanceof File)) {
+    return { ...EMPTY_IMPORT_RESULT, error: "CSV file is required" };
+  }
+
+  const body = new FormData();
+  body.set("file", file);
+
+  const res = await serverFetch("/api/employees/import", { method: "POST", body });
+  const responseBody = (await res.json()) as Partial<ImportEmployeesResult> & { error?: string };
+
+  if (!res.ok) {
+    return { ...EMPTY_IMPORT_RESULT, error: responseBody.error ?? "Import failed" };
+  }
+
+  const result: ImportEmployeesResult = {
+    created: responseBody.created ?? 0,
+    failed: responseBody.failed ?? 0,
+    errors: responseBody.errors ?? [],
+    createdEmployees: responseBody.createdEmployees ?? [],
+  };
+
+  if (result.created > 0) {
+    revalidatePath("/directory");
+    revalidatePath("/org-chart");
+  }
+
+  return result;
+}
+
 export async function updateManagerAction(
   id: string,
   reportingManager: string | null,

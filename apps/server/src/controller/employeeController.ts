@@ -1,8 +1,10 @@
+import { parse } from "csv-parse/sync";
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
 
 import { Employee } from "@/models/Employee";
 import type { EmployeeAttrs } from "@/models/Employee";
+import { createEmployeeSchema } from "@/schema/employee";
 import type {
   CreateEmployeeInput,
   UpdateEmployeeInput,
@@ -10,6 +12,7 @@ import type {
 } from "@/schema/employee";
 import { NOT_DELETED_FILTER } from "@/utils/constants";
 import { formatMongooseError } from "@/utils/formatMongooseError";
+import { generateTemporaryPassword } from "@/utils/generateTemporaryPassword";
 import { assertValidHierarchy, HierarchyError } from "@/utils/hierarchyRules";
 
 function formatEmployeeError(error: unknown): { error: string; fieldErrors?: Record<string, string> } {
@@ -141,6 +144,159 @@ export const createEmployee = async (
     res.status(200).json({ message: "Employee created", employeeId: newEmployee.employeeId });
   } catch (error) {
     res.status(400).json(formatEmployeeError(error));
+  }
+};
+
+interface ImportRow {
+  name?: string;
+  email?: string;
+  phone?: string;
+  department?: string;
+  designation?: string;
+  salary?: string;
+  joiningDate?: string;
+  reportingManagerEmail?: string;
+  role?: string;
+}
+
+interface ImportError {
+  row: number;
+  email: string;
+  reason: string;
+}
+
+interface CreatedImportRow {
+  name: string;
+  email: string;
+  employeeId: string;
+  temporaryPassword: string;
+}
+
+export const importEmployees = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: "CSV file is required" });
+      return;
+    }
+
+    let rows: ImportRow[];
+    try {
+      rows = parse(req.file.buffer, {
+        columns: true,
+        trim: true,
+        skip_empty_lines: true,
+      }) as ImportRow[];
+    } catch {
+      res.status(400).json({ error: "Could not parse CSV file" });
+      return;
+    }
+
+    const requesterRole = req.user?.role;
+    const created: CreatedImportRow[] = [];
+    const errors: ImportError[] = [];
+
+    // Sequential, not Promise.all — Employee's pre-save hook derives the next
+    // employeeId from the current max in the collection, so concurrent saves
+    // could race and collide. Awaiting each row's save in turn keeps that
+    // generation correct, same as a normal one-at-a-time create.
+    for (const [index, row] of rows.entries()) {
+      const rowNumber = index + 2; // header occupies row 1
+      const email = row.email ?? "";
+
+      try {
+        let reportingManager: string | undefined;
+
+        if (row.reportingManagerEmail) {
+          const manager = await Employee.findOne(
+            { email: row.reportingManagerEmail.toLowerCase(), ...NOT_DELETED_FILTER },
+            { _id: 1 },
+          ).lean();
+
+          if (!manager) {
+            errors.push({
+              row: rowNumber,
+              email,
+              reason: `No employee found with email ${row.reportingManagerEmail}`,
+            });
+            continue;
+          }
+          reportingManager = manager._id.toString();
+        }
+
+        const temporaryPassword = generateTemporaryPassword();
+
+        const parseResult = createEmployeeSchema.safeParse({
+          name: row.name,
+          email: row.email,
+          phone: row.phone,
+          department: row.department,
+          designation: row.designation,
+          salary: row.salary ? Number(row.salary) : undefined,
+          joiningDate: row.joiningDate || undefined,
+          reportingManager,
+          password: temporaryPassword,
+          role: row.role || undefined,
+        });
+
+        if (!parseResult.success) {
+          errors.push({
+            row: rowNumber,
+            email,
+            reason: parseResult.error.issues[0]?.message ?? "Invalid row",
+          });
+          continue;
+        }
+
+        const data = parseResult.data;
+
+        if (requesterRole === "hr_manager" && data.role === "super_admin") {
+          errors.push({ row: rowNumber, email: data.email, reason: "HR Manager cannot assign Super Admin" });
+          continue;
+        }
+
+        await assertValidHierarchy({
+          employeeId: null,
+          role: data.role,
+          department: data.department,
+          reportingManager: data.reportingManager ?? null,
+        });
+
+        const newEmployee = new Employee({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          department: data.department,
+          designation: data.designation,
+          salary: data.salary,
+          joiningDate: data.joiningDate,
+          reportingManager: data.reportingManager,
+          password: data.password,
+          role: data.role,
+        });
+
+        await newEmployee.save();
+
+        created.push({
+          name: newEmployee.name,
+          email: newEmployee.email,
+          employeeId: newEmployee.employeeId!,
+          temporaryPassword,
+        });
+      } catch (rowError) {
+        errors.push({ row: rowNumber, email, reason: formatEmployeeError(rowError).error });
+      }
+    }
+
+    res.status(200).json({
+      created: created.length,
+      failed: errors.length,
+      errors,
+      createdEmployees: created,
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 

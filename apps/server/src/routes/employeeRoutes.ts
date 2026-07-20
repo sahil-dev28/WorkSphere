@@ -6,6 +6,7 @@ import {
   getEmployeeById,
   getEmployees,
   getReportees,
+  importEmployees,
   updateEmployee,
   updateManager,
 } from "@/controller/employeeController";
@@ -14,6 +15,7 @@ import {
   authorize,
   enforcePasswordChange,
 } from "@/middleware/authMiddleware";
+import { uploadCsv } from "@/middleware/uploadMiddleware";
 import { validateData } from "@/middleware/validationMiddleware";
 import {
   createEmployeeSchema,
@@ -39,9 +41,15 @@ employeeRouter
     createEmployee,
   );
 
-// No authorize() here — all three roles can reach these handlers, scoped by
-// resource ownership inside the controller (same pattern as the HR/super_admin
-// guard already used in createEmployee).
+employeeRouter.post(
+  "/import",
+  authenticate,
+  enforcePasswordChange,
+  authorize("super_admin", "hr_manager"),
+  uploadCsv,
+  importEmployees,
+);
+
 employeeRouter
   .route("/:id")
   .get(authenticate, enforcePasswordChange, getEmployeeById)
@@ -58,8 +66,6 @@ employeeRouter
     deleteEmployee,
   );
 
-// Same no-authorize() pattern — employee is allowed through for the
-// self-viewing case, blocked from everyone else's inside the controller.
 employeeRouter.get(
   "/:id/reportees",
   authenticate,
