@@ -1,0 +1,52 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e261]:
+    - generic [ref=f4e263]:
+      - generic [ref=f4e264]:
+        - generic [ref=f4e265]: W
+        - generic [ref=f4e266]: WorkSphere
+      - generic [ref=f4e267]:
+        - heading "Everyone in your company, organized." [level=1] [ref=f4e268]
+        - paragraph [ref=f4e269]: One workspace for employee records, reporting lines, and access — kept in sync.
+        - generic [ref=f4e270]:
+          - generic [ref=f4e271]:
+            - generic [ref=f4e272]: 50+
+            - generic [ref=f4e273]: Employees
+          - generic [ref=f4e274]:
+            - generic [ref=f4e275]: "7"
+            - generic [ref=f4e276]: Departments
+          - generic [ref=f4e277]:
+            - generic [ref=f4e278]: "3"
+            - generic [ref=f4e279]: Access levels
+      - paragraph [ref=f4e280]: © 2026 WorkSphere — Employee Management System
+    - generic [ref=f4e282]:
+      - generic [ref=f4e283]:
+        - heading "Sign in to your workspace" [level=1] [ref=f4e284]
+        - paragraph [ref=f4e285]: Enter your credentials, or pick a role below to explore the demo.
+      - generic [ref=f4e286]:
+        - generic [ref=f4e287]:
+          - generic [ref=f4e288]: Work email
+          - textbox "Work email" [ref=f4e289]:
+            - /placeholder: you@company.com
+        - generic [ref=f4e290]:
+          - generic [ref=f4e291]: Password
+          - textbox "Password" [ref=f4e292]
+        - button "Sign in" [ref=f4e293] [cursor=pointer]
+      - generic [ref=f4e294]: Sign in as
+      - generic [ref=f4e298]:
+        - button "Super Admin Full access · manage roles & delete" [ref=f4e299] [cursor=pointer]:
+          - generic [ref=f4e304]:
+            - generic [ref=f4e305]: Super Admin
+            - generic [ref=f4e306]: Full access · manage roles & delete
+        - button "HR Manager Create, edit & view · no delete" [ref=f4e307] [cursor=pointer]:
+          - generic [ref=f4e314]:
+            - generic [ref=f4e315]: HR Manager
+            - generic [ref=f4e316]: Create, edit & view · no delete
+        - button "Employee View & edit own profile only" [ref=f4e317] [cursor=pointer]:
+          - generic [ref=f4e322]:
+            - generic [ref=f4e323]: Employee
+            - generic [ref=f4e324]: View & edit own profile only
+      - paragraph [ref=f4e325]: Access is provisioned by your administrator. Contact HR if you need an account.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f4e255] [cursor=pointer]
+  - alert [ref=f4e259]
+  - generic [ref=f4e260]: "2019"
