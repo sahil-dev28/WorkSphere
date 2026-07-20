@@ -13,32 +13,17 @@ import { Progress } from "@WorkSphere/ui/components/progress";
 import { getEmployeeRoster } from "@/lib/employees";
 import { formatDate, initials, joinTimestamp } from "@/lib/format";
 import { serverFetch } from "@/lib/api";
-import type { Me } from "@/lib/session";
 
 import { HiringTrendChart, type HiringTrendPoint } from "./hiring-trend-chart";
 import { StatusDonutChart } from "./status-donut-chart";
 
-const CHART_COLORS = [
-  "bg-chart-1",
-  "bg-chart-2",
-  "bg-chart-3",
-  "bg-chart-4",
-  "bg-chart-5",
-];
-const CHART_BADGE_COLORS = [
-  "bg-chart-1/15",
-  "bg-chart-2/15",
-  "bg-chart-3/15",
-  "bg-chart-4/15",
-  "bg-chart-5/15",
-];
-const CHART_TEXT_COLORS = [
-  "text-chart-1",
-  "text-chart-2",
-  "text-chart-3",
-  "text-chart-4",
-  "text-chart-5",
-];
+const CHART_PALETTE = [
+  { badge: "bg-chart-1/15", text: "text-chart-1", indicator: "bg-chart-1" },
+  { badge: "bg-chart-2/15", text: "text-chart-2", indicator: "bg-chart-2" },
+  { badge: "bg-chart-3/15", text: "text-chart-3", indicator: "bg-chart-3" },
+  { badge: "bg-chart-4/15", text: "text-chart-4", indicator: "bg-chart-4" },
+  { badge: "bg-chart-5/15", text: "text-chart-5", indicator: "bg-chart-5" },
+] as const;
 
 interface DashboardStats {
   totalEmployees: number;
@@ -47,8 +32,9 @@ interface DashboardStats {
   departmentCounts: { department: string; count: number }[];
 }
 
-async function getStats(): Promise<DashboardStats> {
+async function getStats(): Promise<DashboardStats | null> {
   const res = await serverFetch("/api/dashboard/stats");
+  if (!res.ok) return null;
   const body = (await res.json()) as { data: DashboardStats };
   return body.data;
 }
@@ -82,15 +68,13 @@ function StatCard({
   label: string;
   colorIndex: number;
 }) {
-  const i = colorIndex % CHART_COLORS.length;
+  const palette = CHART_PALETTE[colorIndex % CHART_PALETTE.length];
 
   return (
     <Card>
       <CardContent className="flex flex-col gap-2 py-2">
-        <div
-          className={`flex size-8 items-center justify-center ${CHART_BADGE_COLORS[i]}`}
-        >
-          <Icon className={`size-4 ${CHART_TEXT_COLORS[i]}`} />
+        <div className={`flex size-8 items-center justify-center ${palette.badge}`}>
+          <Icon className={`size-4 ${palette.text}`} />
         </div>
         <span className="text-2xl font-semibold tracking-tight tabular-nums">
           {value}
@@ -101,12 +85,8 @@ function StatCard({
   );
 }
 
-export async function AdminDashboard({ user: _user }: { user: Me }) {
+export async function AdminDashboard() {
   const [stats, roster] = await Promise.all([getStats(), getEmployeeRoster()]);
-
-  const activeDepartmentCount = stats.departmentCounts.filter(
-    (d) => d.count > 0,
-  ).length;
 
   const recentlyJoined = [...roster]
     .sort((a, b) => joinTimestamp(b.joiningDate) - joinTimestamp(a.joiningDate))
@@ -116,70 +96,80 @@ export async function AdminDashboard({ user: _user }: { user: Me }) {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="grid grid-cols-1 gap-4 min-[860px]:grid-cols-4">
-        <StatCard
-          icon={Users}
-          value={stats.totalEmployees}
-          label="Total Employees"
-          colorIndex={0}
-        />
-        <StatCard
-          icon={UserCheck}
-          value={stats.activeEmployees}
-          label="Active Employees"
-          colorIndex={1}
-        />
-        <StatCard
-          icon={UserX}
-          value={stats.inactiveEmployees}
-          label="Inactive Employees"
-          colorIndex={2}
-        />
-        <StatCard
-          icon={Building2}
-          value={activeDepartmentCount}
-          label="Department Count"
-          colorIndex={3}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[1.6fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Headcount by Department</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            {stats.departmentCounts.map((d, i) => (
-              <div key={d.department} className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span>{d.department}</span>
-                  <span className="font-medium tabular-nums">{d.count}</span>
-                </div>
-                <Progress
-                  value={
-                    stats.totalEmployees > 0
-                      ? (d.count / stats.totalEmployees) * 100
-                      : 0
-                  }
-                  indicatorClassName={CHART_COLORS[i % CHART_COLORS.length]}
-                />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Employee Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <StatusDonutChart
-              active={stats.activeEmployees}
-              inactive={stats.inactiveEmployees}
+      {stats ? (
+        <>
+          <div className="grid grid-cols-1 gap-4 min-[860px]:grid-cols-4">
+            <StatCard
+              icon={Users}
+              value={stats.totalEmployees}
+              label="Total Employees"
+              colorIndex={0}
             />
+            <StatCard
+              icon={UserCheck}
+              value={stats.activeEmployees}
+              label="Active Employees"
+              colorIndex={1}
+            />
+            <StatCard
+              icon={UserX}
+              value={stats.inactiveEmployees}
+              label="Inactive Employees"
+              colorIndex={2}
+            />
+            <StatCard
+              icon={Building2}
+              value={stats.departmentCounts.filter((d) => d.count > 0).length}
+              label="Department Count"
+              colorIndex={3}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[1.6fr_1fr]">
+            <Card>
+              <CardHeader>
+                <CardTitle>Headcount by Department</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3">
+                {stats.departmentCounts.map((d, i) => (
+                  <div key={d.department} className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span>{d.department}</span>
+                      <span className="font-medium tabular-nums">{d.count}</span>
+                    </div>
+                    <Progress
+                      value={
+                        stats.totalEmployees > 0
+                          ? (d.count / stats.totalEmployees) * 100
+                          : 0
+                      }
+                      indicatorClassName={CHART_PALETTE[i % CHART_PALETTE.length].indicator}
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Employee Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <StatusDonutChart
+                  active={stats.activeEmployees}
+                  inactive={stats.inactiveEmployees}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      ) : (
+        <Card>
+          <CardContent className="py-6 text-xs text-muted-foreground">
+            Could not load dashboard stats. Try again shortly.
           </CardContent>
         </Card>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 min-[1100px]:grid-cols-[1.6fr_1fr]">
         <Card>

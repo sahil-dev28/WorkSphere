@@ -16,5 +16,5 @@ export default async function DashboardPage() {
     return <EmployeeDashboard user={user} />;
   }
 
-  return <AdminDashboard user={user} />;
+  return <AdminDashboard />;
 }
