@@ -1,8 +1,8 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TriangleAlert } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 
 import { Button } from "@WorkSphere/ui/components/button";
 import {
@@ -27,21 +27,23 @@ export function DeleteEmployeeDialog({
   employeeName: string;
   trigger: React.ReactElement;
 }) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+
+  const mutation = useMutation({
+    mutationFn: () => deleteEmployeeAction(employeeId),
+    onSuccess: (result) => {
+      if (result.error) return;
+      queryClient.invalidateQueries({ queryKey: ["employees", "table"] });
+      setOpen(false);
+    },
+  });
+
+  const error = mutation.data?.error ?? null;
+  const pending = mutation.isPending;
 
   function handleDelete() {
-    startTransition(async () => {
-      const result = await deleteEmployeeAction(employeeId);
-      if (result.error) {
-        setError(result.error);
-        return;
-      }
-      setOpen(false);
-      router.refresh();
-    });
+    mutation.mutate();
   }
 
   return (
@@ -49,7 +51,7 @@ export function DeleteEmployeeDialog({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (next) setError(null);
+        if (next) mutation.reset();
       }}
     >
       <DialogTrigger render={trigger} />
