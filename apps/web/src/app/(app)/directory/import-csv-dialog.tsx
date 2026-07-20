@@ -1,7 +1,8 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ChangeEvent } from "react";
-import { startTransition, useActionState, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@WorkSphere/ui/components/button";
 import {
@@ -30,12 +31,21 @@ import { useDirectoryParams } from "./use-directory-params";
 
 export function ImportCsvDialog() {
   const updateParams = useDirectoryParams();
+  const queryClient = useQueryClient();
   const [file, setFile] = useState<File | null>(null);
   const [clientError, setClientError] = useState<string | null>(null);
-  const [result, dispatch, pending] = useActionState<ImportEmployeesResult | null, FormData>(
-    importEmployeesAction,
-    null,
-  );
+
+  const mutation = useMutation({
+    mutationFn: (formData: FormData) => importEmployeesAction(null, formData),
+    onSuccess: (importResult) => {
+      if (importResult.created > 0) {
+        queryClient.invalidateQueries({ queryKey: ["employees", "table"] });
+      }
+    },
+  });
+
+  const result = mutation.data ?? null;
+  const pending = mutation.isPending;
 
   function close() {
     updateParams({ action: null, employeeId: null });
@@ -59,9 +69,7 @@ export function ImportCsvDialog() {
     if (!file) return;
     const formData = new FormData();
     formData.append("file", file);
-    startTransition(() => {
-      dispatch(formData);
-    });
+    mutation.mutate(formData);
   }
 
   return (
