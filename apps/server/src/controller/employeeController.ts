@@ -4,9 +4,10 @@ import { Types } from "mongoose";
 
 import { Employee } from "@/models/Employee";
 import type { EmployeeAttrs } from "@/models/Employee";
-import { createEmployeeSchema } from "@/schema/employee";
+import { createEmployeeSchema, employeeQuerySchema } from "@/schema/employee";
 import type {
   CreateEmployeeInput,
+  EmployeeQueryInput,
   UpdateEmployeeInput,
   UpdateManagerInput,
 } from "@/schema/employee";
@@ -47,15 +48,65 @@ function shapeForRequester<T extends Record<string, unknown>>(employee: T, reque
   return rest;
 }
 
+const EMPLOYEE_SORT_MAP: Record<EmployeeQueryInput["sort"], Record<string, 1 | -1>> = {
+  name_asc: { name: 1, _id: 1 },
+  name_desc: { name: -1, _id: 1 },
+  joined_asc: { joiningDate: 1, _id: 1 },
+  joined_desc: { joiningDate: -1, _id: 1 },
+};
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export const getEmployees = async (req: Request, res: Response): Promise<void> => {
   try {
-    const data = await Employee.find(NOT_DELETED_FILTER, EMPLOYEE_PROJECTION)
-      .sort({ name: 1, _id: 1 })
-      .lean();
+    const parseResult = employeeQuerySchema.safeParse(req.query);
+
+    if (!parseResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of parseResult.error.issues) {
+        const field = String(issue.path[0] ?? "");
+        if (field && !(field in fieldErrors)) {
+          fieldErrors[field] = issue.message;
+        }
+      }
+      res.status(400).json({
+        error: parseResult.error.issues[0]?.message ?? "Invalid query parameters",
+        fieldErrors,
+      });
+      return;
+    }
+
+    const { q, department, role, status, sort, page, limit } = parseResult.data;
+
+    const filter: Record<string, unknown> = { ...NOT_DELETED_FILTER };
+    if (department) filter.department = department;
+    if (role) filter.role = role;
+    if (status) filter.status = status;
+    if (q) {
+      const pattern = new RegExp(escapeRegex(q), "i");
+      filter.$or = [{ name: pattern }, { email: pattern }];
+    }
+
+    // Only paginate if the caller actually asked for it. employeeQuerySchema's
+    // page/limit always parse to a valid number via .catch() — including when
+    // the key is absent — so we can't tell "absent" from "present but invalid"
+    // downstream of parseResult. Checking raw req.query here is what keeps an
+    // unparameterized call (the full-roster fetch other pages depend on)
+    // returning everything, unpaginated, exactly as before this change.
+    const paginate = "page" in req.query || "limit" in req.query;
+
+    let query = Employee.find(filter, EMPLOYEE_PROJECTION).sort(EMPLOYEE_SORT_MAP[sort]);
+    if (paginate) {
+      query = query.skip((page - 1) * limit).limit(limit);
+    }
+
+    const [data, total] = await Promise.all([query.lean(), Employee.countDocuments(filter)]);
 
     const shaped = data.map((employee) => shapeForRequester(employee, req.user?.role ?? ""));
 
-    res.status(200).json({ data: shaped });
+    res.status(200).json({ data: shaped, total });
   } catch (error) {
     res.status(400).json({
       error: error instanceof Error ? error.message : "Unknown error",

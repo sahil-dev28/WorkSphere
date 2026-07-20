@@ -87,3 +87,15 @@ export const updateManagerSchema = z.object({
 });
 
 export type UpdateManagerInput = z.infer<typeof updateManagerSchema>;
+
+export const employeeQuerySchema = z.object({
+  q: z.string().trim().optional(),
+  department: z.enum(departments).optional(),
+  role: z.enum(employeeRoles).optional(),
+  status: z.enum(employeeStatuses).optional(),
+  sort: z.enum(["name_asc", "name_desc", "joined_asc", "joined_desc"]).catch("name_asc"),
+  page: z.coerce.number().int().min(1).catch(1),
+  limit: z.coerce.number().int().min(1).max(100).catch(10),
+});
+
+export type EmployeeQueryInput = z.infer<typeof employeeQuerySchema>;
