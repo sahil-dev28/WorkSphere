@@ -6,12 +6,13 @@
     "dev": "next dev --port 3001",
     "build": "next build",
     "check-types": "tsc --noEmit",
-    "start": "next start"
+    "start": "next start",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@swc/helpers": "^0.5.23",
     "@WorkSphere/env": "workspace:*",
     "@WorkSphere/ui": "workspace:*",
-    "@swc/helpers": "^0.5.23",
     "babel-plugin-react-compiler": "^1.0.0",
     "d3-org-chart": "^3.1.1",
     "dotenv": "catalog:",
@@ -26,13 +27,19 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@WorkSphere/config": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/d3-org-chart": "^3.1.2",
     "@types/node": "^20",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "^6.0.3",
+    "@WorkSphere/config": "workspace:*",
+    "jsdom": "^29.1.1",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "^4.1.10"
   }
 }

@@ -10,7 +10,7 @@ import { employeeRouter } from "@/routes/employeeRoutes";
 import { organizationRouter } from "@/routes/organizationRoutes";
 import { CORS_METHODS, DEFAULT_PORT } from "@/utils/constants";
 
-const app = express();
+export const app = express();
 
 app.use(
   cors({
@@ -32,18 +32,23 @@ app.use("/api/employees", employeeRouter);
 app.use("/api/organization", organizationRouter);
 app.use("/api/dashboard", dashboardRouter);
 
-const port = Number(process.env.PORT) || DEFAULT_PORT;
+// Vitest sets NODE_ENV=test automatically. Tests import `app` directly and
+// manage their own in-memory Mongo connection — they must not also trigger
+// a connection to the real configured database or bind the real port.
+if (process.env.NODE_ENV !== "test") {
+  const port = Number(process.env.PORT) || DEFAULT_PORT;
 
-const start = async () => {
-  try {
-    await connectDB(env.DATABASE_URL);
-    app.listen(port, () => {
-      console.log(`Server is listening on port ${port}...`);
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    console.error(`Server could not start with error: ${message}`);
-  }
-};
+  const start = async () => {
+    try {
+      await connectDB(env.DATABASE_URL);
+      app.listen(port, () => {
+        console.log(`Server is listening on port ${port}...`);
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error(`Server could not start with error: ${message}`);
+    }
+  };
 
-start();
+  start();
+}

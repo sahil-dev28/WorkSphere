@@ -10,7 +10,8 @@
     "dev": "tsx watch src/app.ts",
     "seed": "tsx src/scripts/seed.ts",
     "reseed-org": "tsx src/scripts/reseedOrg.ts",
-    "start": "node dist/app.mjs"
+    "start": "node dist/app.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
     "@WorkSphere/env": "workspace:*",
@@ -26,7 +27,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@WorkSphere/config": "workspace:*",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -34,8 +34,13 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
     "@types/node": "^22.13.14",
+    "@types/supertest": "^7.2.1",
+    "@WorkSphere/config": "workspace:*",
+    "mongodb-memory-server": "^11.2.0",
+    "supertest": "^7.2.2",
     "tsdown": "^0.22.3",
     "tsx": "^4.22.5",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "^4.1.10"
   }
 }
