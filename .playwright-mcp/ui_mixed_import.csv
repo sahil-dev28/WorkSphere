@@ -1,5 +1,0 @@
-name,email,phone,department,designation,salary,joiningDate,reportingManagerEmail,role
-Priya Patel,priya.patel.uitest@worksphere.dev,5550033333,Engineering,DevOps Engineer,93000,2026-04-01,meera.nair@worksphere.dev,employee
-,missingname.uitest@worksphere.dev,5550044444,Design,Designer,80000,,owen.fairbanks@worksphere.dev,
-Quentin Ross,not-an-email,5550055555,Sales,Sales Rep,60000,,derek.coleman@worksphere.dev,
-Rosa Alvarez,rosa.alvarez.uitest@worksphere.dev,5550066666,Marketing,Marketing Coordinator,64000,,ghost.nobody@nowhere.dev,
