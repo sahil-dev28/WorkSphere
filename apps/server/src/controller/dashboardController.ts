@@ -16,9 +16,8 @@ export const getDashboardStats = async (_req: Request, res: Response): Promise<v
       {
         $facet: {
           total: [{ $count: "count" }],
-          // Same source of truth isActiveForDashboard() is built from — the
-          // function itself can't run inside a Mongo pipeline, so the
-          // underlying array is referenced directly here instead.
+          // DASHBOARD_INACTIVE_STATUSES is referenced directly because a
+          // function can't run inside a Mongo aggregation pipeline.
           byActiveStatus: [
             {
               $group: {

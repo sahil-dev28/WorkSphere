@@ -11,8 +11,6 @@ export const MIN_PASSWORD_LENGTH = 8;
 
 export const CSV_IMPORT_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
-export const DEFAULT_PORT = 3000;
-
 export const CORS_METHODS: string[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"];
 
 export const departments = [
@@ -51,7 +49,3 @@ export function parseEmployeeIdSequence(employeeId: string): number {
 
 // Dashboard "Active Employees" counts on_leave as active — only terminated counts as inactive.
 export const DASHBOARD_INACTIVE_STATUSES: readonly EmployeeStatus[] = ["terminated"];
-
-export function isActiveForDashboard(status: EmployeeStatus): boolean {
-  return !DASHBOARD_INACTIVE_STATUSES.includes(status);
-}

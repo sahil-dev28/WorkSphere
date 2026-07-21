@@ -8,7 +8,7 @@ import { authRouter } from "@/routes/authRoutes";
 import { dashboardRouter } from "@/routes/dashboardRoutes";
 import { employeeRouter } from "@/routes/employeeRoutes";
 import { organizationRouter } from "@/routes/organizationRoutes";
-import { CORS_METHODS, DEFAULT_PORT } from "@/utils/constants";
+import { CORS_METHODS } from "@/utils/constants";
 
 export const app: Express = express();
 
@@ -35,8 +35,8 @@ app.use("/api/dashboard", dashboardRouter);
 // Vitest sets NODE_ENV=test automatically. Tests import `app` directly and
 // manage their own in-memory Mongo connection — they must not also trigger
 // a connection to the real configured database or bind the real port.
-if (process.env.NODE_ENV !== "test") {
-  const port = Number(process.env.PORT) || DEFAULT_PORT;
+if (env.NODE_ENV !== "test") {
+  const port = env.PORT;
 
   const start = async () => {
     try {

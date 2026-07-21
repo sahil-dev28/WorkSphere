@@ -12,9 +12,8 @@ interface TreeNode {
   children: TreeNode[];
 }
 
-// Plain recursive query per level rather than $graphLookup — matches the rest
-// of the codebase, which has no aggregation pipelines anywhere, and this is
-// well within the size where a recursive walk is simple and fast enough.
+// Plain recursive query per level rather than $graphLookup — this is well
+// within the size where a recursive walk is simple and fast enough.
 async function buildSubtree(managerId: string | null): Promise<TreeNode[]> {
   const children = await Employee.find(
     { reportingManager: managerId, ...NOT_DELETED_FILTER },
