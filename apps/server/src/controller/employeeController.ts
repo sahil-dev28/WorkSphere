@@ -240,19 +240,135 @@ interface CreatedImportRow {
   temporaryPassword: string;
 }
 
+type ImportRowResult =
+  | { ok: true; created: CreatedImportRow }
+  | { ok: false; error: ImportError };
+
+async function processImportRow(
+  row: ImportRow,
+  rowNumber: number,
+  requesterRole: string | undefined,
+): Promise<ImportRowResult> {
+  const email = row.email ?? "";
+
+  let reportingManager: string | undefined;
+
+  if (row.reportingManagerEmail) {
+    const manager = await Employee.findOne(
+      {
+        email: row.reportingManagerEmail.toLowerCase(),
+        ...NOT_DELETED_FILTER,
+      },
+      { _id: 1 },
+    ).lean();
+
+    if (!manager) {
+      return {
+        ok: false,
+        error: {
+          row: rowNumber,
+          email,
+          reason: `No employee found with email ${row.reportingManagerEmail}`,
+        },
+      };
+    }
+    reportingManager = manager._id.toString();
+  }
+
+  const temporaryPassword = generateTemporaryPassword();
+
+  const parseResult = createEmployeeSchema.safeParse({
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    department: row.department,
+    designation: row.designation,
+    salary: row.salary ? Number(row.salary) : undefined,
+    joiningDate: row.joiningDate || undefined,
+    reportingManager,
+    password: temporaryPassword,
+    role: row.role || undefined,
+  });
+
+  if (!parseResult.success) {
+    return {
+      ok: false,
+      error: {
+        row: rowNumber,
+        email,
+        reason: parseResult.error.issues[0]?.message ?? "Invalid row",
+      },
+    };
+  }
+
+  const data = parseResult.data;
+
+  if (hrManagerAssigningSuperAdmin(requesterRole, data.role)) {
+    return {
+      ok: false,
+      error: {
+        row: rowNumber,
+        email: data.email,
+        reason: HR_MANAGER_CANNOT_ASSIGN_SUPER_ADMIN,
+      },
+    };
+  }
+
+  try {
+    await assertValidHierarchy({
+      employeeId: null,
+      role: data.role,
+      department: data.department,
+      reportingManager: data.reportingManager ?? null,
+    });
+
+    const newEmployee = new Employee({
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      department: data.department,
+      designation: data.designation,
+      salary: data.salary,
+      joiningDate: data.joiningDate,
+      reportingManager: data.reportingManager,
+      password: data.password,
+      role: data.role,
+    });
+
+    await newEmployee.save();
+
+    return {
+      ok: true,
+      created: {
+        name: newEmployee.name,
+        email: newEmployee.email,
+        employeeId: newEmployee.employeeId!,
+        temporaryPassword,
+      },
+    };
+  } catch (rowError) {
+    return {
+      ok: false,
+      error: {
+        row: rowNumber,
+        email,
+        reason: formatEmployeeError(rowError).error,
+      },
+    };
+  }
+}
+
 export const importEmployees = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    if (!req.file) {
-      res.status(400).json({ error: "CSV file is required" });
-      return;
-    }
-
     let rows: ImportRow[];
     try {
-      rows = parse(req.file.buffer, {
+      // uploadCsv (employeeRoutes.ts) always runs first and already
+      // guarantees req.file is set — see the (now-removed) duplicate check
+      // this replaced in the cleanup audit findings doc.
+      rows = parse(req.file!.buffer, {
         columns: true,
         trim: true,
         skip_empty_lines: true,
@@ -268,100 +384,11 @@ export const importEmployees = async (
 
     for (const [index, row] of rows.entries()) {
       const rowNumber = index + 2; // header occupies row 1
-      const email = row.email ?? "";
-
-      try {
-        let reportingManager: string | undefined;
-
-        if (row.reportingManagerEmail) {
-          const manager = await Employee.findOne(
-            {
-              email: row.reportingManagerEmail.toLowerCase(),
-              ...NOT_DELETED_FILTER,
-            },
-            { _id: 1 },
-          ).lean();
-
-          if (!manager) {
-            errors.push({
-              row: rowNumber,
-              email,
-              reason: `No employee found with email ${row.reportingManagerEmail}`,
-            });
-            continue;
-          }
-          reportingManager = manager._id.toString();
-        }
-
-        const temporaryPassword = generateTemporaryPassword();
-
-        const parseResult = createEmployeeSchema.safeParse({
-          name: row.name,
-          email: row.email,
-          phone: row.phone,
-          department: row.department,
-          designation: row.designation,
-          salary: row.salary ? Number(row.salary) : undefined,
-          joiningDate: row.joiningDate || undefined,
-          reportingManager,
-          password: temporaryPassword,
-          role: row.role || undefined,
-        });
-
-        if (!parseResult.success) {
-          errors.push({
-            row: rowNumber,
-            email,
-            reason: parseResult.error.issues[0]?.message ?? "Invalid row",
-          });
-          continue;
-        }
-
-        const data = parseResult.data;
-
-        if (requesterRole === "hr_manager" && data.role === "super_admin") {
-          errors.push({
-            row: rowNumber,
-            email: data.email,
-            reason: "HR Manager cannot assign Super Admin",
-          });
-          continue;
-        }
-
-        await assertValidHierarchy({
-          employeeId: null,
-          role: data.role,
-          department: data.department,
-          reportingManager: data.reportingManager ?? null,
-        });
-
-        const newEmployee = new Employee({
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          department: data.department,
-          designation: data.designation,
-          salary: data.salary,
-          joiningDate: data.joiningDate,
-          reportingManager: data.reportingManager,
-          password: data.password,
-          role: data.role,
-        });
-
-        await newEmployee.save();
-
-        created.push({
-          name: newEmployee.name,
-          email: newEmployee.email,
-          employeeId: newEmployee.employeeId!,
-          temporaryPassword,
-        });
-      } catch (rowError) {
-        errors.push({
-          row: rowNumber,
-          email,
-          reason: formatEmployeeError(rowError).error,
-        });
+      const result = await processImportRow(row, rowNumber, requesterRole);
+      if (result.ok) {
+        created.push(result.created);
+      } else {
+        errors.push(result.error);
       }
     }
 

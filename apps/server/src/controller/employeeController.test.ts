@@ -168,3 +168,32 @@ describe("GET /api/employees", () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe("POST /api/employees/import", () => {
+  it("creates valid rows and reports per-row errors, without touching the pre-existing rows", async () => {
+    const csv =
+      "name,email,phone,department,designation,salary,reportingManagerEmail\n" +
+      "Imported Person,imported.person@worksphere.dev,+15550009999,Engineering,Staff Engineer,65000,test-admin@worksphere.dev\n" +
+      "Bad Row,bad.row@worksphere.dev,+15550009998,Engineering,Staff Engineer,65000,does-not-exist@worksphere.dev\n";
+
+    const res = await request(app)
+      .post("/api/employees/import")
+      .set("Cookie", adminCookie)
+      .attach("file", Buffer.from(csv), "employees.csv");
+
+    expect(res.status).toBe(200);
+    expect(res.body.created).toBe(1);
+    expect(res.body.failed).toBe(1);
+    expect(res.body.createdEmployees).toHaveLength(1);
+    expect(res.body.createdEmployees[0].email).toBe("imported.person@worksphere.dev");
+    expect(res.body.createdEmployees[0].employeeId).toMatch(/^EMP-/);
+    expect(res.body.errors).toHaveLength(1);
+    expect(res.body.errors[0].row).toBe(3);
+    expect(res.body.errors[0].reason).toContain("does-not-exist@worksphere.dev");
+
+    const saved = await Employee.findOne({
+      email: "imported.person@worksphere.dev",
+    }).lean();
+    expect(saved).not.toBeNull();
+  });
+});
