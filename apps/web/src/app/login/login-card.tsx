@@ -44,8 +44,8 @@ const DEMO_ROLES: DemoRole[] = [
   {
     role: "employee",
     summary: "View & edit own profile only",
-    email: "komihi@mailinator.dev",
-    password: "RahulNewPass123",
+    email: "mita@mailinator.dev",
+    password: "Test@12345",
     icon: User,
     badgeClassName: "bg-destructive/10 text-destructive",
   },
