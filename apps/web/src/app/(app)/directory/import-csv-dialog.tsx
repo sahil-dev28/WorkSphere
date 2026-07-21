@@ -42,9 +42,13 @@ export function ImportCsvDialog() {
         queryClient.invalidateQueries({ queryKey: ["employees", "table"] });
       }
     },
+    onError: (error) => {
+      console.error("Failed to import employees:", error);
+    },
   });
 
   const result = mutation.data ?? null;
+  const unexpectedError = mutation.isError && !result;
   const pending = mutation.isPending;
 
   function close() {
@@ -162,6 +166,9 @@ export function ImportCsvDialog() {
                 onChange={handleFileChange}
               />
               {clientError ? <p className="text-xs text-destructive">{clientError}</p> : null}
+              {unexpectedError ? (
+                <p className="text-xs text-destructive">Something went wrong. Please try again.</p>
+              ) : null}
               {file && !clientError ? (
                 <p className="text-xs text-muted-foreground">Selected: {file.name}</p>
               ) : null}

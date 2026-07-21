@@ -37,9 +37,13 @@ export function DeleteEmployeeDialog({
       queryClient.invalidateQueries({ queryKey: ["employees", "table"] });
       setOpen(false);
     },
+    onError: (error) => {
+      console.error("Failed to delete employee:", error);
+    },
   });
 
-  const error = mutation.data?.error ?? null;
+  const error =
+    mutation.data?.error ?? (mutation.isError ? "Something went wrong. Please try again." : null);
   const pending = mutation.isPending;
 
   function handleDelete() {

@@ -168,9 +168,13 @@ export function EmployeeDialog({
         }
       }
     },
+    onError: (error) => {
+      console.error("Failed to save employee:", error);
+    },
   });
 
   const state = mutation.data ?? initialState;
+  const unexpectedError = mutation.isError && !state.error;
   const pending = mutation.isPending;
 
   function canEdit(field: EditableField): boolean {
@@ -435,8 +439,10 @@ export function EmployeeDialog({
             </div>
           </div>
 
-          {state.error && !state.fieldErrors ? (
-            <p className="text-xs text-destructive">{state.error}</p>
+          {(state.error || unexpectedError) && !state.fieldErrors ? (
+            <p className="text-xs text-destructive">
+              {state.error ?? "Something went wrong. Please try again."}
+            </p>
           ) : null}
 
           <DialogFooter>
