@@ -12,6 +12,7 @@
 import { env } from "@WorkSphere/env/server";
 
 import { connectDB } from "@/db/connect";
+import { resetSequence } from "@/models/Counter";
 import { Employee } from "@/models/Employee";
 import { departments } from "@/utils/constants";
 
@@ -520,6 +521,7 @@ async function run() {
 
   console.log(`Deleting ${existingCount} existing employee document(s)...`);
   await Employee.deleteMany({});
+  await resetSequence("employeeId");
 
   const ceo = await new Employee({
     name: CEO.name,

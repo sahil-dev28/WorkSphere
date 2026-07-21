@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
 import { type InferSchemaType, model, Schema } from "mongoose";
 
+import { getNextSequence } from "@/models/Counter";
 import {
   BCRYPT_SALT_ROUNDS,
   departments,
   employeeRoles,
   employeeStatuses,
   formatEmployeeId,
-  parseEmployeeIdSequence,
 } from "@/utils/constants";
 
 const employeeSchema = new Schema(
@@ -102,14 +102,7 @@ employeeSchema.pre("save", async function () {
     return;
   }
 
-  const lastEmployee = await Employee.findOne({}, { employeeId: 1 })
-    .sort({ employeeId: -1 })
-    .lean();
-
-  const nextSequence = lastEmployee?.employeeId
-    ? parseEmployeeIdSequence(lastEmployee.employeeId) + 1
-    : 1;
-
+  const nextSequence = await getNextSequence("employeeId");
   this.employeeId = formatEmployeeId(nextSequence);
 });
 
