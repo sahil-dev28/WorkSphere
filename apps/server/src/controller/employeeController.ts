@@ -29,6 +29,15 @@ function formatEmployeeError(error: unknown): {
   return formatMongooseError(error);
 }
 
+const HR_MANAGER_CANNOT_ASSIGN_SUPER_ADMIN = "HR Manager cannot assign Super Admin";
+
+function hrManagerAssigningSuperAdmin(
+  requesterRole: string | undefined,
+  targetRole: string | undefined,
+): boolean {
+  return requesterRole === "hr_manager" && targetRole === "super_admin";
+}
+
 const EMPLOYEE_PROJECTION = {
   employeeId: 1,
   name: 1,
@@ -169,8 +178,8 @@ export const createEmployee = async (
     role,
   } = req.body as CreateEmployeeInput;
   try {
-    if (req.user?.role === "hr_manager" && role === "super_admin") {
-      res.status(403).json({ error: "HR Manager cannot assign Super Admin" });
+    if (hrManagerAssigningSuperAdmin(req.user?.role, role)) {
+      res.status(403).json({ error: HR_MANAGER_CANNOT_ASSIGN_SUPER_ADMIN });
       return;
     }
 
@@ -397,18 +406,15 @@ export const updateEmployee = async (
 
       // Anything outside this subset is silently dropped, not rejected —
       // consistent with validateData already stripping unknown fields.
-      if (body.name !== undefined) target.name = body.name;
-      if (body.phone !== undefined) target.phone = body.phone;
-      if (body.profileImage !== undefined)
-        target.profileImage = body.profileImage;
+      applyUpdatableFields(target, body, EMPLOYEE_SELF_EDIT_FIELDS);
     } else if (requesterRole === "hr_manager") {
       if (target.role === "super_admin") {
         res.status(403).json({ error: "HR Manager cannot edit a Super Admin" });
         return;
       }
 
-      if (body.role === "super_admin") {
-        res.status(403).json({ error: "HR Manager cannot assign Super Admin" });
+      if (hrManagerAssigningSuperAdmin(requesterRole, body.role)) {
+        res.status(403).json({ error: HR_MANAGER_CANNOT_ASSIGN_SUPER_ADMIN });
         return;
       }
 
@@ -441,27 +447,39 @@ export const updateEmployee = async (
   }
 };
 
+type UpdatableEmployeeField = keyof UpdateEmployeeInput;
+
+const EMPLOYEE_SELF_EDIT_FIELDS: readonly UpdatableEmployeeField[] = [
+  "name",
+  "phone",
+  "profileImage",
+];
+
 function applyUpdatableFields(
   target: Awaited<ReturnType<typeof Employee.findOne>>,
   body: UpdateEmployeeInput,
+  allowedFields?: readonly UpdatableEmployeeField[],
 ) {
   if (!target) {
     return;
   }
 
-  if (body.name !== undefined) target.name = body.name;
-  if (body.email !== undefined) target.email = body.email;
-  if (body.phone !== undefined) target.phone = body.phone;
-  if (body.department !== undefined) target.department = body.department;
-  if (body.designation !== undefined) target.designation = body.designation;
-  if (body.salary !== undefined) target.salary = body.salary;
-  if (body.joiningDate !== undefined) target.joiningDate = body.joiningDate;
-  if (body.status !== undefined) target.status = body.status;
-  if (body.role !== undefined) target.role = body.role;
-  if (body.reportingManager !== undefined) {
+  const isAllowed = (field: UpdatableEmployeeField) =>
+    !allowedFields || allowedFields.includes(field);
+
+  if (isAllowed("name") && body.name !== undefined) target.name = body.name;
+  if (isAllowed("email") && body.email !== undefined) target.email = body.email;
+  if (isAllowed("phone") && body.phone !== undefined) target.phone = body.phone;
+  if (isAllowed("department") && body.department !== undefined) target.department = body.department;
+  if (isAllowed("designation") && body.designation !== undefined) target.designation = body.designation;
+  if (isAllowed("salary") && body.salary !== undefined) target.salary = body.salary;
+  if (isAllowed("joiningDate") && body.joiningDate !== undefined) target.joiningDate = body.joiningDate;
+  if (isAllowed("status") && body.status !== undefined) target.status = body.status;
+  if (isAllowed("role") && body.role !== undefined) target.role = body.role;
+  if (isAllowed("reportingManager") && body.reportingManager !== undefined) {
     target.reportingManager = new Types.ObjectId(body.reportingManager);
   }
-  if (body.profileImage !== undefined) target.profileImage = body.profileImage;
+  if (isAllowed("profileImage") && body.profileImage !== undefined) target.profileImage = body.profileImage;
 }
 
 export const deleteEmployee = async (
