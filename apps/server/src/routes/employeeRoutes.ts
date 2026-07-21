@@ -19,6 +19,7 @@ import { uploadCsv } from "@/middleware/uploadMiddleware";
 import { validateData } from "@/middleware/validationMiddleware";
 import {
   createEmployeeSchema,
+  employeeQuerySchema,
   updateEmployeeSchema,
   updateManagerSchema,
 } from "@/schema/employee";
@@ -31,6 +32,7 @@ employeeRouter
     authenticate,
     enforcePasswordChange,
     authorize("super_admin", "hr_manager"),
+    validateData(employeeQuerySchema, "query"),
     getEmployees,
   )
   .post(

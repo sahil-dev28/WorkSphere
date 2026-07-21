@@ -4,7 +4,7 @@ import { Types } from "mongoose";
 
 import { Employee } from "@/models/Employee";
 import type { EmployeeAttrs } from "@/models/Employee";
-import { createEmployeeSchema, employeeQuerySchema } from "@/schema/employee";
+import { createEmployeeSchema } from "@/schema/employee";
 import type {
   CreateEmployeeInput,
   EmployeeQueryInput,
@@ -76,25 +76,8 @@ export const getEmployees = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const parseResult = employeeQuerySchema.safeParse(req.query);
-
-    if (!parseResult.success) {
-      const fieldErrors: Record<string, string> = {};
-      for (const issue of parseResult.error.issues) {
-        const field = String(issue.path[0] ?? "");
-        if (field && !(field in fieldErrors)) {
-          fieldErrors[field] = issue.message;
-        }
-      }
-      res.status(400).json({
-        error:
-          parseResult.error.issues[0]?.message ?? "Invalid query parameters",
-        fieldErrors,
-      });
-      return;
-    }
-
-    const { q, department, role, status, sort, page, limit } = parseResult.data;
+    const { q, department, role, status, sort, page, limit } =
+      res.locals.validatedQuery as EmployeeQueryInput;
 
     const filter: Record<string, unknown> = { ...NOT_DELETED_FILTER };
     if (department) filter.department = department;

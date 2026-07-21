@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
 import type { z } from "zod";
 
-export function validateData<T>(schema: z.ZodType<T>) {
+export function validateData<T>(schema: z.ZodType<T>, source: "body" | "query" = "body") {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const result = schema.safeParse(req.body);
+    const result = schema.safeParse(source === "body" ? req.body : req.query);
 
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -21,7 +21,14 @@ export function validateData<T>(schema: z.ZodType<T>) {
       return;
     }
 
-    req.body = result.data;
+    if (source === "body") {
+      req.body = result.data;
+    } else {
+      // req.query in Express 5 is a getter-only accessor — assigning to it
+      // throws. res.locals has no such restriction, so validated query data
+      // goes there instead, for the controller to read.
+      res.locals.validatedQuery = result.data;
+    }
     next();
   };
 }
