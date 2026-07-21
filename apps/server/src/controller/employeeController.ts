@@ -16,9 +16,15 @@ import { formatMongooseError } from "@/utils/formatMongooseError";
 import { generateTemporaryPassword } from "@/utils/generateTemporaryPassword";
 import { assertValidHierarchy, HierarchyError } from "@/utils/hierarchyRules";
 
-function formatEmployeeError(error: unknown): { error: string; fieldErrors?: Record<string, string> } {
+function formatEmployeeError(error: unknown): {
+  error: string;
+  fieldErrors?: Record<string, string>;
+} {
   if (error instanceof HierarchyError) {
-    return { error: error.message, fieldErrors: { [error.field]: error.message } };
+    return {
+      error: error.message,
+      fieldErrors: { [error.field]: error.message },
+    };
   }
   return formatMongooseError(error);
 }
@@ -39,7 +45,10 @@ const EMPLOYEE_PROJECTION = {
 } as const;
 
 // super_admin and hr_manager see salary; an employee viewing their own record does not.
-function shapeForRequester<T extends Record<string, unknown>>(employee: T, requesterRole: string) {
+function shapeForRequester<T extends Record<string, unknown>>(
+  employee: T,
+  requesterRole: string,
+) {
   if (requesterRole !== "employee") {
     return employee;
   }
@@ -48,7 +57,10 @@ function shapeForRequester<T extends Record<string, unknown>>(employee: T, reque
   return rest;
 }
 
-const EMPLOYEE_SORT_MAP: Record<EmployeeQueryInput["sort"], Record<string, 1 | -1>> = {
+const EMPLOYEE_SORT_MAP: Record<
+  EmployeeQueryInput["sort"],
+  Record<string, 1 | -1>
+> = {
   name_asc: { name: 1, _id: 1 },
   name_desc: { name: -1, _id: 1 },
   joined_asc: { joiningDate: 1, _id: 1 },
@@ -59,7 +71,10 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export const getEmployees = async (req: Request, res: Response): Promise<void> => {
+export const getEmployees = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const parseResult = employeeQuerySchema.safeParse(req.query);
 
@@ -72,7 +87,8 @@ export const getEmployees = async (req: Request, res: Response): Promise<void> =
         }
       }
       res.status(400).json({
-        error: parseResult.error.issues[0]?.message ?? "Invalid query parameters",
+        error:
+          parseResult.error.issues[0]?.message ?? "Invalid query parameters",
         fieldErrors,
       });
       return;
@@ -89,22 +105,23 @@ export const getEmployees = async (req: Request, res: Response): Promise<void> =
       filter.$or = [{ name: pattern }, { email: pattern }];
     }
 
-    // Only paginate if the caller actually asked for it. employeeQuerySchema's
-    // page/limit always parse to a valid number via .catch() — including when
-    // the key is absent — so we can't tell "absent" from "present but invalid"
-    // downstream of parseResult. Checking raw req.query here is what keeps an
-    // unparameterized call (the full-roster fetch other pages depend on)
-    // returning everything, unpaginated, exactly as before this change.
     const paginate = "page" in req.query || "limit" in req.query;
 
-    let query = Employee.find(filter, EMPLOYEE_PROJECTION).sort(EMPLOYEE_SORT_MAP[sort]);
+    let query = Employee.find(filter, EMPLOYEE_PROJECTION).sort(
+      EMPLOYEE_SORT_MAP[sort],
+    );
     if (paginate) {
       query = query.skip((page - 1) * limit).limit(limit);
     }
 
-    const [data, total] = await Promise.all([query.lean(), Employee.countDocuments(filter)]);
+    const [data, total] = await Promise.all([
+      query.lean(),
+      Employee.countDocuments(filter),
+    ]);
 
-    const shaped = data.map((employee) => shapeForRequester(employee, req.user?.role ?? ""));
+    const shaped = data.map((employee) =>
+      shapeForRequester(employee, req.user?.role ?? ""),
+    );
 
     res.status(200).json({ data: shaped, total });
   } catch (error) {
@@ -114,7 +131,10 @@ export const getEmployees = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const getEmployeeById = async (req: Request, res: Response): Promise<void> => {
+export const getEmployeeById = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -138,7 +158,9 @@ export const getEmployeeById = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    res.status(200).json({ data: shapeForRequester(employee, req.user?.role ?? "") });
+    res
+      .status(200)
+      .json({ data: shapeForRequester(employee, req.user?.role ?? "") });
   } catch (error) {
     res.status(400).json({
       error: error instanceof Error ? error.message : "Unknown error",
@@ -192,7 +214,10 @@ export const createEmployee = async (
 
     await newEmployee.save();
 
-    res.status(200).json({ message: "Employee created", employeeId: newEmployee.employeeId });
+    res.status(200).json({
+      message: "Employee created",
+      employeeId: newEmployee.employeeId,
+    });
   } catch (error) {
     res.status(400).json(formatEmployeeError(error));
   }
@@ -223,7 +248,10 @@ interface CreatedImportRow {
   temporaryPassword: string;
 }
 
-export const importEmployees = async (req: Request, res: Response): Promise<void> => {
+export const importEmployees = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     if (!req.file) {
       res.status(400).json({ error: "CSV file is required" });
@@ -246,10 +274,6 @@ export const importEmployees = async (req: Request, res: Response): Promise<void
     const created: CreatedImportRow[] = [];
     const errors: ImportError[] = [];
 
-    // Sequential, not Promise.all — Employee's pre-save hook derives the next
-    // employeeId from the current max in the collection, so concurrent saves
-    // could race and collide. Awaiting each row's save in turn keeps that
-    // generation correct, same as a normal one-at-a-time create.
     for (const [index, row] of rows.entries()) {
       const rowNumber = index + 2; // header occupies row 1
       const email = row.email ?? "";
@@ -259,7 +283,10 @@ export const importEmployees = async (req: Request, res: Response): Promise<void
 
         if (row.reportingManagerEmail) {
           const manager = await Employee.findOne(
-            { email: row.reportingManagerEmail.toLowerCase(), ...NOT_DELETED_FILTER },
+            {
+              email: row.reportingManagerEmail.toLowerCase(),
+              ...NOT_DELETED_FILTER,
+            },
             { _id: 1 },
           ).lean();
 
@@ -301,7 +328,11 @@ export const importEmployees = async (req: Request, res: Response): Promise<void
         const data = parseResult.data;
 
         if (requesterRole === "hr_manager" && data.role === "super_admin") {
-          errors.push({ row: rowNumber, email: data.email, reason: "HR Manager cannot assign Super Admin" });
+          errors.push({
+            row: rowNumber,
+            email: data.email,
+            reason: "HR Manager cannot assign Super Admin",
+          });
           continue;
         }
 
@@ -334,7 +365,11 @@ export const importEmployees = async (req: Request, res: Response): Promise<void
           temporaryPassword,
         });
       } catch (rowError) {
-        errors.push({ row: rowNumber, email, reason: formatEmployeeError(rowError).error });
+        errors.push({
+          row: rowNumber,
+          email,
+          reason: formatEmployeeError(rowError).error,
+        });
       }
     }
 
@@ -351,7 +386,10 @@ export const importEmployees = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const updateEmployee = async (req: Request, res: Response): Promise<void> => {
+export const updateEmployee = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -380,7 +418,8 @@ export const updateEmployee = async (req: Request, res: Response): Promise<void>
       // consistent with validateData already stripping unknown fields.
       if (body.name !== undefined) target.name = body.name;
       if (body.phone !== undefined) target.phone = body.phone;
-      if (body.profileImage !== undefined) target.profileImage = body.profileImage;
+      if (body.profileImage !== undefined)
+        target.profileImage = body.profileImage;
     } else if (requesterRole === "hr_manager") {
       if (target.role === "super_admin") {
         res.status(403).json({ error: "HR Manager cannot edit a Super Admin" });
@@ -397,19 +436,19 @@ export const updateEmployee = async (req: Request, res: Response): Promise<void>
       applyUpdatableFields(target, body);
     }
 
-    // Self-edits (the branch above) never touch these three fields, so this
-    // only re-checks the hierarchy when a request could actually have
-    // broken it — not on every unrelated name/phone edit against
-    // pre-existing (possibly still non-compliant) records.
     if (
       requesterRole !== "employee" &&
-      (body.department !== undefined || body.role !== undefined || body.reportingManager !== undefined)
+      (body.department !== undefined ||
+        body.role !== undefined ||
+        body.reportingManager !== undefined)
     ) {
       await assertValidHierarchy({
         employeeId: target._id.toString(),
         role: target.role,
         department: target.department,
-        reportingManager: target.reportingManager ? target.reportingManager.toString() : null,
+        reportingManager: target.reportingManager
+          ? target.reportingManager.toString()
+          : null,
       });
     }
 
@@ -444,7 +483,10 @@ function applyUpdatableFields(
   if (body.profileImage !== undefined) target.profileImage = body.profileImage;
 }
 
-export const deleteEmployee = async (req: Request, res: Response): Promise<void> => {
+export const deleteEmployee = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -472,7 +514,10 @@ export const deleteEmployee = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getReportees = async (req: Request, res: Response): Promise<void> => {
+export const getReportees = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -496,7 +541,9 @@ export const getReportees = async (req: Request, res: Response): Promise<void> =
       .sort({ name: 1, _id: 1 })
       .lean();
 
-    const shaped = data.map((employee) => shapeForRequester(employee, requesterRole));
+    const shaped = data.map((employee) =>
+      shapeForRequester(employee, requesterRole),
+    );
 
     res.status(200).json({ data: shaped });
   } catch (error) {
@@ -506,10 +553,11 @@ export const getReportees = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-// Walks up the chain from the proposed manager (manager's manager, and so
-// on). Returns true if `employeeId` appears anywhere in that chain — which
-// covers a direct self-reference too, since that's just a chain of length one.
-async function wouldCreateCycle(employeeId: string, proposedManagerId: string): Promise<boolean> {
+
+async function wouldCreateCycle(
+  employeeId: string,
+  proposedManagerId: string,
+): Promise<boolean> {
   let current: string | null = proposedManagerId;
   const visited = new Set<string>();
 
@@ -523,10 +571,8 @@ async function wouldCreateCycle(employeeId: string, proposedManagerId: string): 
     }
     visited.add(current);
 
-    const manager: Pick<EmployeeAttrs, "reportingManager"> | null = await Employee.findById(
-      current,
-      { reportingManager: 1 },
-    ).lean();
+    const manager: Pick<EmployeeAttrs, "reportingManager"> | null =
+      await Employee.findById(current, { reportingManager: 1 }).lean();
 
     if (!manager || !manager.reportingManager) {
       break;
@@ -538,7 +584,10 @@ async function wouldCreateCycle(employeeId: string, proposedManagerId: string): 
   return false;
 }
 
-export const updateManager = async (req: Request, res: Response): Promise<void> => {
+export const updateManager = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -568,7 +617,9 @@ export const updateManager = async (req: Request, res: Response): Promise<void> 
       }
 
       if (await wouldCreateCycle(id, reportingManager)) {
-        res.status(400).json({ error: "This assignment would create a circular reporting chain" });
+        res.status(400).json({
+          error: "This assignment would create a circular reporting chain",
+        });
         return;
       }
     }
@@ -580,7 +631,9 @@ export const updateManager = async (req: Request, res: Response): Promise<void> 
       reportingManager,
     });
 
-    target.reportingManager = reportingManager ? new Types.ObjectId(reportingManager) : null;
+    target.reportingManager = reportingManager
+      ? new Types.ObjectId(reportingManager)
+      : null;
     await target.save();
 
     res.status(200).json({ message: "Manager updated" });

@@ -27,16 +27,12 @@ beforeAll(async () => {
     mustChangePassword: false,
   });
 
-  const token = jwt.sign({ id: admin._id.toString(), role: admin.role }, env.JWT_SECRET);
+  const token = jwt.sign(
+    { id: admin._id.toString(), role: admin.role },
+    env.JWT_SECRET,
+  );
   adminCookie = `token=${token}`;
 
-  // Sequential, not Employee.create([...]) — Employee's pre-save hook derives
-  // the next employeeId from the current max in the collection, so concurrent
-  // saves could race and collide. Mongoose's array-form create() runs each
-  // doc's save() concurrently (Promise.all), not sequentially, so passing an
-  // array here would race the same way. Awaiting each row's save in turn
-  // keeps that generation correct — same class of bug importEmployees already
-  // documents and avoids for the same reason.
   const rows = [
     {
       name: "Alice Engineer",
@@ -104,7 +100,9 @@ afterAll(async () => {
 
 describe("GET /api/employees", () => {
   it("returns everything, unpaginated, when no query params are sent", async () => {
-    const res = await request(app).get("/api/employees").set("Cookie", adminCookie);
+    const res = await request(app)
+      .get("/api/employees")
+      .set("Cookie", adminCookie);
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(5); // admin + 4 seeded rows
@@ -129,7 +127,9 @@ describe("GET /api/employees", () => {
     expect(res.status).toBe(200);
     expect(res.body.total).toBe(2);
     expect(
-      res.body.data.every((e: { department: string }) => e.department === "Sales"),
+      res.body.data.every(
+        (e: { department: string }) => e.department === "Sales",
+      ),
     ).toBe(true);
   });
 
@@ -139,7 +139,9 @@ describe("GET /api/employees", () => {
       .set("Cookie", adminCookie);
 
     expect(res.status).toBe(200);
-    expect(res.body.data.map((e: { name: string }) => e.name)).toEqual(["Alice Engineer"]);
+    expect(res.body.data.map((e: { name: string }) => e.name)).toEqual([
+      "Alice Engineer",
+    ]);
   });
 
   it("sorts by joined_asc", async () => {
@@ -147,7 +149,9 @@ describe("GET /api/employees", () => {
       .get("/api/employees?sort=joined_asc&department=Sales&limit=10")
       .set("Cookie", adminCookie);
 
-    const dates = res.body.data.map((e: { joiningDate: string }) => e.joiningDate);
+    const dates = res.body.data.map(
+      (e: { joiningDate: string }) => e.joiningDate,
+    );
     expect(dates).toEqual([...dates].sort());
   });
 
