@@ -1,12 +1,13 @@
 import { cache } from "react";
 
 import { serverFetch } from "@/lib/api";
+import type { employeeRoles } from "@/lib/enums";
 
 export interface Me {
   id: string;
   name: string;
   email: string;
-  role: "super_admin" | "hr_manager" | "employee";
+  role: (typeof employeeRoles)[number];
   mustChangePassword: boolean;
 }
 

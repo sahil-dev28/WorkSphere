@@ -29,14 +29,3 @@ export async function getEmployeeRoster(): Promise<Employee[]> {
   const body = (await res.json()) as { data: Employee[] };
   return body.data;
 }
-
-export async function getReportees(id: string): Promise<Employee[]> {
-  const res = await serverFetch(`/api/employees/${id}/reportees`);
-
-  if (!res.ok) {
-    return [];
-  }
-
-  const body = (await res.json()) as { data: Employee[] };
-  return body.data;
-}

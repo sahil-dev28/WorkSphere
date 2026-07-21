@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { serverFetch } from "@/lib/api";
+import { serverFetch, type ApiError } from "@/lib/api";
 
 import {
   buildEmployeesQuery,
@@ -21,7 +21,7 @@ export async function getEmployeesTable(
   const res = await serverFetch(`/api/employees?${buildEmployeesQuery(params)}`);
 
   if (!res.ok) {
-    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    const body = (await res.json().catch(() => ({}))) as ApiError;
     throw new Error(body.error ?? "Could not load employees");
   }
 
@@ -32,7 +32,7 @@ export async function deleteEmployeeAction(id: string): Promise<{ error?: string
   const res = await serverFetch(`/api/employees/${id}`, { method: "DELETE" });
 
   if (!res.ok) {
-    const body = (await res.json()) as { error?: string };
+    const body = (await res.json()) as ApiError;
     return { error: body.error ?? "Could not delete employee" };
   }
 
@@ -86,7 +86,7 @@ export async function createEmployeeAction(
     body: JSON.stringify(buildEmployeePayload(formData)),
   });
 
-  const body = (await res.json()) as { error?: string; fieldErrors?: Record<string, string> };
+  const body = (await res.json()) as ApiError & { fieldErrors?: Record<string, string> };
 
   if (!res.ok) {
     return { error: body.error ?? "Could not create employee", fieldErrors: body.fieldErrors };
@@ -108,7 +108,7 @@ export async function updateEmployeeAction(
     body: JSON.stringify(buildEmployeePayload(formData)),
   });
 
-  const body = (await res.json()) as { error?: string; fieldErrors?: Record<string, string> };
+  const body = (await res.json()) as ApiError & { fieldErrors?: Record<string, string> };
 
   if (!res.ok) {
     return { error: body.error ?? "Could not update employee", fieldErrors: body.fieldErrors };
@@ -161,7 +161,7 @@ export async function importEmployeesAction(
   body.set("file", file);
 
   const res = await serverFetch("/api/employees/import", { method: "POST", body });
-  const responseBody = (await res.json()) as Partial<ImportEmployeesResult> & { error?: string };
+  const responseBody = (await res.json()) as Partial<ImportEmployeesResult>;
 
   if (!res.ok) {
     return { ...EMPTY_IMPORT_RESULT, error: responseBody.error ?? "Import failed" };
@@ -193,7 +193,7 @@ export async function updateManagerAction(
   });
 
   if (!res.ok) {
-    const body = (await res.json()) as { error?: string };
+    const body = (await res.json()) as ApiError;
     return { error: body.error ?? "Could not update reporting manager" };
   }
 

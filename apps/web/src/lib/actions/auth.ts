@@ -3,14 +3,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { env } from "@WorkSphere/env/web";
-
-import { serverFetch } from "@/lib/api";
+import { serverFetch, type ApiError } from "@/lib/api";
 import { AUTH_COOKIE_NAME } from "@/lib/constants";
-
-interface ApiError {
-  error?: string;
-}
 
 async function setSessionCookie(res: Response): Promise<void> {
   const setCookieHeader = res.headers.get("set-cookie");
@@ -38,7 +32,7 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
   const email = formData.get("email");
   const password = formData.get("password");
 
-  const res = await fetch(`${env.NEXT_PUBLIC_SERVER_URL}/api/auth/login`, {
+  const res = await serverFetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
