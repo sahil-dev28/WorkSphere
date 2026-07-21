@@ -36,15 +36,15 @@ const DEMO_ROLES: DemoRole[] = [
   {
     role: "hr_manager",
     summary: "Create, edit & view · no delete",
-    email: "hr.demo0@worksphere.dev",
-    password: "HrManagerDemo123!",
+    email: "wevuren@mailinator.com",
+    password: "Test@12345",
     icon: Users,
     badgeClassName: "bg-accent/20 text-accent-foreground",
   },
   {
     role: "employee",
     summary: "View & edit own profile only",
-    email: "rahul.verma@worksphere.dev",
+    email: "komihi@mailinator.dev",
     password: "RahulNewPass123",
     icon: User,
     badgeClassName: "bg-destructive/10 text-destructive",
@@ -69,9 +69,12 @@ export function LoginCard() {
   if (state.mustChangePassword) {
     return (
       <div className="flex w-full max-w-[400px] flex-col gap-4">
-        <h1 className="text-xl font-semibold tracking-tight">Set a new password</h1>
+        <h1 className="text-xl font-semibold tracking-tight">
+          Set a new password
+        </h1>
         <div className="bg-muted px-3 py-2 text-xs text-muted-foreground">
-          This account is using a temporary password. Choose a new one to continue.
+          This account is using a temporary password. Choose a new one to
+          continue.
         </div>
         <ChangePasswordFields />
       </div>
@@ -96,13 +99,19 @@ export function LoginCard() {
   return (
     <div className="flex w-full max-w-[400px] flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">Sign in to your workspace</h1>
+        <h1 className="text-xl font-semibold tracking-tight">
+          Sign in to your workspace
+        </h1>
         <p className="text-xs text-muted-foreground">
           Enter your credentials, or pick a role below to explore the demo.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onValid)} noValidate className="flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit(onValid)}
+        noValidate
+        className="flex flex-col gap-4"
+      >
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Work email</Label>
           <Input
@@ -116,7 +125,9 @@ export function LoginCard() {
               onChange: () => setFilledDemo(null),
             })}
           />
-          {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
+          {errors.email ? (
+            <p className="text-xs text-destructive">{errors.email.message}</p>
+          ) : null}
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Password</Label>
@@ -130,17 +141,27 @@ export function LoginCard() {
               onChange: () => setFilledDemo(null),
             })}
           />
-          {errors.password ? <p className="text-xs text-destructive">{errors.password.message}</p> : null}
+          {errors.password ? (
+            <p className="text-xs text-destructive">
+              {errors.password.message}
+            </p>
+          ) : null}
         </div>
 
         {filledDemo ? (
-          <p aria-live="polite" className="bg-muted px-3 py-2 text-xs text-muted-foreground">
-            Filled in the <span className="font-medium">{ROLE_LABELS[filledDemo.role]}</span> demo
-            credentials — press Sign in to continue.
+          <p
+            aria-live="polite"
+            className="bg-muted px-3 py-2 text-xs text-muted-foreground"
+          >
+            Filled in the{" "}
+            <span className="font-medium">{ROLE_LABELS[filledDemo.role]}</span>{" "}
+            demo credentials — press Sign in to continue.
           </p>
         ) : null}
 
-        {state.error ? <p className="text-xs text-destructive">{state.error}</p> : null}
+        {state.error ? (
+          <p className="text-xs text-destructive">{state.error}</p>
+        ) : null}
 
         <Button type="submit" className="w-full" disabled={pending}>
           {pending ? "Signing in..." : "Sign in"}
@@ -170,15 +191,20 @@ export function LoginCard() {
               <demo.icon className="size-4" />
             </span>
             <div className="flex min-w-0 flex-col">
-              <span className="text-xs font-semibold">{ROLE_LABELS[demo.role]}</span>
-              <span className="truncate text-xs text-muted-foreground">{demo.summary}</span>
+              <span className="text-xs font-semibold">
+                {ROLE_LABELS[demo.role]}
+              </span>
+              <span className="truncate text-xs text-muted-foreground">
+                {demo.summary}
+              </span>
             </div>
           </button>
         ))}
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        Access is provisioned by your administrator. Contact HR if you need an account.
+        Access is provisioned by your administrator. Contact HR if you need an
+        account.
       </p>
     </div>
   );
