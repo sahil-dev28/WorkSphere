@@ -36,7 +36,7 @@ export type EditableField =
   | "profileImage";
 
 const EMPLOYEE_SELF_FIELDS: EditableField[] = ["name", "phone", "profileImage"];
-const FULL_FIELDS: EditableField[] = [
+export const FULL_FIELDS: EditableField[] = [
   "name",
   "email",
   "phone",

@@ -21,7 +21,7 @@ import { DeleteEmployeeDialog } from "./delete-employee-dialog";
 import { buildDialogHref } from "./dialog-href";
 import type { DirectorySearchParams } from "./types";
 
-const STATUS_DOT: Record<string, string> = {
+const STATUS_DOT: Record<Employee["status"], string> = {
   active: "bg-primary",
   on_leave: "bg-accent-foreground",
   terminated: "bg-destructive",

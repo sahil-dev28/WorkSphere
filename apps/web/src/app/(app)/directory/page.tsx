@@ -15,6 +15,7 @@ import {
   canEditEmployee,
   canReassignManager,
   editableFieldsFor,
+  FULL_FIELDS,
 } from "@/lib/permissions";
 import { getDescendantIds } from "@/lib/org-hierarchy";
 import { getQueryClient } from "@/lib/query-client";
@@ -122,7 +123,7 @@ export default async function DirectoryPage({
   return (
     <div className="flex flex-col gap-6 p-6">
       <Card>
-        <CardContent className="flex flex-col gap-3 py-3 min-[700px]:flex-row min-[700px]:items-center">
+        <CardContent className="flex flex-col gap-3 py-3 min-[700px]:flex-row min-[700px]:flex-wrap min-[700px]:items-center">
           <SearchInput defaultValue={params.q ?? ""} />
           <DirectoryFilters
             department={params.department ?? "all"}
@@ -169,20 +170,7 @@ export default async function DirectoryPage({
           mode={dialogMode}
           employee={dialogEmployee}
           editableFields={
-            dialogMode === "add"
-              ? [
-                  "name",
-                  "email",
-                  "phone",
-                  "department",
-                  "designation",
-                  "salary",
-                  "joiningDate",
-                  "status",
-                  "role",
-                  "profileImage",
-                ]
-              : editableFieldsFor(user, dialogEmployee!)
+            dialogMode === "add" ? FULL_FIELDS : editableFieldsFor(user, dialogEmployee!)
           }
           canEditRole={dialogMode !== "view"}
           roleOptions={roleOptions}

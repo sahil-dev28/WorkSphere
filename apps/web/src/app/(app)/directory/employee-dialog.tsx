@@ -76,6 +76,11 @@ interface FormValues {
   reportingManager: string;
 }
 
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="text-xs text-destructive">{message}</p>;
+}
+
 function defaultValuesFor(employee: Employee | undefined): FormValues {
   return {
     name: employee?.name ?? "",
@@ -223,7 +228,7 @@ export function EmployeeDialog({
                   maxLength: { value: 60, message: "Name cannot exceed 60 characters" },
                 })}
               />
-              {errors.name ? <p className="text-xs text-destructive">{errors.name.message}</p> : null}
+              <FieldError message={errors.name?.message} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Email</Label>
@@ -233,7 +238,7 @@ export function EmployeeDialog({
                 aria-invalid={!!errors.email}
                 {...register("email", { required: "Email is required" })}
               />
-              {errors.email ? <p className="text-xs text-destructive">{errors.email.message}</p> : null}
+              <FieldError message={errors.email?.message} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Phone</Label>
@@ -242,7 +247,7 @@ export function EmployeeDialog({
                 aria-invalid={!!errors.phone}
                 {...register("phone", { required: "Phone is required" })}
               />
-              {errors.phone ? <p className="text-xs text-destructive">{errors.phone.message}</p> : null}
+              <FieldError message={errors.phone?.message} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Department</Label>
@@ -269,9 +274,7 @@ export function EmployeeDialog({
                   </Select>
                 )}
               />
-              {errors.department ? (
-                <p className="text-xs text-destructive">{errors.department.message}</p>
-              ) : null}
+              <FieldError message={errors.department?.message} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Designation</Label>
@@ -284,9 +287,7 @@ export function EmployeeDialog({
                   maxLength: { value: 60, message: "Designation cannot exceed 60 characters" },
                 })}
               />
-              {errors.designation ? (
-                <p className="text-xs text-destructive">{errors.designation.message}</p>
-              ) : null}
+              <FieldError message={errors.designation?.message} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Salary (USD)</Label>
@@ -302,9 +303,7 @@ export function EmployeeDialog({
                     aria-invalid={!!errors.salary}
                     {...register("salary", { required: isAdd ? "Salary is required" : false })}
                   />
-                  {errors.salary ? (
-                    <p className="text-xs text-destructive">{errors.salary.message}</p>
-                  ) : null}
+                  <FieldError message={errors.salary?.message} />
                 </>
               )}
             </div>
@@ -316,9 +315,7 @@ export function EmployeeDialog({
                 aria-invalid={!!errors.joiningDate}
                 {...register("joiningDate")}
               />
-              {errors.joiningDate ? (
-                <p className="text-xs text-destructive">{errors.joiningDate.message}</p>
-              ) : null}
+              <FieldError message={errors.joiningDate?.message} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Status</Label>
@@ -340,7 +337,7 @@ export function EmployeeDialog({
                   </Select>
                 )}
               />
-              {errors.status ? <p className="text-xs text-destructive">{errors.status.message}</p> : null}
+              <FieldError message={errors.status?.message} />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>System Role</Label>
@@ -367,7 +364,7 @@ export function EmployeeDialog({
                 )}
               />
               <p className="text-xs text-muted-foreground">Determines what this person can access.</p>
-              {errors.role ? <p className="text-xs text-destructive">{errors.role.message}</p> : null}
+              <FieldError message={errors.role?.message} />
             </div>
             {isAdd ? (
               <div className="flex flex-col gap-1.5">
@@ -381,9 +378,7 @@ export function EmployeeDialog({
                     minLength: { value: 8, message: "Password must be at least 8 characters" },
                   })}
                 />
-                {errors.password ? (
-                  <p className="text-xs text-destructive">{errors.password.message}</p>
-                ) : null}
+                <FieldError message={errors.password?.message} />
               </div>
             ) : null}
             <div className="flex flex-col gap-1.5 min-[500px]:col-span-2">
@@ -436,9 +431,7 @@ export function EmployeeDialog({
               <p className="text-xs text-muted-foreground">
                 Circular reporting is prevented — this employee&apos;s own reports are excluded.
               </p>
-              {errors.reportingManager ? (
-                <p className="text-xs text-destructive">{errors.reportingManager.message}</p>
-              ) : null}
+              <FieldError message={errors.reportingManager?.message} />
             </div>
           </div>
 

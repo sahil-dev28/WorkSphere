@@ -49,7 +49,7 @@ export function SearchInput({ defaultValue }: { defaultValue: string }) {
   }
 
   return (
-    <InputGroup className="min-[700px]:flex-1">
+    <InputGroup className="min-[700px]:min-w-56 min-[700px]:flex-1">
       <InputGroupAddon>
         <Search className="size-3.5" />
       </InputGroupAddon>
