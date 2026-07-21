@@ -11,12 +11,12 @@ import { Label } from "@WorkSphere/ui/components/label";
 
 import { ChangePasswordFields } from "@/components/auth/change-password-fields";
 import { loginAction, type LoginState } from "@/lib/actions/auth";
+import { ROLE_LABELS, employeeRoles } from "@/lib/enums";
 
 const initialState: LoginState = {};
 
 interface DemoRole {
-  role: "super_admin" | "hr_manager" | "employee";
-  label: string;
+  role: (typeof employeeRoles)[number];
   summary: string;
   email: string;
   password: string;
@@ -27,7 +27,6 @@ interface DemoRole {
 const DEMO_ROLES: DemoRole[] = [
   {
     role: "super_admin",
-    label: "Super Admin",
     summary: "Full access · manage roles & delete",
     email: "admin@worksphere.dev",
     password: "ChangeMe123!",
@@ -36,7 +35,6 @@ const DEMO_ROLES: DemoRole[] = [
   },
   {
     role: "hr_manager",
-    label: "HR Manager",
     summary: "Create, edit & view · no delete",
     email: "hr.demo@worksphere.dev",
     password: "HrManagerDemo123!",
@@ -45,7 +43,6 @@ const DEMO_ROLES: DemoRole[] = [
   },
   {
     role: "employee",
-    label: "Employee",
     summary: "View & edit own profile only",
     email: "rahul.verma@worksphere.dev",
     password: "RahulNewPass123",
@@ -82,8 +79,8 @@ export function LoginCard() {
   }
 
   function fillDemo(demo: DemoRole) {
-    setValue("email", demo.email);
-    setValue("password", demo.password);
+    setValue("email", demo.email, { shouldValidate: true });
+    setValue("password", demo.password, { shouldValidate: true });
     setFilledDemo(demo);
   }
 
@@ -138,7 +135,7 @@ export function LoginCard() {
 
         {filledDemo ? (
           <p aria-live="polite" className="bg-muted px-3 py-2 text-xs text-muted-foreground">
-            Filled in the <span className="font-medium">{filledDemo.label}</span> demo
+            Filled in the <span className="font-medium">{ROLE_LABELS[filledDemo.role]}</span> demo
             credentials — press Sign in to continue.
           </p>
         ) : null}
@@ -173,7 +170,7 @@ export function LoginCard() {
               <demo.icon className="size-4" />
             </span>
             <div className="flex min-w-0 flex-col">
-              <span className="text-xs font-semibold">{demo.label}</span>
+              <span className="text-xs font-semibold">{ROLE_LABELS[demo.role]}</span>
               <span className="truncate text-xs text-muted-foreground">{demo.summary}</span>
             </div>
           </button>
