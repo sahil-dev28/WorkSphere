@@ -1,4 +1,5 @@
 import { Employee } from "@/models/Employee";
+import { NOT_DELETED_FILTER } from "@/utils/constants";
 import type { departments, employeeRoles } from "@/utils/constants";
 
 type Department = (typeof departments)[number];
@@ -19,6 +20,10 @@ interface HierarchyCheckInput {
   role: EmployeeRole;
   department: Department;
   reportingManager: string | null;
+}
+
+function loadActiveEmployee(id: string) {
+  return Employee.findOne({ _id: id, ...NOT_DELETED_FILTER }).lean();
 }
 
 // Real-company reporting rules, checked against the FINAL proposed state of a
@@ -49,7 +54,7 @@ export async function assertValidHierarchy({
     const existingHead = await Employee.findOne({
       role: "hr_manager",
       department,
-      isDeleted: { $ne: true },
+      ...NOT_DELETED_FILTER,
       ...(employeeId ? { _id: { $ne: employeeId } } : {}),
     }).lean();
 
@@ -64,10 +69,7 @@ export async function assertValidHierarchy({
       );
     }
 
-    const manager = await Employee.findOne({
-      _id: reportingManager,
-      isDeleted: { $ne: true },
-    }).lean();
+    const manager = await loadActiveEmployee(reportingManager);
 
     if (!manager || manager.role !== "super_admin") {
       throw new HierarchyError(
@@ -83,10 +85,7 @@ export async function assertValidHierarchy({
     throw new HierarchyError("reportingManager", "Employees must have a reporting manager");
   }
 
-  const manager = await Employee.findOne({
-    _id: reportingManager,
-    isDeleted: { $ne: true },
-  }).lean();
+  const manager = await loadActiveEmployee(reportingManager);
 
   if (!manager || manager.role === "employee") {
     throw new HierarchyError("reportingManager", "An employee cannot report to another employee");
@@ -96,7 +95,7 @@ export async function assertValidHierarchy({
     const deptHead = await Employee.findOne({
       role: "hr_manager",
       department,
-      isDeleted: { $ne: true },
+      ...NOT_DELETED_FILTER,
     }).lean();
 
     if (deptHead) {
