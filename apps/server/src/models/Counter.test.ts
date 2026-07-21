@@ -2,7 +2,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { getNextSequence, resetSequence } from "@/models/Counter";
+import { getNextSequence, resetSequence, setSequence } from "@/models/Counter";
 
 let mongod: MongoMemoryServer;
 
@@ -45,5 +45,12 @@ describe("getNextSequence", () => {
     const afterReset = await getNextSequence("test-reset");
 
     expect(afterReset).toBe(1);
+  });
+
+  it("setSequence sets an explicit value that the next getNextSequence call increments from", async () => {
+    await setSequence("test-explicit", 41);
+    const next = await getNextSequence("test-explicit");
+
+    expect(next).toBe(42);
   });
 });

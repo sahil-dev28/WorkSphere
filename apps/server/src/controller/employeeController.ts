@@ -84,6 +84,41 @@ function isValidObjectIdParam(id: unknown): id is string {
   return typeof id === "string" && Types.ObjectId.isValid(id);
 }
 
+type UpdatableEmployeeField = keyof UpdateEmployeeInput;
+
+const EMPLOYEE_SELF_EDIT_FIELDS: readonly UpdatableEmployeeField[] = [
+  "name",
+  "phone",
+  "profileImage",
+];
+
+function applyUpdatableFields(
+  target: Awaited<ReturnType<typeof Employee.findOne>>,
+  body: UpdateEmployeeInput,
+  allowedFields?: readonly UpdatableEmployeeField[],
+) {
+  if (!target) {
+    return;
+  }
+
+  const isAllowed = (field: UpdatableEmployeeField) =>
+    !allowedFields || allowedFields.includes(field);
+
+  if (isAllowed("name") && body.name !== undefined) target.name = body.name;
+  if (isAllowed("email") && body.email !== undefined) target.email = body.email;
+  if (isAllowed("phone") && body.phone !== undefined) target.phone = body.phone;
+  if (isAllowed("department") && body.department !== undefined) target.department = body.department;
+  if (isAllowed("designation") && body.designation !== undefined) target.designation = body.designation;
+  if (isAllowed("salary") && body.salary !== undefined) target.salary = body.salary;
+  if (isAllowed("joiningDate") && body.joiningDate !== undefined) target.joiningDate = body.joiningDate;
+  if (isAllowed("status") && body.status !== undefined) target.status = body.status;
+  if (isAllowed("role") && body.role !== undefined) target.role = body.role;
+  if (isAllowed("reportingManager") && body.reportingManager !== undefined) {
+    target.reportingManager = new Types.ObjectId(body.reportingManager);
+  }
+  if (isAllowed("profileImage") && body.profileImage !== undefined) target.profileImage = body.profileImage;
+}
+
 export const getEmployees = async (
   req: Request,
   res: Response,
@@ -473,41 +508,6 @@ export const updateEmployee = async (
     res.status(400).json(formatEmployeeError(error));
   }
 };
-
-type UpdatableEmployeeField = keyof UpdateEmployeeInput;
-
-const EMPLOYEE_SELF_EDIT_FIELDS: readonly UpdatableEmployeeField[] = [
-  "name",
-  "phone",
-  "profileImage",
-];
-
-function applyUpdatableFields(
-  target: Awaited<ReturnType<typeof Employee.findOne>>,
-  body: UpdateEmployeeInput,
-  allowedFields?: readonly UpdatableEmployeeField[],
-) {
-  if (!target) {
-    return;
-  }
-
-  const isAllowed = (field: UpdatableEmployeeField) =>
-    !allowedFields || allowedFields.includes(field);
-
-  if (isAllowed("name") && body.name !== undefined) target.name = body.name;
-  if (isAllowed("email") && body.email !== undefined) target.email = body.email;
-  if (isAllowed("phone") && body.phone !== undefined) target.phone = body.phone;
-  if (isAllowed("department") && body.department !== undefined) target.department = body.department;
-  if (isAllowed("designation") && body.designation !== undefined) target.designation = body.designation;
-  if (isAllowed("salary") && body.salary !== undefined) target.salary = body.salary;
-  if (isAllowed("joiningDate") && body.joiningDate !== undefined) target.joiningDate = body.joiningDate;
-  if (isAllowed("status") && body.status !== undefined) target.status = body.status;
-  if (isAllowed("role") && body.role !== undefined) target.role = body.role;
-  if (isAllowed("reportingManager") && body.reportingManager !== undefined) {
-    target.reportingManager = new Types.ObjectId(body.reportingManager);
-  }
-  if (isAllowed("profileImage") && body.profileImage !== undefined) target.profileImage = body.profileImage;
-}
 
 export const deleteEmployee = async (
   req: Request,
