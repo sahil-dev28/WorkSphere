@@ -43,39 +43,22 @@ export const createEmployeeSchema = z.object({
 
 export type CreateEmployeeInput = z.infer<typeof createEmployeeSchema>;
 
-// Same fields as create, all optional. employeeId, password, and mustChangePassword
-// are never editable through this route, so they're absent here entirely.
-export const updateEmployeeSchema = z.object({
-  name: z
-    .string()
-    .min(3, "Name must be at least 3 characters")
-    .max(60, "Name cannot exceed 60 characters")
-    .optional(),
-  email: z.email("Invalid email address").optional(),
-  phone: z
-    .string()
-    .regex(PHONE_REGEX, "Phone must be 10-15 digits, optionally prefixed with +")
-    .optional(),
-  department: z.enum(departments, {
-    error: `Department must be one of ${departments.join(", ")}`,
-  }).optional(),
-  designation: z
-    .string()
-    .min(2, "Designation must be at least 2 characters")
-    .max(60, "Designation cannot exceed 60 characters")
-    .optional(),
-  salary: z.number().positive("Salary must be greater than 0").optional(),
-  joiningDate: z.coerce.date().optional(),
-  status: z.enum(employeeStatuses, {
-    error: `Status must be one of ${employeeStatuses.join(", ")}`,
-  }).optional(),
-  reportingManager: z
-    .string()
-    .regex(MONGO_OBJECT_ID_REGEX, "Invalid reportingManager id")
-    .optional(),
-  profileImage: z.url("Invalid profile image URL").optional(),
-  role: z.enum(employeeRoles).optional(),
-});
+// Derived from create: every field optional, password dropped (never
+// editable through this route), status added (create doesn't have it —
+// new employees always start "active"). salary and role are re-specified
+// explicitly rather than inherited via .partial() — create's versions
+// carry a custom "required" message that must not leak into update's
+// wrong-type-but-present case, where it would be misleading.
+export const updateEmployeeSchema = createEmployeeSchema
+  .omit({ password: true })
+  .partial()
+  .extend({
+    salary: z.number().positive("Salary must be greater than 0").optional(),
+    status: z.enum(employeeStatuses, {
+      error: `Status must be one of ${employeeStatuses.join(", ")}`,
+    }).optional(),
+    role: z.enum(employeeRoles).optional(),
+  });
 
 export type UpdateEmployeeInput = z.infer<typeof updateEmployeeSchema>;
 
