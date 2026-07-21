@@ -54,7 +54,10 @@ export default async function OrgChartPage({
     redirect("/dashboard");
   }
 
-  const [employees, stats] = await Promise.all([getEmployeeRoster(), getStats()]);
+  const [employees, stats] = await Promise.all([
+    getEmployeeRoster(),
+    getStats(),
+  ]);
 
   if (employees.length === 0) {
     return (
@@ -69,17 +72,26 @@ export default async function OrgChartPage({
   }
 
   const root = employees.find((e) => e.role === "super_admin") ?? employees[0]!;
-  const departmentCount = stats?.departmentCounts.filter((d) => d.count > 0).length ?? 0;
+  const departmentCount =
+    stats?.departmentCounts.filter((d) => d.count > 0).length ?? 0;
+
+  const employeeIds = new Set(employees.map((e) => e._id));
+  const validParentId = (id: string | null) =>
+    id && employeeIds.has(id) && id !== root._id ? id : root._id;
 
   const directReportCounts = new Map<string, number>();
   for (const e of employees) {
-    if (!e.reportingManager) continue;
-    directReportCounts.set(e.reportingManager, (directReportCounts.get(e.reportingManager) ?? 0) + 1);
+    if (e._id === root._id) continue;
+    const parentId = validParentId(e.reportingManager);
+    directReportCounts.set(
+      parentId,
+      (directReportCounts.get(parentId) ?? 0) + 1,
+    );
   }
 
   const chartData: OrgChartDatum[] = employees.map((e) => ({
     id: e._id,
-    parentId: e.reportingManager,
+    parentId: e._id === root._id ? null : validParentId(e.reportingManager),
     name: e.name,
     designation: e.designation,
     department: e.department,
@@ -100,11 +112,15 @@ export default async function OrgChartPage({
         <CardContent className="flex flex-col items-center justify-between gap-4 py-4 min-[600px]:flex-row">
           <div className="flex items-center gap-3">
             <Avatar className="size-12">
-              <AvatarFallback className="text-sm">{initials(root.name)}</AvatarFallback>
+              <AvatarFallback className="text-sm">
+                {initials(root.name)}
+              </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <span className="text-sm font-semibold">{root.name}</span>
-              <span className="text-xs text-muted-foreground">{root.designation}</span>
+              <span className="text-xs text-muted-foreground">
+                {root.designation}
+              </span>
             </div>
           </div>
           <div className="flex gap-6">
@@ -115,7 +131,9 @@ export default async function OrgChartPage({
               <span className="text-xs text-muted-foreground">Employees</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-lg font-semibold tabular-nums">{departmentCount}</span>
+              <span className="text-lg font-semibold tabular-nums">
+                {departmentCount}
+              </span>
               <span className="text-xs text-muted-foreground">Departments</span>
             </div>
           </div>
