@@ -6,6 +6,7 @@ import { Card, CardContent } from "@WorkSphere/ui/components/card";
 import { EmployeeDialog } from "@/app/(app)/directory/employee-dialog";
 import { employeeRoles } from "@/lib/enums";
 import { serverFetch } from "@/lib/api";
+import { getEmployeeRoster } from "@/lib/employees";
 import { initials } from "@/lib/format";
 import { getMe } from "@/lib/session";
 import type { Employee } from "@/lib/types";
@@ -26,17 +27,6 @@ const DEPARTMENT_COLORS: Record<Employee["department"], string> = {
   HR: "var(--primary)",
   Finance: "var(--destructive)",
 };
-
-async function getEmployees(): Promise<Employee[]> {
-  const res = await serverFetch("/api/employees");
-
-  if (!res.ok) {
-    return [];
-  }
-
-  const body = (await res.json()) as { data: Employee[] };
-  return body.data;
-}
 
 async function getStats(): Promise<DashboardStats | null> {
   const res = await serverFetch("/api/dashboard/stats");
@@ -64,7 +54,7 @@ export default async function OrgChartPage({
     redirect("/dashboard");
   }
 
-  const [employees, stats] = await Promise.all([getEmployees(), getStats()]);
+  const [employees, stats] = await Promise.all([getEmployeeRoster(), getStats()]);
 
   if (employees.length === 0) {
     return (
