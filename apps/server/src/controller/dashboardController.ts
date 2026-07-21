@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 
 import { Employee } from "@/models/Employee";
 import { DASHBOARD_INACTIVE_STATUSES, departments, NOT_DELETED_FILTER } from "@/utils/constants";
+import { formatUnknownError } from "@/utils/formatMongooseError";
 
 interface DashboardAggregationResult {
   total: { count: number }[];
@@ -53,8 +54,6 @@ export const getDashboardStats = async (_req: Request, res: Response): Promise<v
       },
     });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatUnknownError(error));
   }
 };

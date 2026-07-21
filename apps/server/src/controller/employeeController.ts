@@ -12,7 +12,7 @@ import type {
   UpdateManagerInput,
 } from "@/schema/employee";
 import { NOT_DELETED_FILTER } from "@/utils/constants";
-import { formatMongooseError } from "@/utils/formatMongooseError";
+import { formatMongooseError, formatUnknownError } from "@/utils/formatMongooseError";
 import { generateTemporaryPassword } from "@/utils/generateTemporaryPassword";
 import { assertValidHierarchy, HierarchyError } from "@/utils/hierarchyRules";
 
@@ -112,9 +112,7 @@ export const getEmployees = async (
 
     res.status(200).json({ data: shaped, total });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatUnknownError(error));
   }
 };
 
@@ -149,9 +147,7 @@ export const getEmployeeById = async (
       .status(200)
       .json({ data: shapeForRequester(employee, req.user?.role ?? "") });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatUnknownError(error));
   }
 };
 
@@ -367,9 +363,7 @@ export const importEmployees = async (
       createdEmployees: created,
     });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatUnknownError(error));
   }
 };
 
@@ -495,9 +489,7 @@ export const deleteEmployee = async (
 
     res.status(200).json({ message: "Employee deleted" });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatUnknownError(error));
   }
 };
 
@@ -534,9 +526,7 @@ export const getReportees = async (
 
     res.status(200).json({ data: shaped });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatUnknownError(error));
   }
 };
 

@@ -18,6 +18,10 @@ function isMongooseValidationError(error: unknown): error is MongooseValidationE
   );
 }
 
+export function formatUnknownError(error: unknown): { error: string } {
+  return { error: error instanceof Error ? error.message : "Unknown error" };
+}
+
 // Mongoose validation errors and duplicate-key errors already carry
 // per-field detail (error.errors / error.keyPattern) — this just surfaces
 // that instead of collapsing it into the single concatenated message that
@@ -45,5 +49,5 @@ export function formatMongooseError(error: unknown): {
     }
   }
 
-  return { error: error instanceof Error ? error.message : "Unknown error" };
+  return formatUnknownError(error);
 }

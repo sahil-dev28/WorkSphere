@@ -6,6 +6,7 @@ import { env } from "@WorkSphere/env/server";
 import { Employee } from "@/models/Employee";
 import type { ChangePasswordInput, LoginInput } from "@/schema/auth";
 import { AUTH_COOKIE_BASE_OPTIONS, AUTH_COOKIE_NAME } from "@/utils/constants";
+import { formatUnknownError } from "@/utils/formatMongooseError";
 
 const signToken = (id: string, role: string): string =>
   jwt.sign({ id, role }, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
@@ -51,9 +52,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatUnknownError(error));
   }
 };
 
@@ -111,8 +110,6 @@ export const changePassword = async (
 
     res.status(200).json({ message: "Password changed" });
   } catch (error) {
-    res.status(400).json({
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    res.status(400).json(formatUnknownError(error));
   }
 };
