@@ -71,6 +71,10 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function isValidObjectIdParam(id: unknown): id is string {
+  return typeof id === "string" && Types.ObjectId.isValid(id);
+}
+
 export const getEmployees = async (
   req: Request,
   res: Response,
@@ -121,7 +125,7 @@ export const getEmployeeById = async (
   try {
     const { id } = req.params;
 
-    if (typeof id !== "string" || !Types.ObjectId.isValid(id)) {
+    if (!isValidObjectIdParam(id)) {
       res.status(400).json({ error: "Invalid id" });
       return;
     }
@@ -376,7 +380,7 @@ export const updateEmployee = async (
   try {
     const { id } = req.params;
 
-    if (typeof id !== "string" || !Types.ObjectId.isValid(id)) {
+    if (!isValidObjectIdParam(id)) {
       res.status(400).json({ error: "Invalid id" });
       return;
     }
@@ -473,7 +477,7 @@ export const deleteEmployee = async (
   try {
     const { id } = req.params;
 
-    if (typeof id !== "string" || !Types.ObjectId.isValid(id)) {
+    if (!isValidObjectIdParam(id)) {
       res.status(400).json({ error: "Invalid id" });
       return;
     }
@@ -504,7 +508,7 @@ export const getReportees = async (
   try {
     const { id } = req.params;
 
-    if (typeof id !== "string" || !Types.ObjectId.isValid(id)) {
+    if (!isValidObjectIdParam(id)) {
       res.status(400).json({ error: "Invalid id" });
       return;
     }
@@ -574,7 +578,7 @@ export const updateManager = async (
   try {
     const { id } = req.params;
 
-    if (typeof id !== "string" || !Types.ObjectId.isValid(id)) {
+    if (!isValidObjectIdParam(id)) {
       res.status(400).json({ error: "Invalid id" });
       return;
     }
