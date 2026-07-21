@@ -36,7 +36,7 @@ const DEMO_ROLES: DemoRole[] = [
   {
     role: "hr_manager",
     summary: "Create, edit & view · no delete",
-    email: "hr.demo@worksphere.dev",
+    email: "hr.demo0@worksphere.dev",
     password: "HrManagerDemo123!",
     icon: Users,
     badgeClassName: "bg-accent/20 text-accent-foreground",
