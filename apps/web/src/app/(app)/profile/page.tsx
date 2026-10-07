@@ -6,6 +6,7 @@ import { Badge } from "@WorkSphere/ui/components/badge";
 import { Card, CardContent } from "@WorkSphere/ui/components/card";
 
 import { StatusPill } from "@/components/employee/status-pill";
+import { SESSION_EXPIRED_PATH } from "@/lib/constants";
 import { getEmployeeById, getEmployeeName } from "@/lib/employees";
 import { formatDate, initials } from "@/lib/format";
 import { editableFieldsFor } from "@/lib/permissions";
@@ -26,7 +27,7 @@ export default async function ProfilePage() {
   const user = await getMe();
 
   if (!user) {
-    redirect("/login");
+    redirect(SESSION_EXPIRED_PATH);
   }
 
   const { employee } = await getEmployeeById(user.id);

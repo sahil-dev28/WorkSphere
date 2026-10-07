@@ -6,13 +6,14 @@ import { SidebarProvider } from "@/components/shell/sidebar-provider";
 import { Topbar } from "@/components/shell/topbar";
 import { MobileTabBar, MobileTopBar } from "@/components/shell/mobile-nav";
 import { RouteTransition } from "@/components/shell/route-transition";
+import { SESSION_EXPIRED_PATH } from "@/lib/constants";
 import { getMe } from "@/lib/session";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getMe();
 
   if (!user) {
-    redirect("/login");
+    redirect(SESSION_EXPIRED_PATH);
   }
 
   if (user.mustChangePassword) {

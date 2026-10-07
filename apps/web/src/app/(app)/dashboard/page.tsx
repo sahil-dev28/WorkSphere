@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { SESSION_EXPIRED_PATH } from "@/lib/constants";
 import { getMe } from "@/lib/session";
 
 import { AdminDashboard } from "./admin-dashboard";
@@ -9,7 +10,7 @@ export default async function DashboardPage() {
   const user = await getMe();
 
   if (!user) {
-    redirect("/login");
+    redirect(SESSION_EXPIRED_PATH);
   }
 
   if (user.role === "employee") {

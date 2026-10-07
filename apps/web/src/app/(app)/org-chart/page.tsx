@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@WorkSphere/ui/components/avatar";
 import { Card, CardContent } from "@WorkSphere/ui/components/card";
 
 import { EmployeeDialog } from "@/app/(app)/directory/employee-dialog";
+import { SESSION_EXPIRED_PATH } from "@/lib/constants";
 import { employeeRoles } from "@/lib/enums";
 import { serverFetch } from "@/lib/api";
 import { getEmployeeRoster } from "@/lib/employees";
@@ -47,7 +48,7 @@ export default async function OrgChartPage({
   const [user, params] = await Promise.all([getMe(), searchParams]);
 
   if (!user) {
-    redirect("/login");
+    redirect(SESSION_EXPIRED_PATH);
   }
 
   if (user.role === "employee") {

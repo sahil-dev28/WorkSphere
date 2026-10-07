@@ -6,6 +6,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Button } from "@WorkSphere/ui/components/button";
 import { Card, CardContent } from "@WorkSphere/ui/components/card";
 
+import { SESSION_EXPIRED_PATH } from "@/lib/constants";
 import type { EmployeesTableParams } from "@/lib/actions/employees";
 import { employeeRoles } from "@/lib/enums";
 import { serverFetch } from "@/lib/api";
@@ -55,7 +56,7 @@ export default async function DirectoryPage({
   const [user, params] = await Promise.all([getMe(), searchParams]);
 
   if (!user) {
-    redirect("/login");
+    redirect(SESSION_EXPIRED_PATH);
   }
 
   if (user.role === "employee") {
