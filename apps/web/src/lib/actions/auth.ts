@@ -28,25 +28,40 @@ export interface LoginState {
   mustChangePassword?: boolean;
 }
 
-export async function loginAction(_prevState: LoginState, formData: FormData): Promise<LoginState> {
-  const email = formData.get("email");
-  const password = formData.get("password");
+type SignInResult = { ok: true; mustChangePassword: boolean } | { ok: false; error: string };
 
-  const res = await serverFetch("/api/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+async function signIn(email: unknown, password: unknown): Promise<SignInResult> {
+  let res: Response;
+  try {
+    res = await serverFetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+  } catch {
+    return { ok: false, error: "Couldn't reach the server. Try again shortly." };
+  }
 
-  const body = (await res.json()) as { data?: { mustChangePassword: boolean } } & ApiError;
+  const body = (await res.json().catch(() => ({}))) as {
+    data?: { mustChangePassword: boolean };
+  } & ApiError;
 
   if (!res.ok) {
-    return { error: body.error ?? "Login failed" };
+    return { ok: false, error: body.error ?? "Login failed" };
   }
 
   await setSessionCookie(res);
+  return { ok: true, mustChangePassword: Boolean(body.data?.mustChangePassword) };
+}
 
-  if (body.data?.mustChangePassword) {
+export async function loginAction(_prevState: LoginState, formData: FormData): Promise<LoginState> {
+  const result = await signIn(formData.get("email"), formData.get("password"));
+
+  if (!result.ok) {
+    return { error: result.error };
+  }
+
+  if (result.mustChangePassword) {
     return { mustChangePassword: true };
   }
 
