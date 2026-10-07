@@ -3,14 +3,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 const badgeVariants = cva(
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1 rounded-none border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all [&_svg]:pointer-events-none [&_svg]:size-3",
+  "inline-flex w-fit shrink-0 items-center justify-center gap-1 rounded-full border border-transparent px-2 py-0.5 text-[11px] font-medium whitespace-nowrap transition-colors [&_svg]:pointer-events-none [&_svg]:size-3",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground",
+        default: "bg-primary/12 text-primary",
+        secondary: "bg-muted text-muted-foreground",
         outline: "border-border text-foreground",
-        destructive: "bg-destructive/10 text-destructive",
+        destructive: "bg-destructive/12 text-destructive",
+        success: "bg-success/12 text-success",
+        warning: "bg-warning/12 text-warning",
       },
     },
     defaultVariants: {

@@ -11,12 +11,12 @@ function Progress({
     <ProgressPrimitive.Root
       data-slot="progress"
       value={value}
-      className={cn("relative h-1.5 w-full overflow-hidden rounded-none bg-muted", className)}
+      className={cn("relative h-1.5 w-full overflow-hidden rounded-full bg-muted", className)}
       {...props}
     >
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
-        className={cn("h-full bg-primary transition-[width]", indicatorClassName)}
+        className={cn("h-full rounded-full bg-primary transition-[width] duration-500", indicatorClassName)}
         style={{ width: `${value ?? 0}%` }}
       />
     </ProgressPrimitive.Root>
