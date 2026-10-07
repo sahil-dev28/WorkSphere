@@ -57,3 +57,4 @@ temp
 # Tooling artifacts
 .playwright-mcp
 .superpowers
+docs/superpowers
