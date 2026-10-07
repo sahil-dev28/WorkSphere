@@ -23,6 +23,7 @@ export function AccountMenuItems() {
   return (
     <>
       <ChangePasswordDialog
+        nativeButton={false}
         trigger={
           <DropdownMenuItem closeOnClick={false}>
             <KeyRound /> Change password
@@ -31,7 +32,11 @@ export function AccountMenuItems() {
       />
       <DropdownMenuSeparator />
       <form action={logoutAction}>
-        <DropdownMenuItem variant="destructive" render={<button type="submit" className="w-full" />}>
+        <DropdownMenuItem
+          variant="destructive"
+          nativeButton
+          render={<button type="submit" className="w-full" />}
+        >
           <LogOut /> Log out
         </DropdownMenuItem>
       </form>

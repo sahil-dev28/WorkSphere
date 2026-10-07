@@ -13,10 +13,16 @@ import {
 
 import { ChangePasswordFields } from "./change-password-fields";
 
-export function ChangePasswordDialog({ trigger }: { trigger: React.ReactElement }) {
+export function ChangePasswordDialog({
+  trigger,
+  nativeButton = true,
+}: {
+  trigger: React.ReactElement;
+  nativeButton?: boolean;
+}) {
   return (
     <Dialog>
-      <DialogTrigger render={trigger} />
+      <DialogTrigger render={trigger} nativeButton={nativeButton} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Change Password</DialogTitle>
