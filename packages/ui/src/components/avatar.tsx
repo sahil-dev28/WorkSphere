@@ -1,11 +1,12 @@
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
+import { avatarTone } from "@WorkSphere/ui/lib/avatar-tone";
 import { cn } from "@WorkSphere/ui/lib/utils";
 
 function Avatar({ className, ...props }: AvatarPrimitive.Root.Props) {
   return (
     <AvatarPrimitive.Root
       data-slot="avatar"
-      className={cn("relative flex size-8 shrink-0 overflow-hidden rounded-none", className)}
+      className={cn("relative flex size-8 shrink-0 overflow-hidden rounded-full", className)}
       {...props}
     />
   );
@@ -21,12 +22,17 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
   );
 }
 
-function AvatarFallback({ className, ...props }: AvatarPrimitive.Fallback.Props) {
+function AvatarFallback({
+  className,
+  colorKey,
+  ...props
+}: AvatarPrimitive.Fallback.Props & { colorKey?: string }) {
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        "flex size-full items-center justify-center bg-muted text-xs font-medium text-muted-foreground",
+        "flex size-full items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground",
+        colorKey !== undefined && avatarTone(colorKey),
         className,
       )}
       {...props}
