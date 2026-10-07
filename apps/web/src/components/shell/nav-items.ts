@@ -8,12 +8,13 @@ export interface NavItem {
   label: string;
   href: Route;
   icon: LucideIcon;
+  group: "workspace" | "account";
 }
 
-const DASHBOARD: NavItem = { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard };
-const EMPLOYEES: NavItem = { label: "Employees", href: "/directory", icon: Users };
-const ORGANIZATION: NavItem = { label: "Organization", href: "/org-chart", icon: Network };
-const MY_PROFILE: NavItem = { label: "My Profile", href: "/profile", icon: User };
+const DASHBOARD: NavItem = { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, group: "workspace" };
+const EMPLOYEES: NavItem = { label: "Employees", href: "/directory", icon: Users, group: "workspace" };
+const ORGANIZATION: NavItem = { label: "Organization", href: "/org-chart", icon: Network, group: "workspace" };
+const MY_PROFILE: NavItem = { label: "My Profile", href: "/profile", icon: User, group: "account" };
 
 export function getSidebarNavItems(role: Me["role"]): NavItem[] {
   if (role === "employee") {
