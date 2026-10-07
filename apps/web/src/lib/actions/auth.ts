@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 
 import { serverFetch, type ApiError } from "@/lib/api";
 import { AUTH_COOKIE_NAME } from "@/lib/constants";
+import { demoCredentials } from "@/lib/demo-credentials";
+import { isDemoRole } from "@/lib/demo-roles";
 
 async function setSessionCookie(res: Response): Promise<void> {
   const setCookieHeader = res.headers.get("set-cookie");
@@ -66,6 +68,26 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
   }
 
   redirect("/dashboard");
+}
+
+const DEMO_UNAVAILABLE = "This demo account isn't available right now.";
+
+export async function demoLoginAction(role: string): Promise<{ error: string } | undefined> {
+  if (!isDemoRole(role)) {
+    return { error: "Unknown demo role" };
+  }
+
+  const credentials = demoCredentials(role);
+  if (!credentials) {
+    return { error: DEMO_UNAVAILABLE };
+  }
+
+  const result = await signIn(credentials.email, credentials.password);
+  if (!result.ok) {
+    return { error: DEMO_UNAVAILABLE };
+  }
+
+  redirect(result.mustChangePassword ? "/change-password" : "/dashboard");
 }
 
 export async function logoutAction(): Promise<void> {
