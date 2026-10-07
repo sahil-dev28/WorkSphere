@@ -4,6 +4,8 @@ import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
+const PAGE_PRESERVING_KEYS = new Set(["page", "action", "employeeId"]);
+
 export function useDirectoryParams() {
   const router = useRouter();
   const pathname = usePathname();
@@ -12,6 +14,10 @@ export function useDirectoryParams() {
   return useCallback(
     (patch: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
+
+      if (Object.keys(patch).some((key) => !PAGE_PRESERVING_KEYS.has(key))) {
+        params.delete("page");
+      }
 
       for (const [key, value] of Object.entries(patch)) {
         if (value === null) {

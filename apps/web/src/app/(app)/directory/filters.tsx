@@ -25,6 +25,14 @@ const SORT_OPTIONS = [
   { value: "joined_asc", label: "Oldest joined" },
 ] as const;
 
+const DEPARTMENT_ITEMS = {
+  all: "All departments",
+  ...Object.fromEntries(departments.map((d) => [d, d])),
+};
+const ROLE_ITEMS = { all: "All roles", ...ROLE_LABELS };
+const STATUS_ITEMS = { all: "All statuses", ...STATUS_LABELS };
+const SORT_ITEMS = Object.fromEntries(SORT_OPTIONS.map((o) => [o.value, o.label]));
+
 interface DirectoryFiltersProps {
   department: string;
   role: string;
@@ -38,6 +46,7 @@ export function DirectoryFilters({ department, role, status, sort }: DirectoryFi
   return (
     <div className="grid grid-cols-2 gap-2 min-[700px]:flex min-[700px]:shrink-0 min-[700px]:flex-wrap">
       <Select
+        items={DEPARTMENT_ITEMS}
         value={department}
         onValueChange={(v) => updateParams({ department: v === "all" ? null : v })}
       >
@@ -54,7 +63,11 @@ export function DirectoryFilters({ department, role, status, sort }: DirectoryFi
         </SelectContent>
       </Select>
 
-      <Select value={role} onValueChange={(v) => updateParams({ role: v === "all" ? null : v })}>
+      <Select
+        items={ROLE_ITEMS}
+        value={role}
+        onValueChange={(v) => updateParams({ role: v === "all" ? null : v })}
+      >
         <SelectTrigger className="min-[700px]:w-32">
           <SelectValue placeholder="Role" />
         </SelectTrigger>
@@ -69,6 +82,7 @@ export function DirectoryFilters({ department, role, status, sort }: DirectoryFi
       </Select>
 
       <Select
+        items={STATUS_ITEMS}
         value={status}
         onValueChange={(v) => updateParams({ status: v === "all" ? null : v })}
       >
@@ -86,6 +100,7 @@ export function DirectoryFilters({ department, role, status, sort }: DirectoryFi
       </Select>
 
       <Select
+        items={SORT_ITEMS}
         value={sort}
         onValueChange={(v) => updateParams({ sort: v === "name_asc" ? null : v })}
       >

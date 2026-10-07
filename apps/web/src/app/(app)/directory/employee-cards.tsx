@@ -16,14 +16,6 @@ export function EmployeeCards({
   employees: Employee[];
   params: DirectorySearchParams;
 }) {
-  if (employees.length === 0) {
-    return (
-      <p className="py-8 text-center text-xs text-muted-foreground">
-        No employees match these filters.
-      </p>
-    );
-  }
-
   return (
     <>
       {employees.map((employee) => (

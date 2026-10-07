@@ -1,20 +1,33 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle, SearchX } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
+import { Button } from "@WorkSphere/ui/components/button";
 import { Card } from "@WorkSphere/ui/components/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@WorkSphere/ui/components/empty";
 
 import { canDeleteEmployee, canEditEmployee } from "@/lib/permissions";
 import type { Me } from "@/lib/session";
 
+import { DirectoryResultsBar } from "./directory-results-bar";
 import { DirectoryPagination } from "./pagination";
 import { EmployeeCards } from "./employee-cards";
 import { EmployeeTable } from "./employee-table";
 import { employeesTableOptions } from "./queries";
 import type { DirectorySearchParams } from "./types";
+import { useDirectoryParams } from "./use-directory-params";
 
 const PARAM_KEYS = ["q", "department", "role", "status", "sort", "page", "action", "employeeId"] as const;
+const FILTER_KEYS = ["q", "department", "role", "status"] as const;
 
 export function toDirectoryParams(searchParams: URLSearchParams): DirectorySearchParams {
   const obj: DirectorySearchParams = {};
@@ -38,7 +51,11 @@ export function DirectoryTable({
   const params = toDirectoryParams(searchParams);
   const page = Math.max(1, Number(params.page) || 1);
 
-  const { data, isError } = useQuery(
+  const updateParams = useDirectoryParams();
+  const hasFilters = FILTER_KEYS.some((key) => params[key]);
+  const clearFilters = () => updateParams({ q: null, department: null, role: null, status: null });
+
+  const { data, isError, isFetching, isLoading, refetch } = useQuery(
     employeesTableOptions({
       q: params.q,
       department: params.department,
@@ -53,9 +70,20 @@ export function DirectoryTable({
   if (isError) {
     return (
       <Card>
-        <p className="py-6 text-center text-xs text-muted-foreground">
-          Could not load employees. Try again shortly.
-        </p>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <AlertTriangle />
+            </EmptyMedia>
+            <EmptyTitle>Couldn&apos;t load employees</EmptyTitle>
+            <EmptyDescription>Check your connection and try again.</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button variant="outline" onClick={() => refetch()}>
+              Try again
+            </Button>
+          </EmptyContent>
+        </Empty>
       </Card>
     );
   }
@@ -66,10 +94,52 @@ export function DirectoryTable({
   const editableIds = new Set(
     employees.filter((employee) => canEditEmployee(user, employee)).map((e) => e._id),
   );
+  const resultsBar = (
+    <DirectoryResultsBar total={total} loading={isLoading} hasFilters={hasFilters} onClear={clearFilters} />
+  );
+  const refetchBar =
+    isFetching && !isLoading ? (
+      <div aria-hidden className="absolute inset-x-0 top-0 h-0.5 overflow-hidden">
+        <div className="loading-bar h-full w-1/3 bg-primary" />
+      </div>
+    ) : null;
+
+  if (!isLoading && employees.length === 0) {
+    return (
+      <>
+        {resultsBar}
+        <Card className="relative">
+          {refetchBar}
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <SearchX />
+              </EmptyMedia>
+              <EmptyTitle>{hasFilters ? "No employees match these filters" : "No employees yet"}</EmptyTitle>
+              <EmptyDescription>
+                {hasFilters
+                  ? "Try a different search or clear the filters to see everyone."
+                  : "Add your first employee or import a CSV to get started."}
+              </EmptyDescription>
+            </EmptyHeader>
+            {hasFilters ? (
+              <EmptyContent>
+                <Button variant="outline" onClick={clearFilters}>
+                  Clear filters
+                </Button>
+              </EmptyContent>
+            ) : null}
+          </Empty>
+        </Card>
+      </>
+    );
+  }
 
   return (
     <>
-      <Card className="hidden min-[860px]:block">
+      {resultsBar}
+      <Card className="relative hidden min-[860px]:block">
+        {refetchBar}
         <EmployeeTable
           employees={employees}
           params={params}
