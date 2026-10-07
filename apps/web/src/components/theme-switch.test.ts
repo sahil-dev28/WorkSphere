@@ -66,6 +66,21 @@ describe("switchTheme", () => {
     expect(root).not.toHaveClass("theme-reveal");
   });
 
+  it("falls back to the viewport centre when the origin has no coordinates", () => {
+    stubMatchMedia();
+    Object.assign(document, {
+      startViewTransition: (cb: () => void) => {
+        cb();
+        return { finished: new Promise<void>(() => {}) };
+      },
+    });
+    switchTheme("dark", { x: Number.NaN, y: undefined as unknown as number }, vi.fn());
+    const root = document.documentElement;
+    expect(root.style.getPropertyValue("--vt-x")).toBe(`${window.innerWidth / 2}px`);
+    expect(root.style.getPropertyValue("--vt-y")).toBe(`${window.innerHeight / 2}px`);
+    expect(root.style.getPropertyValue("--vt-r")).not.toContain("NaN");
+  });
+
   it("resolves 'system' using the OS preference", () => {
     stubMatchMedia({ dark: true });
     Object.assign(document, {

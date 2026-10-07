@@ -11,17 +11,20 @@ export function switchTheme(
     return;
   }
 
+  // Keyboard activation passes a KeyboardEvent, so coordinates can be missing.
+  const x = Number.isFinite(origin.x) ? origin.x : window.innerWidth / 2;
+  const y = Number.isFinite(origin.y) ? origin.y : window.innerHeight / 2;
   const root = document.documentElement;
   const dark =
     next === "dark" ||
     (next === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
   const radius = Math.hypot(
-    Math.max(origin.x, window.innerWidth - origin.x),
-    Math.max(origin.y, window.innerHeight - origin.y),
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y),
   );
 
-  root.style.setProperty("--vt-x", `${origin.x}px`);
-  root.style.setProperty("--vt-y", `${origin.y}px`);
+  root.style.setProperty("--vt-x", `${x}px`);
+  root.style.setProperty("--vt-y", `${y}px`);
   root.style.setProperty("--vt-r", `${radius}px`);
   root.classList.add("theme-reveal");
 

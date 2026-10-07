@@ -9,7 +9,6 @@ import {
 } from "@WorkSphere/ui/components/dropdown-menu";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import type { MouseEvent } from "react";
 
 import { switchTheme } from "./theme-switch";
 
@@ -33,7 +32,7 @@ export function ModeToggle() {
         {OPTIONS.map(({ value, label, icon: Icon }) => (
           <DropdownMenuItem
             key={value}
-            onClick={(event: MouseEvent) =>
+            onClick={(event) =>
               switchTheme(value, { x: event.clientX, y: event.clientY }, setTheme)
             }
           >
