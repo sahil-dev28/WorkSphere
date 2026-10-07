@@ -3,17 +3,13 @@ import type { NextRequest } from "next/server";
 
 import { AUTH_COOKIE_NAME } from "@/lib/constants";
 
-const PUBLIC_PATHS = new Set(["/"]);
+const LOGIN_PATHS = new Set(["/", "/login"]);
 
 export function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
   const hasSession = request.cookies.has(AUTH_COOKIE_NAME);
 
-  if (PUBLIC_PATHS.has(pathname)) {
-    return NextResponse.next();
-  }
-
-  if (pathname === "/login") {
+  if (LOGIN_PATHS.has(pathname)) {
     if (hasSession) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }

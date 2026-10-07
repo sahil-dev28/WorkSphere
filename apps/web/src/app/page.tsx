@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 
-import { LandingView } from "@/components/landing/landing-view";
-import { AUTH_COOKIE_NAME } from "@/lib/constants";
-import { configuredDemoRoles } from "@/lib/demo-credentials";
+import { LoginScreen } from "@/app/login/login-screen";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -23,7 +20,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function LandingPage() {
-  const hasSession = (await cookies()).has(AUTH_COOKIE_NAME);
-  return <LandingView hasSession={hasSession} roles={configuredDemoRoles()} />;
+export const dynamic = "force-dynamic";
+
+export default function RootPage() {
+  return <LoginScreen />;
 }

@@ -11,12 +11,12 @@ function request(path: string, session = false) {
 }
 
 describe("proxy", () => {
-  it("lets anonymous visitors see the landing page", () => {
+  it("lets anonymous visitors see the login screen at the root", () => {
     expect(proxy(request("/")).headers.get("x-middleware-next")).toBe("1");
   });
 
-  it("lets signed-in visitors see the landing page", () => {
-    expect(proxy(request("/", true)).headers.get("x-middleware-next")).toBe("1");
+  it("sends signed-in visitors on the root to the dashboard", () => {
+    expect(proxy(request("/", true)).headers.get("location")).toBe("http://localhost:3001/dashboard");
   });
 
   it("still sends anonymous visitors on app routes to login", () => {

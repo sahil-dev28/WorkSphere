@@ -36,3 +36,16 @@ export function demoSessionFor(email: string): DemoSession | null {
   const current = demoRoleForEmail(email);
   return current ? { current, available: configuredDemoRoles() } : null;
 }
+
+export interface DemoAccount {
+  role: DemoRole;
+  email: string;
+  password: string;
+}
+
+export function demoAccounts(): DemoAccount[] {
+  return DEMO_ROLES.flatMap((role) => {
+    const credentials = demoCredentials(role);
+    return credentials ? [{ role, ...credentials }] : [];
+  });
+}
