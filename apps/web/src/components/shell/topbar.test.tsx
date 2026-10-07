@@ -14,18 +14,19 @@ vi.mock("@/components/auth/change-password-dialog", () => ({
   ChangePasswordDialog: ({ trigger }: { trigger: React.ReactNode }) => trigger,
 }));
 
-describe("page heading", () => {
-  it("renders the current page title as the desktop h1", () => {
+describe("shell headings", () => {
+  it("shows the current page in the breadcrumb without owning the page h1", () => {
     render(
       <SidebarProvider>
         <Topbar />
       </SidebarProvider>,
     );
-    expect(screen.getByRole("heading", { level: 1, name: "Employees" })).toBeInTheDocument();
+    expect(screen.getByText("Employees")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
   });
 
-  it("renders the current page title as the mobile h1", () => {
+  it("leaves the mobile top bar without an h1", () => {
     render(<MobileTopBar user={{ id: "1", name: "Priya Sharma", role: "super_admin" } as Me} />);
-    expect(screen.getByRole("heading", { level: 1, name: "Employees" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
   });
 });

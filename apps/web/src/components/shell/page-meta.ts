@@ -1,8 +1,8 @@
 export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   "/dashboard": { title: "Dashboard", subtitle: "Overview of your organization" },
-  "/directory": { title: "Employees", subtitle: "Manage your team" },
-  "/org-chart": { title: "Organization", subtitle: "Reporting structure" },
-  "/profile": { title: "My Profile", subtitle: "Your account details" },
+  "/directory": { title: "Employees", subtitle: "Search, filter and manage everyone in your organization" },
+  "/org-chart": { title: "Organization", subtitle: "Reporting lines across every team" },
+  "/profile": { title: "My Profile", subtitle: "Your details and what you can edit" },
   "/change-password": { title: "Change Password", subtitle: "Update your credentials" },
 };
 

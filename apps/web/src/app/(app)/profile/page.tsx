@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@WorkSphere/ui/components/a
 import { Badge } from "@WorkSphere/ui/components/badge";
 import { Card, CardContent } from "@WorkSphere/ui/components/card";
 
+import { RoutePageHeader } from "@/components/page-header";
 import { StatusPill } from "@/components/employee/status-pill";
 import { SESSION_EXPIRED_PATH } from "@/lib/constants";
 import { getEmployeeById, getEmployeeName } from "@/lib/employees";
@@ -51,6 +52,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <RoutePageHeader path="/profile" />
       <Card className="overflow-hidden pt-0">
         <div className="h-20 bg-gradient-to-r from-primary/60 to-primary" />
         <CardContent className="flex flex-col items-center gap-3 pt-0 text-center min-[600px]:flex-row min-[600px]:items-end min-[600px]:gap-4 min-[600px]:text-left">

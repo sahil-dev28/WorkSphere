@@ -14,6 +14,7 @@ import {
   EmptyTitle,
 } from "@WorkSphere/ui/components/empty";
 
+import { RoutePageHeader } from "@/components/page-header";
 import { EmployeeDialog } from "@/app/(app)/directory/employee-dialog";
 import { SESSION_EXPIRED_PATH } from "@/lib/constants";
 import { employeeRoles } from "@/lib/enums";
@@ -72,6 +73,7 @@ export default async function OrgChartPage({
   if (!roster.ok || employees.length === 0) {
     return (
       <div className="flex flex-col gap-6 p-6">
+        <RoutePageHeader path="/org-chart" />
         <Card>
           <Empty>
             <EmptyHeader>
@@ -136,6 +138,7 @@ export default async function OrgChartPage({
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <RoutePageHeader path="/org-chart" />
       <Card>
         <CardContent className="flex flex-col items-center justify-between gap-4 py-4 min-[600px]:flex-row">
           <div className="flex items-center gap-3">

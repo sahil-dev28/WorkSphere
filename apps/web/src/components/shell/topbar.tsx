@@ -25,7 +25,7 @@ export function Topbar() {
         <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-[13px]">
           <span className="text-muted-foreground">WorkSphere</span>
           <span aria-hidden className="text-border">/</span>
-          <h1 className="truncate text-[13px] font-medium tracking-normal text-foreground">{title}</h1>
+          <span className="truncate font-medium text-foreground">{title}</span>
         </nav>
       </div>
 

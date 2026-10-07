@@ -6,6 +6,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Button } from "@WorkSphere/ui/components/button";
 import { Card, CardContent } from "@WorkSphere/ui/components/card";
 
+import { RoutePageHeader } from "@/components/page-header";
 import { SESSION_EXPIRED_PATH } from "@/lib/constants";
 import type { EmployeesTableParams } from "@/lib/actions/employees";
 import { employeeRoles } from "@/lib/enums";
@@ -68,6 +69,7 @@ export default async function DirectoryPage({
   if (forbidden || !employees) {
     return (
       <div className="flex flex-col gap-6 p-6">
+        <RoutePageHeader path="/directory" />
         <Card>
           <CardContent className="py-6 text-xs text-muted-foreground">
             {forbidden
@@ -123,6 +125,7 @@ export default async function DirectoryPage({
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <RoutePageHeader path="/directory" />
       <Card>
         <CardContent className="flex flex-col gap-3 py-3 min-[700px]:flex-row min-[700px]:flex-wrap min-[700px]:items-center">
           <SearchInput defaultValue={params.q ?? ""} />
