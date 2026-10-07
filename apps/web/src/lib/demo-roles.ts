@@ -17,8 +17,6 @@ export const DEMO_ROLE_META: Record<
     summary: string;
     icon: LucideIcon;
     tone: string;
-    text: string;
-    permissions: string[];
   }
 > = {
   super_admin: {
@@ -27,8 +25,6 @@ export const DEMO_ROLE_META: Record<
     summary: "Full control",
     icon: ShieldCheck,
     tone: "bg-primary/12 text-primary",
-    text: "text-primary",
-    permissions: ["Everything HR can do", "Change roles", "Delete employees"],
   },
   hr_manager: {
     label: "HR Manager",
@@ -36,8 +32,6 @@ export const DEMO_ROLE_META: Record<
     summary: "Manage people",
     icon: Users,
     tone: "bg-chart-3/12 text-chart-3",
-    text: "text-chart-3",
-    permissions: ["Add & edit people", "CSV bulk import", "People analytics"],
   },
   employee: {
     label: "Employee",
@@ -45,7 +39,5 @@ export const DEMO_ROLE_META: Record<
     summary: "Self-service",
     icon: User,
     tone: "bg-muted text-muted-foreground",
-    text: "text-foreground",
-    permissions: ["View own profile", "Edit contact details", "See reporting manager"],
   },
 };

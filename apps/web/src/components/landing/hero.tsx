@@ -16,10 +16,12 @@ export function Hero({ hasSession, roles }: { hasSession: boolean; roles: DemoRo
   return (
     <section className="relative flex flex-1 items-center overflow-hidden bg-glow">
       <div className="mx-auto flex max-w-6xl flex-col items-center px-4 py-16 text-center">
-        <span className="animate-in-up inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground">
-          <span className="size-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--glow-strong)]" />
-          Live demo · no sign-up
-        </span>
+        {showRoles ? (
+          <span className="animate-in-up inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs text-muted-foreground">
+            <span className="size-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--glow-strong)]" />
+            Live demo · no sign-up
+          </span>
+        ) : null}
 
         <h1
           className="animate-in-up mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-balance min-[640px]:text-6xl"

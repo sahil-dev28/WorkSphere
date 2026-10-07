@@ -5,9 +5,6 @@ import { LandingView } from "./landing-view";
 
 vi.mock("@/lib/actions/auth", () => ({ demoLoginAction: vi.fn() }));
 vi.mock("next-themes", () => ({ useTheme: () => ({ setTheme: vi.fn() }) }));
-vi.mock("next/image", () => ({
-  default: ({ alt }: { alt: string }) => <img alt={alt} />,
-}));
 
 describe("LandingView", () => {
   it("shows the headline and one-click cards for configured roles only", () => {
@@ -22,6 +19,7 @@ describe("LandingView", () => {
 
   it("falls back to sign in when no demo roles are configured", () => {
     render(<LandingView hasSession={false} roles={[]} />);
+    expect(screen.queryByText("Live demo · no sign-up")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Explore the demo as/ })).not.toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /Sign in/ }).length).toBeGreaterThan(0);
   });

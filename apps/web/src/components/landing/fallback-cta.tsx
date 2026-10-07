@@ -3,9 +3,9 @@ import Link from "next/link";
 
 import { buttonVariants } from "@WorkSphere/ui/components/button";
 
-export function FallbackCta({ hasSession, size = "lg" }: { hasSession: boolean; size?: "default" | "lg" }) {
+export function FallbackCta({ hasSession }: { hasSession: boolean }) {
   return (
-    <Link href={hasSession ? "/dashboard" : "/login"} className={buttonVariants({ size })}>
+    <Link href={hasSession ? "/dashboard" : "/login"} className={buttonVariants({ size: "lg" })}>
       {hasSession ? "Open dashboard" : "Sign in"} <ArrowRight />
     </Link>
   );

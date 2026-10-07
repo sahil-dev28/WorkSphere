@@ -8,12 +8,12 @@ import { AUTH_COOKIE_NAME } from "@/lib/constants";
 import { demoCredentials } from "@/lib/demo-credentials";
 import { isDemoRole } from "@/lib/demo-roles";
 
-async function setSessionCookie(res: Response): Promise<void> {
+async function setSessionCookie(res: Response): Promise<boolean> {
   const setCookieHeader = res.headers.get("set-cookie");
   const token = setCookieHeader?.match(new RegExp(`${AUTH_COOKIE_NAME}=([^;]+)`))?.[1];
 
   if (!token) {
-    return;
+    return false;
   }
 
   const cookieStore = await cookies();
@@ -23,6 +23,7 @@ async function setSessionCookie(res: Response): Promise<void> {
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 24 * 7,
   });
+  return true;
 }
 
 export interface LoginState {
@@ -52,7 +53,9 @@ async function signIn(email: unknown, password: unknown): Promise<SignInResult> 
     return { ok: false, error: body.error ?? "Login failed" };
   }
 
-  await setSessionCookie(res);
+  if (!(await setSessionCookie(res))) {
+    return { ok: false, error: "Sign-in failed. Try again." };
+  }
   return { ok: true, mustChangePassword: Boolean(body.data?.mustChangePassword) };
 }
 

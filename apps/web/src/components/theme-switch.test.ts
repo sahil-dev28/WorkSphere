@@ -81,6 +81,27 @@ describe("switchTheme", () => {
     expect(root.style.getPropertyValue("--vt-r")).not.toContain("NaN");
   });
 
+  it("keeps the reveal class while a newer switch is still running", async () => {
+    stubMatchMedia();
+    const resolvers: (() => void)[] = [];
+    Object.assign(document, {
+      startViewTransition: (cb: () => void) => {
+        cb();
+        return { finished: new Promise<void>((resolve) => resolvers.push(resolve)) };
+      },
+    });
+    switchTheme("dark", { x: 1, y: 1 }, vi.fn());
+    switchTheme("light", { x: 1, y: 1 }, vi.fn());
+    resolvers[0]!();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(document.documentElement).toHaveClass("theme-reveal");
+    resolvers[1]!();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(document.documentElement).not.toHaveClass("theme-reveal");
+  });
+
   it("resolves 'system' using the OS preference", () => {
     stubMatchMedia({ dark: true });
     Object.assign(document, {

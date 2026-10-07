@@ -4,8 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Me } from "@/lib/session";
 
 import { Sidebar } from "./sidebar";
-import { SidebarProvider } from "./sidebar-provider";
-import { SidebarCollapseProbe } from "./sidebar-test-probe";
+import { SidebarProvider, useSidebar } from "./sidebar-provider";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/dashboard" }));
 vi.mock("next-themes", () => ({ useTheme: () => ({ setTheme: vi.fn() }) }));
@@ -13,6 +12,15 @@ vi.mock("@/lib/actions/auth", () => ({ logoutAction: vi.fn() }));
 vi.mock("@/components/auth/change-password-dialog", () => ({
   ChangePasswordDialog: ({ trigger }: { trigger: React.ReactNode }) => trigger,
 }));
+
+function SidebarCollapseProbe() {
+  const { toggle } = useSidebar();
+  return (
+    <button type="button" onClick={toggle}>
+      collapse
+    </button>
+  );
+}
 
 const admin = { id: "1", name: "Priya Sharma", role: "super_admin" } as Me;
 

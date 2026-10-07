@@ -44,6 +44,17 @@ afterEach(() => {
   ioCallback = null;
 });
 
+describe("CountUp", () => {
+  it("exposes the final value to assistive tech while animating", async () => {
+    const { CountUp } = await import("@/components/count-up");
+    vi.useFakeTimers({ toFake: ["requestAnimationFrame", "cancelAnimationFrame", "performance"] });
+    stubMatchMedia(false);
+    vi.stubGlobal("IntersectionObserver", FakeIO);
+    render(<CountUp value={42} />);
+    expect(screen.getByLabelText("42")).toBeInTheDocument();
+  });
+});
+
 describe("useCountUp", () => {
   it("shows the target immediately when reduced motion is preferred", () => {
     stubMatchMedia(true);

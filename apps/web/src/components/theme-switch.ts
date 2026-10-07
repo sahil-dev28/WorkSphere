@@ -1,5 +1,7 @@
 type Theme = "light" | "dark" | "system";
 
+let latestTransition = 0;
+
 export function switchTheme(
   next: Theme,
   origin: { x: number; y: number },
@@ -29,9 +31,12 @@ export function switchTheme(
   root.classList.add("theme-reveal");
 
   // next-themes applies its class in an effect, too late for the snapshot, so set it here.
+  const id = ++latestTransition;
   const transition = document.startViewTransition(() => {
     root.classList.toggle("dark", dark);
     apply(next);
   });
-  transition.finished.finally(() => root.classList.remove("theme-reveal"));
+  transition.finished.finally(() => {
+    if (id === latestTransition) root.classList.remove("theme-reveal");
+  });
 }

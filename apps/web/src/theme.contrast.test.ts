@@ -73,6 +73,28 @@ describe.each([
   });
 });
 
+// Tailwind palette values behind AVATAR_TONES (packages/ui/src/lib/avatar-tone.ts).
+const AVATAR_TONES = [
+  { name: "emerald", tint: "#10b981", light: "#047857", dark: "#6ee7b7" },
+  { name: "sky", tint: "#0ea5e9", light: "#0369a1", dark: "#7dd3fc" },
+  { name: "violet", tint: "#8b5cf6", light: "#6d28d9", dark: "#c4b5fd" },
+  { name: "amber", tint: "#f59e0b", light: "#92400e", dark: "#fcd34d" },
+  { name: "rose", tint: "#f43f5e", light: "#be123c", dark: "#fda4af" },
+  { name: "teal", tint: "#14b8a6", light: "#0f766e", dark: "#5eead4" },
+  { name: "indigo", tint: "#6366f1", light: "#4338ca", dark: "#a5b4fc" },
+  { name: "fuchsia", tint: "#d946ef", light: "#a21caf", dark: "#f0abfc" },
+];
+
+describe("avatar tone contrast", () => {
+  const light = block(":root");
+  const dark = block(".dark");
+
+  it.each(AVATAR_TONES)("$name initials stay readable in both themes", ({ tint: base, light: fgLight, dark: fgDark }) => {
+    expect(ratio(fgLight, tint(base, light.card!, 0.15))).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(fgDark, tint(base, dark.card!, 0.15))).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
 it("disables motion utilities under prefers-reduced-motion", () => {
   const at = css.indexOf("@media (prefers-reduced-motion: reduce)");
   expect(at).toBeGreaterThan(-1);

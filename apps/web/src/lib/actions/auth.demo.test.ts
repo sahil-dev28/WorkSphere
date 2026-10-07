@@ -18,10 +18,13 @@ vi.mock("@/lib/api", () => ({ serverFetch: mocks.serverFetch }));
 
 const UNAVAILABLE = "This demo account isn't available right now.";
 
-function json(status: number, body: unknown) {
+function json(status: number, body: unknown, session = status < 400) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(session ? { "set-cookie": "token=fresh-session; Path=/; HttpOnly" } : {}),
+    },
   });
 }
 
@@ -41,6 +44,8 @@ afterEach(() => {
   vi.unstubAllEnvs();
   mocks.serverFetch.mockReset();
   mocks.redirect.mockClear();
+  mocks.cookieSet.mockReset();
+  mocks.cookieDelete.mockReset();
 });
 
 describe("demoLoginAction", () => {
@@ -85,6 +90,12 @@ describe("demoLoginAction", () => {
     expect(mocks.cookieDelete).not.toHaveBeenCalled();
   });
 
+  it("treats a login without a session cookie as unavailable", async () => {
+    mocks.serverFetch.mockResolvedValue(json(200, { data: { mustChangePassword: false } }, false));
+    const { demoLoginAction } = await load();
+    await expect(demoLoginAction("super_admin")).resolves.toEqual({ error: UNAVAILABLE });
+  });
+
   it("sends accounts that must change password to the change-password page", async () => {
     mocks.serverFetch.mockResolvedValue(json(200, { data: { mustChangePassword: true } }));
     const { demoLoginAction } = await load();
@@ -93,6 +104,16 @@ describe("demoLoginAction", () => {
 });
 
 describe("loginAction", () => {
+  it("asks for a new password when the account requires one", async () => {
+    mocks.serverFetch.mockResolvedValue(json(200, { data: { mustChangePassword: true } }));
+    const { loginAction } = await load();
+    const form = new FormData();
+    form.set("email", "a@b.dev");
+    form.set("password", "x");
+    await expect(loginAction({}, form)).resolves.toEqual({ mustChangePassword: true });
+    expect(mocks.cookieSet).toHaveBeenCalledWith("token", "fresh-session", expect.objectContaining({ httpOnly: true }));
+  });
+
   it("returns a friendly error when the API is unreachable", async () => {
     mocks.serverFetch.mockRejectedValue(new TypeError("fetch failed"));
     const { loginAction } = await load();

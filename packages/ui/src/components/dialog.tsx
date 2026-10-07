@@ -27,12 +27,12 @@ function DialogContent({
     <DialogPrimitive.Portal>
       <DialogPrimitive.Backdrop
         data-slot="dialog-backdrop"
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-open:animate-[fade-in_150ms_ease-out] data-closed:animate-[fade-out_100ms_ease-in]"
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-open:animate-[fade-in_150ms_ease-out] data-closed:animate-[fade-out_100ms_ease-in_forwards]"
       />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl border border-border bg-popover p-6 text-popover-foreground shadow-overlay data-open:animate-[pop-in_150ms_ease-out] data-closed:animate-[pop-out_100ms_ease-in]",
+          "fixed top-1/2 left-1/2 z-50 grid max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl border border-border bg-popover p-6 text-popover-foreground shadow-overlay data-open:animate-[pop-in_150ms_ease-out] data-closed:animate-[pop-out_100ms_ease-in_forwards]",
           className,
         )}
         {...props}

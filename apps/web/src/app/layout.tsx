@@ -6,6 +6,7 @@ import { env } from "@WorkSphere/env/web";
 import "../index.css";
 import Providers from "@/components/providers";
 import { SITE } from "@/lib/site";
+import { siteUrl } from "@/lib/site-url";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +19,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"),
+  metadataBase: siteUrl({
+    NEXT_PUBLIC_SITE_URL: env.NEXT_PUBLIC_SITE_URL,
+    VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  }),
   title: SITE.name,
   description: SITE.description,
 };

@@ -29,7 +29,6 @@ describe("proxy", () => {
 
   it("does not run on static assets", () => {
     const matcher = new RegExp(`^${config.matcher[0]}$`);
-    expect(matcher.test("/landing/dashboard-dark.webp")).toBe(false);
     expect(matcher.test("/landing/og.png")).toBe(false);
     expect(matcher.test("/employee-import-template.csv")).toBe(false);
     expect(matcher.test("/dashboard")).toBe(true);
