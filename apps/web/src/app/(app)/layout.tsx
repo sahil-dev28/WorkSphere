@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { ViewTransition } from "react";
 
 import { QueryProvider } from "@/components/providers/query-provider";
 import { Sidebar } from "@/components/shell/sidebar";
 import { SidebarProvider } from "@/components/shell/sidebar-provider";
 import { Topbar } from "@/components/shell/topbar";
 import { MobileTabBar, MobileTopBar } from "@/components/shell/mobile-nav";
+import { RouteTransition } from "@/components/shell/route-transition";
 import { getMe } from "@/lib/session";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -29,7 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <MobileTopBar user={user} />
             <Topbar />
             <main className="relative flex-1 pb-20 min-[860px]:pb-0">
-              <ViewTransition>{children}</ViewTransition>
+              <RouteTransition>{children}</RouteTransition>
             </main>
             <MobileTabBar user={user} />
           </div>
