@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@WorkSphere/ui/lib/utils";
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -11,6 +12,9 @@ import {
   DropdownMenuTrigger,
 } from "@WorkSphere/ui/components/dropdown-menu";
 
+import { Button } from "@WorkSphere/ui/components/button";
+
+import { useCommandPalette } from "@/components/command-palette/command-palette";
 import { ModeToggle } from "@/components/mode-toggle";
 import { initials } from "@/lib/format";
 import type { DemoSession } from "@/lib/demo-credentials";
@@ -21,6 +25,8 @@ import { getMobileNavItems } from "./nav-items";
 import { AccountMenuItems } from "./user-menu";
 
 export function MobileTopBar({ user, demo }: { user: Me; demo?: DemoSession | null }) {
+  const { openPalette } = useCommandPalette();
+
   return (
     <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/70 px-4 py-3 backdrop-blur-md min-[860px]:hidden">
       <div className="flex items-center gap-2">
@@ -29,6 +35,9 @@ export function MobileTopBar({ user, demo }: { user: Me; demo?: DemoSession | nu
       </div>
 
       <div className="flex items-center gap-2">
+        <Button variant="ghost" size="icon-sm" onClick={openPalette} aria-label="Search">
+          <Search />
+        </Button>
         <ModeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger

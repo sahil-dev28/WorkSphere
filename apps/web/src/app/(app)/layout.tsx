@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { CommandPaletteProvider } from "@/components/command-palette/command-palette";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { Sidebar } from "@/components/shell/sidebar";
 import { SidebarProvider } from "@/components/shell/sidebar-provider";
@@ -26,18 +27,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <QueryProvider>
       <SidebarProvider>
-        <div className="flex min-h-svh">
-          <Sidebar user={user} demo={demo} />
-          <div className="relative flex min-w-0 flex-1 flex-col">
-            <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-glow" />
-            <MobileTopBar user={user} demo={demo} />
-            <Topbar demo={demo} />
-            <main className="relative flex-1 pb-20 min-[860px]:pb-0">
-              <RouteTransition>{children}</RouteTransition>
-            </main>
-            <MobileTabBar user={user} />
+        <CommandPaletteProvider role={user.role} demo={demo}>
+          <div className="flex min-h-svh">
+            <Sidebar user={user} demo={demo} />
+            <div className="relative flex min-w-0 flex-1 flex-col">
+              <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-glow" />
+              <MobileTopBar user={user} demo={demo} />
+              <Topbar demo={demo} />
+              <main className="relative flex-1 pb-20 min-[860px]:pb-0">
+                <RouteTransition>{children}</RouteTransition>
+              </main>
+              <MobileTabBar user={user} />
+            </div>
           </div>
-        </div>
+        </CommandPaletteProvider>
       </SidebarProvider>
     </QueryProvider>
   );

@@ -5,7 +5,8 @@ import { PanelLeft, Search } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@WorkSphere/ui/components/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@WorkSphere/ui/components/tooltip";
+
+import { useCommandPalette } from "@/components/command-palette/command-palette";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import type { DemoSession } from "@/lib/demo-credentials";
@@ -18,6 +19,7 @@ export function Topbar({ demo }: { demo?: DemoSession | null }) {
   const pathname = usePathname();
   const { toggle } = useSidebar();
   const { title } = getPageMeta(pathname);
+  const { openPalette } = useCommandPalette();
 
   return (
     <header className="sticky top-0 z-10 hidden h-14 items-center justify-between gap-4 border-b border-border bg-background/70 px-6 backdrop-blur-md min-[860px]:flex">
@@ -43,24 +45,18 @@ export function Topbar({ demo }: { demo?: DemoSession | null }) {
             Demo · {DEMO_ROLE_META[demo.current].label}
           </span>
         ) : null}
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Button
-                variant="outline"
-                size="sm"
-                aria-disabled
-                className="w-52 cursor-default justify-between font-normal text-muted-foreground hover:border-border"
-              />
-            }
-          >
-            <span className="flex items-center gap-2">
-              <Search /> Search…
-            </span>
-            <kbd className="rounded-sm border border-border px-1.5 font-mono text-[10px]">⌘K</kbd>
-          </TooltipTrigger>
-          <TooltipContent>Coming soon</TooltipContent>
-        </Tooltip>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={openPalette}
+          aria-keyshortcuts="Meta+K Control+K"
+          className="w-52 justify-between font-normal text-muted-foreground"
+        >
+          <span className="flex items-center gap-2">
+            <Search /> Search…
+          </span>
+          <kbd className="rounded-sm border border-border px-1.5 font-mono text-[10px]">⌘K</kbd>
+        </Button>
         <ModeToggle />
       </div>
     </header>
