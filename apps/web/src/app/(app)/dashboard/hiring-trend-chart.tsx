@@ -31,7 +31,7 @@ export function HiringTrendChart({ data }: { data: HiringTrendPoint[] }) {
   }
 
   return (
-    <ChartContainer config={chartConfig} className="h-48 w-full">
+    <ChartContainer config={chartConfig} className="h-full min-h-48 w-full">
       <AreaChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
         <defs>
           <linearGradient id="hiringTrendFill" x1="0" y1="0" x2="0" y2="1">

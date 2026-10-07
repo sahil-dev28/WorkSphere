@@ -139,7 +139,7 @@ export async function AdminDashboard({ user }: { user: Me }) {
           <CardHeader>
             <CardTitle>Hiring trend</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1">
             <HiringTrendChart data={hiringTrend} />
           </CardContent>
         </Card>
