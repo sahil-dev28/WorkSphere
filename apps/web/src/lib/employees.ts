@@ -19,13 +19,19 @@ export async function getEmployeeName(id: string): Promise<string | null> {
   return employee?.name ?? null;
 }
 
-export async function getEmployeeRoster(): Promise<Employee[]> {
-  const res = await serverFetch("/api/employees");
-
-  if (!res.ok) {
-    return [];
+export async function getEmployeeRosterResult(): Promise<{ ok: boolean; data: Employee[] }> {
+  try {
+    const res = await serverFetch("/api/employees");
+    if (!res.ok) {
+      return { ok: false, data: [] };
+    }
+    const body = (await res.json()) as { data: Employee[] };
+    return { ok: true, data: body.data };
+  } catch {
+    return { ok: false, data: [] };
   }
+}
 
-  const body = (await res.json()) as { data: Employee[] };
-  return body.data;
+export async function getEmployeeRoster(): Promise<Employee[]> {
+  return (await getEmployeeRosterResult()).data;
 }

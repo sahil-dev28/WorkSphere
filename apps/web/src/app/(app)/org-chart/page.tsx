@@ -1,13 +1,24 @@
+import { AlertTriangle, Network } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@WorkSphere/ui/components/avatar";
+import { buttonVariants } from "@WorkSphere/ui/components/button";
 import { Card, CardContent } from "@WorkSphere/ui/components/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@WorkSphere/ui/components/empty";
 
 import { EmployeeDialog } from "@/app/(app)/directory/employee-dialog";
 import { SESSION_EXPIRED_PATH } from "@/lib/constants";
 import { employeeRoles } from "@/lib/enums";
 import { serverFetch } from "@/lib/api";
-import { getEmployeeRoster } from "@/lib/employees";
+import { getEmployeeRosterResult } from "@/lib/employees";
 import { initials } from "@/lib/format";
 import { getMe } from "@/lib/session";
 import type { Employee } from "@/lib/types";
@@ -55,18 +66,34 @@ export default async function OrgChartPage({
     redirect("/dashboard");
   }
 
-  const [employees, stats] = await Promise.all([
-    getEmployeeRoster(),
-    getStats(),
-  ]);
+  const [roster, stats] = await Promise.all([getEmployeeRosterResult(), getStats()]);
+  const employees = roster.data;
 
-  if (employees.length === 0) {
+  if (!roster.ok || employees.length === 0) {
     return (
       <div className="flex flex-col gap-6 p-6">
         <Card>
-          <CardContent className="py-6 text-center text-xs text-muted-foreground">
-            No employees in the organization yet.
-          </CardContent>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">{roster.ok ? <Network /> : <AlertTriangle />}</EmptyMedia>
+              <EmptyTitle>
+                {roster.ok ? "No employees in the organization yet" : "Couldn't load the organization"}
+              </EmptyTitle>
+              <EmptyDescription>
+                {roster.ok
+                  ? "Add people in the directory and their reporting lines will appear here."
+                  : "Something went wrong fetching the reporting structure."}
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Link
+                href={roster.ok ? "/directory" : "/org-chart"}
+                className={buttonVariants({ variant: "outline" })}
+              >
+                {roster.ok ? "Open directory" : "Try again"}
+              </Link>
+            </EmptyContent>
+          </Empty>
         </Card>
       </div>
     );
