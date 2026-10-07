@@ -80,4 +80,7 @@ it("disables motion utilities under prefers-reduced-motion", () => {
   expect(reduced).toContain(".animate-in-up");
   expect(reduced).toContain(".shimmer");
   expect(reduced).toContain("::view-transition-new(*)");
+  expect(reduced).toContain("[data-open]");
+  expect(reduced).toContain("[data-closed]");
+  expect(reduced).toContain("transition-duration: 0s");
 });

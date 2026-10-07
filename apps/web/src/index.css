@@ -251,8 +251,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .animate-in-up,
-  .shimmer {
+  .shimmer,
+  [data-open],
+  [data-closed] {
     animation: none !important;
+  }
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0s !important;
   }
   ::view-transition-group(*),
   ::view-transition-old(*),
