@@ -33,6 +33,7 @@ function renderTable() {
 afterEach(() => {
   mocks.getEmployeesTable.mockReset();
   mocks.replace.mockReset();
+  mocks.search = "role=employee";
 });
 
 describe("DirectoryTable states", () => {
@@ -41,6 +42,16 @@ describe("DirectoryTable states", () => {
     renderTable();
     expect(await screen.findByText("No employees match these filters")).toBeInTheDocument();
     fireEvent.click(screen.getAllByRole("button", { name: "Clear filters" })[0]);
+    expect(mocks.replace).toHaveBeenCalledWith("/directory", { scroll: false });
+  });
+
+  it("leads back to the first page when the current page is past the last result", async () => {
+    mocks.search = "page=9";
+    mocks.getEmployeesTable.mockResolvedValue({ data: [], total: 12 });
+    renderTable();
+    expect(await screen.findByText("Nothing on this page")).toBeInTheDocument();
+    expect(screen.queryByText("No employees yet")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Go to first page" }));
     expect(mocks.replace).toHaveBeenCalledWith("/directory", { scroll: false });
   });
 

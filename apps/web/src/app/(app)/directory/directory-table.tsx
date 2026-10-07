@@ -104,6 +104,31 @@ export function DirectoryTable({
       </div>
     ) : null;
 
+  if (!isLoading && employees.length === 0 && total > 0) {
+    return (
+      <>
+        {resultsBar}
+        <Card className="relative">
+          {refetchBar}
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <SearchX />
+              </EmptyMedia>
+              <EmptyTitle>Nothing on this page</EmptyTitle>
+              <EmptyDescription>This page is past the last result.</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button variant="outline" onClick={() => updateParams({ page: null })}>
+                Go to first page
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </Card>
+      </>
+    );
+  }
+
   if (!isLoading && employees.length === 0) {
     return (
       <>
