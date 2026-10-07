@@ -1,3 +1,5 @@
+import { configuredDemoRoles } from "@/lib/demo-credentials";
+
 import { BrandPanel } from "./brand-panel";
 import { LoginCard } from "./login-card";
 
@@ -8,7 +10,7 @@ export default function LoginPage() {
         <BrandPanel />
       </div>
       <div className="flex flex-1 items-center justify-center p-4">
-        <LoginCard />
+        <LoginCard demoRoles={configuredDemoRoles()} />
       </div>
     </div>
   );
