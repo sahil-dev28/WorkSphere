@@ -1,6 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import {
@@ -18,6 +19,16 @@ export function SearchInput({ defaultValue }: { defaultValue: string }) {
   const [value, setValue] = useState(defaultValue);
   const updateParams = useDirectoryParams();
   const skipNextUpdate = useRef(true);
+  const urlQuery = useSearchParams().get("q") ?? "";
+  const lastSent = useRef(defaultValue.trim());
+
+  // Another control (e.g. "Clear filters") changed q: mirror it and drop any pending keystroke.
+  useEffect(() => {
+    if (urlQuery === lastSent.current) return;
+    lastSent.current = urlQuery;
+    skipNextUpdate.current = true;
+    setValue(urlQuery);
+  }, [urlQuery]);
 
   // updateParams gets a new identity on every navigation (it closes over
   // useSearchParams(), which Next.js always returns fresh) — including
@@ -36,6 +47,7 @@ export function SearchInput({ defaultValue }: { defaultValue: string }) {
     }
 
     const timeout = setTimeout(() => {
+      lastSent.current = value.trim();
       updateParamsRef.current({ q: value.trim() || null });
     }, DEBOUNCE_MS);
 
@@ -44,6 +56,7 @@ export function SearchInput({ defaultValue }: { defaultValue: string }) {
 
   function clear() {
     skipNextUpdate.current = true;
+    lastSent.current = "";
     setValue("");
     updateParams({ q: null });
   }
