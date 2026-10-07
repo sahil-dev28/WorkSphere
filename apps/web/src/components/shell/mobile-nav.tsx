@@ -17,14 +17,18 @@ import type { Me } from "@/lib/session";
 
 import { LogoMark } from "./logo-mark";
 import { getMobileNavItems } from "./nav-items";
+import { getPageMeta } from "./page-meta";
 import { AccountMenuItems } from "./user-menu";
 
 export function MobileTopBar({ user }: { user: Me }) {
+  const { title } = getPageMeta(usePathname());
+
   return (
     <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/70 px-4 py-3 backdrop-blur-md min-[860px]:hidden">
       <div className="flex items-center gap-2">
         <LogoMark />
         <span className="text-sm font-semibold tracking-tight">WorkSphere</span>
+        <h1 className="sr-only">{title}</h1>
       </div>
 
       <div className="flex items-center gap-2">
