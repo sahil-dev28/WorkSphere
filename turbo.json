@@ -5,6 +5,14 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": [
+        "DEMO_ADMIN_EMAIL",
+        "DEMO_ADMIN_PASSWORD",
+        "DEMO_HR_EMAIL",
+        "DEMO_HR_PASSWORD",
+        "DEMO_EMPLOYEE_EMAIL",
+        "DEMO_EMPLOYEE_PASSWORD"
+      ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "lint": {
