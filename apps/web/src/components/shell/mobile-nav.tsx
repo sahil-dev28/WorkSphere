@@ -13,13 +13,14 @@ import {
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { initials } from "@/lib/format";
+import type { DemoSession } from "@/lib/demo-credentials";
 import type { Me } from "@/lib/session";
 
 import { LogoMark } from "./logo-mark";
 import { getMobileNavItems } from "./nav-items";
 import { AccountMenuItems } from "./user-menu";
 
-export function MobileTopBar({ user }: { user: Me }) {
+export function MobileTopBar({ user, demo }: { user: Me; demo?: DemoSession | null }) {
   return (
     <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/70 px-4 py-3 backdrop-blur-md min-[860px]:hidden">
       <div className="flex items-center gap-2">
@@ -38,7 +39,7 @@ export function MobileTopBar({ user }: { user: Me }) {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <AccountMenuItems />
+            <AccountMenuItems demo={demo} />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

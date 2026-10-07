@@ -21,3 +21,18 @@ export function demoCredentials(role: DemoRole): { email: string; password: stri
 export function configuredDemoRoles(): DemoRole[] {
   return DEMO_ROLES.filter((role) => demoCredentials(role) !== null);
 }
+
+export function demoRoleForEmail(email: string): DemoRole | null {
+  const normalized = email.trim().toLowerCase();
+  return DEMO_ROLES.find((role) => demoCredentials(role)?.email.toLowerCase() === normalized) ?? null;
+}
+
+export interface DemoSession {
+  current: DemoRole;
+  available: DemoRole[];
+}
+
+export function demoSessionFor(email: string): DemoSession | null {
+  const current = demoRoleForEmail(email);
+  return current ? { current, available: configuredDemoRoles() } : null;
+}

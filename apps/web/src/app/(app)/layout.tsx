@@ -7,6 +7,7 @@ import { Topbar } from "@/components/shell/topbar";
 import { MobileTabBar, MobileTopBar } from "@/components/shell/mobile-nav";
 import { RouteTransition } from "@/components/shell/route-transition";
 import { SESSION_EXPIRED_PATH } from "@/lib/constants";
+import { demoSessionFor } from "@/lib/demo-credentials";
 import { getMe } from "@/lib/session";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -20,15 +21,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/change-password");
   }
 
+  const demo = demoSessionFor(user.email);
+
   return (
     <QueryProvider>
       <SidebarProvider>
         <div className="flex min-h-svh">
-          <Sidebar user={user} />
+          <Sidebar user={user} demo={demo} />
           <div className="relative flex min-w-0 flex-1 flex-col">
             <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-glow" />
-            <MobileTopBar user={user} />
-            <Topbar />
+            <MobileTopBar user={user} demo={demo} />
+            <Topbar demo={demo} />
             <main className="relative flex-1 pb-20 min-[860px]:pb-0">
               <RouteTransition>{children}</RouteTransition>
             </main>

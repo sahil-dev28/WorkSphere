@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@WorkSphere/ui/lib/utils";
 import { PanelLeft, Search } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -7,11 +8,13 @@ import { Button } from "@WorkSphere/ui/components/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@WorkSphere/ui/components/tooltip";
 
 import { ModeToggle } from "@/components/mode-toggle";
+import type { DemoSession } from "@/lib/demo-credentials";
+import { DEMO_ROLE_META } from "@/lib/demo-roles";
 
 import { getPageMeta } from "./page-meta";
 import { useSidebar } from "./sidebar-provider";
 
-export function Topbar() {
+export function Topbar({ demo }: { demo?: DemoSession | null }) {
   const pathname = usePathname();
   const { toggle } = useSidebar();
   const { title } = getPageMeta(pathname);
@@ -30,6 +33,16 @@ export function Topbar() {
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
+        {demo ? (
+          <span
+            className={cn(
+              "rounded-full px-2.5 py-1 text-[11px] font-medium whitespace-nowrap",
+              DEMO_ROLE_META[demo.current].tone,
+            )}
+          >
+            Demo · {DEMO_ROLE_META[demo.current].label}
+          </span>
+        ) : null}
         <Tooltip>
           <TooltipTrigger
             render={

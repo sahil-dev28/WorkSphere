@@ -40,6 +40,16 @@ describe("demo credentials", () => {
   });
 });
 
+describe("demoRoleForEmail", () => {
+  it("matches configured demo accounts case-insensitively", async () => {
+    vi.stubEnv("DEMO_HR_EMAIL", "hr@worksphere.dev");
+    vi.stubEnv("DEMO_HR_PASSWORD", "p");
+    const { demoRoleForEmail } = await load();
+    expect(demoRoleForEmail("HR@WorkSphere.dev")).toBe("hr_manager");
+    expect(demoRoleForEmail("someone@else.dev")).toBeNull();
+  });
+});
+
 describe("isDemoRole", () => {
   it("accepts only known roles", async () => {
     const { isDemoRole } = await import("./demo-roles");

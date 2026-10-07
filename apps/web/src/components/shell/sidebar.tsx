@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@WorkSphere/ui/components/tooltip";
 
+import type { DemoSession } from "@/lib/demo-credentials";
 import type { Me } from "@/lib/session";
 
 import { LogoMark } from "./logo-mark";
@@ -50,7 +51,7 @@ function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; 
   );
 }
 
-export function Sidebar({ user }: { user: Me }) {
+export function Sidebar({ user, demo }: { user: Me; demo?: DemoSession | null }) {
   const items = getSidebarNavItems(user.role);
   const { collapsed } = useSidebar();
   const pathname = usePathname();
@@ -92,7 +93,7 @@ export function Sidebar({ user }: { user: Me }) {
       <div className="flex-1" />
 
       <div className="p-2">
-        <UserMenu user={user} collapsed={collapsed} />
+        <UserMenu user={user} collapsed={collapsed} demo={demo} />
       </div>
     </aside>
   );

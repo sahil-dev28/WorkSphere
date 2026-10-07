@@ -2,6 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
+  cookieSet: vi.fn(),
+  cookieDelete: vi.fn(),
   serverFetch: vi.fn(),
   redirect: vi.fn((url: string) => {
     throw new Error(`REDIRECT:${url}`);
@@ -9,7 +11,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("next/headers", () => ({
-  cookies: async () => ({ set: vi.fn(), get: vi.fn(), delete: vi.fn() }),
+  cookies: async () => ({ set: mocks.cookieSet, get: vi.fn(), delete: mocks.cookieDelete }),
 }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/api", () => ({ serverFetch: mocks.serverFetch }));
@@ -73,6 +75,14 @@ describe("demoLoginAction", () => {
     const [path, init] = mocks.serverFetch.mock.calls[0] as [string, RequestInit];
     expect(path).toBe("/api/auth/login");
     expect(JSON.parse(String(init.body))).toEqual({ email: "admin@worksphere.dev", password: "secret" });
+  });
+
+  it("leaves the current session untouched when the target demo account fails", async () => {
+    mocks.serverFetch.mockResolvedValue(json(401, { error: "Invalid credentials" }));
+    const { demoLoginAction } = await load();
+    await demoLoginAction("super_admin");
+    expect(mocks.cookieSet).not.toHaveBeenCalled();
+    expect(mocks.cookieDelete).not.toHaveBeenCalled();
   });
 
   it("sends accounts that must change password to the change-password page", async () => {

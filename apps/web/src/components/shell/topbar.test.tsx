@@ -25,6 +25,15 @@ describe("shell headings", () => {
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
   });
 
+  it("labels a demo session with its role", () => {
+    render(
+      <SidebarProvider>
+        <Topbar demo={{ current: "hr_manager", available: ["hr_manager"] }} />
+      </SidebarProvider>,
+    );
+    expect(screen.getByText("Demo · HR Manager")).toBeInTheDocument();
+  });
+
   it("leaves the mobile top bar without an h1", () => {
     render(<MobileTopBar user={{ id: "1", name: "Priya Sharma", role: "super_admin" } as Me} />);
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
