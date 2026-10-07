@@ -30,7 +30,7 @@ export function EmployeeCards({
         <Link
           key={employee._id}
           href={buildDialogHref(params, { action: "view", employeeId: employee._id })}
-          className="flex items-center gap-3 border border-border bg-card px-3 py-2.5"
+          className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2.5"
         >
           <Avatar className="size-9">
             {employee.profileImage ? <AvatarImage src={employee.profileImage} alt="" /> : null}

@@ -72,7 +72,7 @@ export function LoginCard() {
         <h1 className="text-xl font-semibold tracking-tight">
           Set a new password
         </h1>
-        <div className="bg-muted px-3 py-2 text-xs text-muted-foreground">
+        <div className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
           This account is using a temporary password. Choose a new one to
           continue.
         </div>
@@ -151,7 +151,7 @@ export function LoginCard() {
         {filledDemo ? (
           <p
             aria-live="polite"
-            className="bg-muted px-3 py-2 text-xs text-muted-foreground"
+            className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground"
           >
             Filled in the{" "}
             <span className="font-medium">{ROLE_LABELS[filledDemo.role]}</span>{" "}
@@ -183,10 +183,10 @@ export function LoginCard() {
             type="button"
             disabled={pending}
             onClick={() => fillDemo(demo)}
-            className="flex cursor-pointer items-center gap-3 border border-border bg-card px-3 py-2.5 text-left transition-colors hover:bg-muted/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-3 py-2.5 text-left transition-[background-color,border-color] hover:border-primary/30 hover:bg-muted/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span
-              className={`flex size-9 shrink-0 items-center justify-center ${demo.badgeClassName}`}
+              className={`flex size-9 shrink-0 items-center justify-center rounded-md ${demo.badgeClassName}`}
             >
               <demo.icon className="size-4" />
             </span>

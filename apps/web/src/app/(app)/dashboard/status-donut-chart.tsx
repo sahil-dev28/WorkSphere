@@ -11,7 +11,7 @@ import {
 
 const chartConfig = {
   active: { label: "Active", color: "var(--chart-1)" },
-  inactive: { label: "Inactive", color: "var(--muted)" },
+  inactive: { label: "Inactive", color: "var(--muted-foreground)" },
 } satisfies ChartConfig;
 
 export function StatusDonutChart({ active, inactive }: { active: number; inactive: number }) {

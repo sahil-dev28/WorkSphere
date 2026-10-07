@@ -132,7 +132,7 @@ export default async function DirectoryPage({
             sort={params.sort ?? "name_asc"}
           />
           {canManage ? (
-            <div className="flex shrink-0 items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 min-[700px]:shrink-0">
               <a
                 href="/employee-import-template.csv"
                 download
