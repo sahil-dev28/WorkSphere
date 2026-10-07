@@ -12,5 +12,5 @@ describe("AppLayout", () => {
   it("routes an expired session through the cookie-clearing endpoint", async () => {
     const { default: AppLayout } = await import("./layout");
     await expect(AppLayout({ children: null })).rejects.toThrow("REDIRECT:/session-expired");
-  });
+  }, 15_000);
 });

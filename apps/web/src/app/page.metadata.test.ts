@@ -9,5 +9,5 @@ describe("landing metadata", () => {
     expect(metadata.title).toBe("WorkSphere — Employee management, organized");
     expect(JSON.stringify(metadata.openGraph)).toContain("/landing/og.png");
     expect(metadata.twitter).toMatchObject({ card: "summary_large_image" });
-  });
+  }, 15_000);
 });

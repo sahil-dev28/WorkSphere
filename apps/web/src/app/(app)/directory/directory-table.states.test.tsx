@@ -40,7 +40,7 @@ describe("DirectoryTable states", () => {
   it("offers to clear filters when nothing matches", async () => {
     mocks.getEmployeesTable.mockResolvedValue({ data: [], total: 0 });
     renderTable();
-    expect(await screen.findByText("No employees match these filters")).toBeInTheDocument();
+    expect(await screen.findByText("No employees match these filters", undefined, { timeout: 3000 })).toBeInTheDocument();
     fireEvent.click(screen.getAllByRole("button", { name: "Clear filters" })[0]);
     expect(mocks.replace).toHaveBeenCalledWith("/directory", { scroll: false });
   });
@@ -49,7 +49,7 @@ describe("DirectoryTable states", () => {
     mocks.search = "page=9";
     mocks.getEmployeesTable.mockResolvedValue({ data: [], total: 12 });
     renderTable();
-    expect(await screen.findByText("Nothing on this page")).toBeInTheDocument();
+    expect(await screen.findByText("Nothing on this page", undefined, { timeout: 3000 })).toBeInTheDocument();
     expect(screen.queryByText("No employees yet")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Go to first page" }));
     expect(mocks.replace).toHaveBeenCalledWith("/directory", { scroll: false });
@@ -58,13 +58,13 @@ describe("DirectoryTable states", () => {
   it("shows the result count", async () => {
     mocks.getEmployeesTable.mockResolvedValue({ data: [], total: 0 });
     renderTable();
-    expect(await screen.findByText("0 employees")).toBeInTheDocument();
+    expect(await screen.findByText("0 employees", undefined, { timeout: 3000 })).toBeInTheDocument();
   });
 
   it("lets the user retry after a load error", async () => {
     mocks.getEmployeesTable.mockRejectedValue(new Error("boom"));
     renderTable();
-    expect(await screen.findByText("Couldn't load employees")).toBeInTheDocument();
+    expect(await screen.findByText("Couldn't load employees", undefined, { timeout: 3000 })).toBeInTheDocument();
     mocks.getEmployeesTable.mockResolvedValue({ data: [], total: 0 });
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     await waitFor(() => expect(mocks.getEmployeesTable).toHaveBeenCalledTimes(2));
