@@ -3,12 +3,20 @@ import { Badge } from "@WorkSphere/ui/components/badge";
 import { ROLE_LABELS } from "@/lib/enums";
 import type { Employee } from "@/lib/types";
 
-const ROLE_STYLES: Record<Employee["role"], string> = {
-  super_admin: "bg-primary/15 text-primary",
-  hr_manager: "bg-accent/20 text-accent-foreground",
-  employee: "bg-muted text-muted-foreground",
+const ROLE_BADGE: Record<
+  Employee["role"],
+  { variant: "default" | "secondary"; className?: string }
+> = {
+  super_admin: { variant: "default" },
+  hr_manager: { variant: "secondary", className: "bg-chart-3/12 text-chart-3" },
+  employee: { variant: "secondary" },
 };
 
 export function RolePill({ role }: { role: Employee["role"] }) {
-  return <Badge className={ROLE_STYLES[role]}>{ROLE_LABELS[role]}</Badge>;
+  const { variant, className } = ROLE_BADGE[role];
+  return (
+    <Badge variant={variant} className={className}>
+      {ROLE_LABELS[role]}
+    </Badge>
+  );
 }

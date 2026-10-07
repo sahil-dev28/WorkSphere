@@ -214,7 +214,7 @@ export function EmployeeDialog({
           <div className="flex justify-center">
             <Avatar className="size-16">
               {employee?.profileImage ? <AvatarImage src={employee.profileImage} alt="" /> : null}
-              <AvatarFallback className="text-base">
+              <AvatarFallback className="text-base" colorKey={name || employee?.name || "New"}>
                 {initials(name || employee?.name || "New")}
               </AvatarFallback>
             </Avatar>

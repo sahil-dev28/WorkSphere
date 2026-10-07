@@ -69,7 +69,7 @@ export function EmployeeTable({
                     {employee.profileImage ? (
                       <AvatarImage src={employee.profileImage} alt="" />
                     ) : null}
-                    <AvatarFallback>{initials(employee.name)}</AvatarFallback>
+                    <AvatarFallback colorKey={employee.name}>{initials(employee.name)}</AvatarFallback>
                   </Avatar>
                   <div className="flex min-w-0 flex-col">
                     <span className="truncate font-medium">{employee.name}</span>

@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Building2, UserCheck, Users, UserX } from "lucide-react";
+import type { CSSProperties } from "react";
 
 import { Avatar, AvatarFallback } from "@WorkSphere/ui/components/avatar";
 import {
@@ -10,6 +11,7 @@ import {
 } from "@WorkSphere/ui/components/card";
 import { Progress } from "@WorkSphere/ui/components/progress";
 
+import { CountUp } from "@/components/count-up";
 import { getEmployeeRoster } from "@/lib/employees";
 import { formatDate, initials, joinTimestamp } from "@/lib/format";
 import { serverFetch } from "@/lib/api";
@@ -18,11 +20,11 @@ import { HiringTrendChart, type HiringTrendPoint } from "./hiring-trend-chart";
 import { StatusDonutChart } from "./status-donut-chart";
 
 const CHART_PALETTE = [
-  { badge: "bg-chart-1/15", text: "text-chart-1", indicator: "bg-chart-1" },
-  { badge: "bg-chart-2/15", text: "text-chart-2", indicator: "bg-chart-2" },
-  { badge: "bg-chart-3/15", text: "text-chart-3", indicator: "bg-chart-3" },
-  { badge: "bg-chart-4/15", text: "text-chart-4", indicator: "bg-chart-4" },
-  { badge: "bg-chart-5/15", text: "text-chart-5", indicator: "bg-chart-5" },
+  { badge: "bg-chart-1/12", text: "text-chart-1", indicator: "bg-chart-1" },
+  { badge: "bg-chart-2/12", text: "text-chart-2", indicator: "bg-chart-2" },
+  { badge: "bg-chart-3/12", text: "text-chart-3", indicator: "bg-chart-3" },
+  { badge: "bg-chart-4/12", text: "text-chart-4", indicator: "bg-chart-4" },
+  { badge: "bg-chart-5/12", text: "text-chart-5", indicator: "bg-chart-5" },
 ] as const;
 
 interface DashboardStats {
@@ -71,15 +73,19 @@ function StatCard({
   const palette = CHART_PALETTE[colorIndex % CHART_PALETTE.length];
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-2 py-2">
-        <div className={`flex size-8 items-center justify-center ${palette.badge}`}>
-          <Icon className={`size-4 ${palette.text}`} />
+    <Card
+      variant="interactive"
+      className="animate-in-up"
+      style={{ "--i": colorIndex } as CSSProperties}
+    >
+      <CardContent className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <span className="text-[13px] text-muted-foreground">{label}</span>
+          <div className={`flex size-8 items-center justify-center rounded-md ${palette.badge}`}>
+            <Icon className={`size-4 ${palette.text}`} />
+          </div>
         </div>
-        <span className="text-2xl font-semibold tracking-tight tabular-nums">
-          {value}
-        </span>
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <CountUp value={value} className="text-3xl font-semibold tracking-tight" />
       </CardContent>
     </Card>
   );
@@ -192,7 +198,7 @@ export async function AdminDashboard() {
               recentlyJoined.map((employee) => (
                 <div key={employee._id} className="flex items-center gap-3">
                   <Avatar className="size-8">
-                    <AvatarFallback>{initials(employee.name)}</AvatarFallback>
+                    <AvatarFallback colorKey={employee.name}>{initials(employee.name)}</AvatarFallback>
                   </Avatar>
                   <div className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate text-xs font-medium">

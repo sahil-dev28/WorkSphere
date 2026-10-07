@@ -55,7 +55,7 @@ export default async function ProfilePage() {
         <CardContent className="flex flex-col items-center gap-3 pt-0 text-center min-[600px]:flex-row min-[600px]:items-end min-[600px]:gap-4 min-[600px]:text-left">
           <Avatar className="-mt-10 size-20 border-4 border-card">
             {employee.profileImage ? <AvatarImage src={employee.profileImage} alt="" /> : null}
-            <AvatarFallback className="text-lg">{initials(employee.name)}</AvatarFallback>
+            <AvatarFallback className="text-lg" colorKey={employee.name}>{initials(employee.name)}</AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-1 flex-col">
             <span className="text-sm font-semibold">{employee.name}</span>

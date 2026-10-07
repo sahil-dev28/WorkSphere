@@ -34,7 +34,7 @@ export function EmployeeCards({
         >
           <Avatar className="size-9">
             {employee.profileImage ? <AvatarImage src={employee.profileImage} alt="" /> : null}
-            <AvatarFallback>{initials(employee.name)}</AvatarFallback>
+            <AvatarFallback colorKey={employee.name}>{initials(employee.name)}</AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-1 flex-col">
             <span className="truncate text-xs font-medium">{employee.name}</span>

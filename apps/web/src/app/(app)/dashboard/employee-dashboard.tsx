@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 
 import { Button } from "@WorkSphere/ui/components/button";
 import { Card, CardContent } from "@WorkSphere/ui/components/card";
@@ -8,12 +9,12 @@ import { getEmployeeById, getEmployeeName } from "@/lib/employees";
 import { formatTenure } from "@/lib/format";
 import type { Me } from "@/lib/session";
 
-function InfoCard({ label, value }: { label: string; value: string }) {
+function InfoCard({ label, value, index }: { label: string; value: string; index: number }) {
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-1 py-2">
-        <span className="text-xs text-muted-foreground">{label}</span>
-        <span className="text-sm font-medium">{value}</span>
+    <Card className="animate-in-up" style={{ "--i": index } as CSSProperties}>
+      <CardContent className="flex flex-col gap-1">
+        <span className="text-[13px] text-muted-foreground">{label}</span>
+        <span className="text-base font-medium tracking-tight">{value}</span>
       </CardContent>
     </Card>
   );
@@ -31,16 +32,17 @@ export async function EmployeeDashboard({ user }: { user: Me }) {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="grid grid-cols-1 gap-4 min-[860px]:grid-cols-3">
-        <InfoCard label="Department" value={record?.department ?? "—"} />
+        <InfoCard index={0} label="Department" value={record?.department ?? "—"} />
         <InfoCard
+          index={1}
           label="Time at Company"
           value={record ? formatTenure(record.joiningDate) : "—"}
         />
-        <InfoCard label="Reporting Manager" value={managerLabel} />
+        <InfoCard index={2} label="Reporting Manager" value={managerLabel} />
       </div>
 
       <Card>
-        <CardContent className="flex flex-col gap-3 py-2 min-[860px]:flex-row">
+        <CardContent className="flex flex-col gap-3 min-[860px]:flex-row">
           <Button
             render={<Link href="/profile" />}
             nativeButton={false}

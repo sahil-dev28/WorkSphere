@@ -112,7 +112,7 @@ export default async function OrgChartPage({
         <CardContent className="flex flex-col items-center justify-between gap-4 py-4 min-[600px]:flex-row">
           <div className="flex items-center gap-3">
             <Avatar className="size-12">
-              <AvatarFallback className="text-sm">
+              <AvatarFallback className="text-sm" colorKey={root.name}>
                 {initials(root.name)}
               </AvatarFallback>
             </Avatar>
