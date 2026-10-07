@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { env } from "@WorkSphere/env/web";
+
 import "../index.css";
 import Providers from "@/components/providers";
+import { SITE } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WorkSphere",
-  description: "WorkSphere",
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3001"),
+  title: SITE.name,
+  description: SITE.description,
 };
 
 export default function RootLayout({
