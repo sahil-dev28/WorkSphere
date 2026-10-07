@@ -25,7 +25,7 @@ export function BrandPanel() {
         style={stagger(1)}
       >
         Everyone in your company,{" "}
-        <span className="bg-linear-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">organized.</span>
+        <span className="text-primary">organized.</span>
       </h1>
       <p className="animate-in-up text-sm text-balance text-muted-foreground min-[900px]:text-base" style={stagger(2)}>
         One workspace for employee records, reporting lines, and access — kept in sync.
